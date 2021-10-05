@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "outDir":"./dist",
+      "rootDir": "./src", 
+      "target": "es2019",
+      "module": "commonjs",                           
+      "lib": ["es6"],
+      "allowJs": true,  
+      "strict": true,      
+      "resolveJsonModule":true ,                         
+      "esModuleInterop": true,
+      "strictNullChecks": false,   
+      "removeComments": true,
+      "skipLibCheck": true,
+      "diagnostics": true,
+      "sourceMap": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "baseUrl": "src",
+    },
+    "include": ["src/**/*"]
+}
