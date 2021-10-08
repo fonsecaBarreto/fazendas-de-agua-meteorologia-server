@@ -2,6 +2,8 @@
 
 export default {
  
+/*   roots: ['<rootDir>/tests'], */
+
   testTimeout: 90000,
   
   clearMocks: true,

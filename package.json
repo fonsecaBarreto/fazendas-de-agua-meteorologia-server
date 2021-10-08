@@ -5,8 +5,8 @@
   "main": "./src/server.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./dist/main/server.js",
-    "dev": "nodemon ./src/main/server.ts",
-    "build": "rm -rf dist && tsc -p .",
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify ./src/main/server.ts",
+    "build": "rm -rf dist && tsc -p tsconfig-build.json",
     "test": "jest"
   },
   "repository": {
@@ -20,15 +20,31 @@
   },
   "homepage": "https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server#readme",
   "dependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/jest": "^27.0.2",
+    "@types/jsonwebtoken": "^8.5.5",
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.11",
-    "typescript": "^4.4.3"
+    "pg": "^8.7.1",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.4.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.13",
+    "@types/faker": "^5.5.8",
+    "@types/node": "^16.10.3",
+    "@types/uuid": "^8.3.1",
+    "faker": "^5.5.3",
+    "jest": "^27.2.4",
     "nodemon": "^2.0.13",
+    "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1"
   }
 }
