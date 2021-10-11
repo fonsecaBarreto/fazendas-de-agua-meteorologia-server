@@ -15,14 +15,14 @@ exports.up = function(knex) {
           t.uuid('id').primary()
           t.string('street').notNull()
           t.string('region').notNull()
-          t.specificType('number', 'char(20)').notNull()
+          t.string('number').notNull()
           t.specificType('uf', 'char(2)').notNull()
-          t.integer('postalCode').notNull()
+          t.string('postalCode', 'char(8)').notNull()
           t.string('city').notNull()
           t.text('details')
           t.timestamp('created_at').default(knex.fn.now())
           t.timestamp('updated_at').default(knex.fn.now())
-      })
+     })
   
      .createTable('stations', t =>{
           t.uuid('id').primary()
@@ -30,15 +30,15 @@ exports.up = function(knex) {
           t.integer('longitude').notNull()
           t.integer('latitude').notNull()
           t.integer("altitude").notNull()
-          t.uuid("address_id").references('addresses.id').onDelete('SET NULL');
+          t.uuid("address_id").notNull().references('addresses.id').onDelete('CASCADE');
           t.timestamp('created_at').default(knex.fn.now())
           t.timestamp('updated_at').default(knex.fn.now())
      })
 
-    .createTable('users_stations', t =>{
-          t.uuid('user_id').references('users.id').onDelete('CASCADE');
-          t.uuid('station_id').references('stations.id').onDelete('CASCADE');
-          t.primary(['user_id', 'station_id']);
+    .createTable('users_addresses', t =>{
+          t.uuid('user_id').notNull().references('users.id').onDelete('CASCADE').unique();
+          t.uuid('address_id').notNull().references('addresses.id').onDelete('CASCADE');
+          t.primary(['user_id', 'address_id']);
      })
 
      .createTable('measurements', t =>{
@@ -49,8 +49,7 @@ exports.up = function(knex) {
           t.integer("windSpeed").notNull()
           t.integer("windDirection").notNull()
           t.json("coordinates").notNull()
-          t.uuid("station_id").references('stations.id').onDelete('SET NULL');
-          t.uuid("created_by").references('users.id').onDelete('SET NULL');
+          t.uuid("station_id").references('stations.id').onDelete('CASCADE');
           t.timestamp('created_at').default(knex.fn.now())
           t.timestamp('updated_at').default(knex.fn.now())
      }) 
@@ -58,5 +57,5 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  return knex.schema.dropTable('measurements').dropTable("users_stations").dropTable("stations").dropTable("users").dropTable("addresses")
+  return knex.schema.dropTable('measurements').dropTable("users_addresses").dropTable("stations").dropTable("users").dropTable("addresses")
 };

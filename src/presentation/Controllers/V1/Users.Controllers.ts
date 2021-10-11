@@ -1,29 +1,108 @@
-import { DependenciesScope } from "../../../domain/dependencies";
-import { ObjectValidator } from "../../../domain/Interfaces/ObjectValidator";
-import { BaseController, Ok, Unauthorized, Unprocessable} from "../../Protocols/BaseController";
-import { Request, Response } from "../../Protocols/Http";
-import { UserSignInView, UserSignInSchema } from '../../Models/Schemas/UserSignIn'
-import { AuthenticationServices } from "../../../domain/Services/AuthenticationServices";
+import { AccessType, BaseController, Forbidden, Ok, Unauthorized, Unprocessable} from "../../Protocols/BaseController";
+import { NotFound, Request, Response } from "../../Protocols/Http";
+import { IUsersServices, UsersServices } from "../../../domain/Services/Users/Users_Services";
+import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../domain/Errors/UsersErrors";
+import { CreateUser_BodySchema, UserId_ParamsSchema, UserIdOptional_ParamsSchema, UpdateUser_BodySchema } from "../../Models/Schemas/UsersSchemas";
+import { UserView } from "../../../domain/Views/UserView";
+import { User, UsersRole } from "../../../domain/Entities/User";
+import { AddressesServices } from "../../../domain/Services/Addresses/Addresses_Services";
 
-export class SignInUserController extends BaseController {
+export class CreateUserController extends BaseController {
 
      constructor( 
-          private readonly validator: ObjectValidator,
-          private readonly authenticationServices: AuthenticationServices ){ super() }
+          private readonly usersServices: Pick<IUsersServices, 'create'> ,
+          private readonly addressServices: Pick<AddressesServices,'appendUserToAddress'>
+     ){ super( AccessType.ADMIN, { body: CreateUser_BodySchema }) }
+
+     async handler(request: Request): Promise<Response> {
+          const { name, username, password, role, address_id } =request.body
+
+          try{
+               
+               const user: UserView = await this.usersServices.create({name, username, password, role})
+
+               if(address_id){
+                    try{
+                          await this.addressServices.appendUserToAddress({ user_id: user.id, address_id }) }
+                     catch (err) {
+                          // Devo validator o endereço antes ou ignorar para nao perder a requisição?
+                         console.log(err)
+                    }
+               }
+     
+               return Ok(user);
+
+          }catch(err){
+               if(err instanceof UserRoleIsInvalidError || err instanceof UserNameInUseError){
+                    return Forbidden(err)
+               }
+           
+               throw err
+          }
+     }
+}
+
+export class UpdateUserController extends BaseController {
+
+     constructor( 
+          private readonly usersServices: Pick<IUsersServices, 'update'> ,
+     ){ super( AccessType.ADMIN, { body: UpdateUser_BodySchema, params: UserId_ParamsSchema}) }
 
      async handler(request: Request): Promise<Response> {
 
-          const hasError = await this.validator.validate(UserSignInSchema, request.body)
-          if(hasError) return Unprocessable(hasError)
-          
-          const { username, password } =request.body
-          
-          const userCredemtials: UserSignInView = { username, password }
+          const id = request.params.id
+          const { name, username } =request.body
+          try{
+               const user: UserView = await this.usersServices.update(id, { name, username })
+               return Ok(user);
 
-          const token = await this.authenticationServices.generateToken(userCredemtials)
-          
-          if(!token) return Unauthorized()
+          }catch(err){
+               if(err instanceof UserNotFoundError) {
+                    return NotFound(err)
+               }
+               if(err instanceof UserNameInUseError) {
+                    return Forbidden(err)
+               }
+               throw err
+          }
+     }
+}
 
-          return Ok({ accessToken: token })
+export class FindUserController extends BaseController {
+     constructor( 
+          private readonly usersServices: Pick<IUsersServices, 'find' | 'list'> ,
+     ){ super( AccessType.ADMIN, { params: UserIdOptional_ParamsSchema}) }
+
+     async handler(request: Request): Promise<Response> {
+
+          const id = request.params.id
+
+          if(id){
+               const user: UserView = await this.usersServices.find(id)
+               return Ok(user)
+          }
+
+          const users: User[] = await this.usersServices.list();
+          return Ok(users);
+     }
+}
+
+export class RemoveUserController extends BaseController {
+     constructor( 
+          private readonly usersServices: Pick<IUsersServices, 'remove'> ,
+     ){ super( AccessType.ADMIN, { params: UserId_ParamsSchema}) }
+
+     async handler(request: Request): Promise<Response> {
+
+          const id = request.params.id
+          try{
+               await this.usersServices.remove(id)
+               return Ok()
+          }catch(err){
+               if(err instanceof UserNotFoundError){
+                    return NotFound(err)
+               }
+               throw err
+          }
      }
 }

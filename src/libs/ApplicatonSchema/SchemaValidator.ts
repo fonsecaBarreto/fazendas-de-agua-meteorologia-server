@@ -1,0 +1,105 @@
+import { AppSchemaTools, AppSchema } from "./protocols/AppSchemaTools";
+export * from './protocols/AppSchemaTools'
+
+export const makeMissingMessage = (field: string, missingMessage?: string) =>{
+  return missingMessage || `Campo '${field}' é obrigatório`
+}
+
+export const makeInvalidMessage = (field: string, invalidMessage?:string) =>{
+  return invalidMessage || `Campo '${field}' contem valor inválido `
+}
+
+export class SchemaValidator implements AppSchemaTools.IValidator{
+
+  constructor(){}
+
+  public async validate( schema: AppSchema.Schema, body: Record<string, any>): Promise< AppSchemaTools.ErrorsParams>  {
+
+    this.sanitize(schema, body)
+
+    var params: AppSchemaTools.ErrorsParams = {}
+ 
+    Object.keys(schema.properties).map( field => {
+
+      const { type } = schema.properties[field] 
+      const value = body[field]
+
+      if ( value === null ){ 
+        if( !schema.required.includes(field)) return;
+
+        return params[field]= makeMissingMessage(field)
+      } 
+
+      let IsTypeValid = this.checkType( value, type )
+      if(IsTypeValid === false) return params[field] = makeInvalidMessage(field) 
+    
+    }) 
+
+    return Object.keys(params).length > 0 ? params : null; 
+    //test it
+  }
+
+  private sanitize (schema: AppSchema.Schema, body: Record<string,any>) {
+
+    Object.keys(body).map( param => { if(!schema.properties[param]){ delete body[param] } })
+    
+    var initialBody = { ...body } // clone body
+
+    Object.keys(schema.properties).forEach( field => {
+
+      var value = initialBody[field]
+      if(value === undefined || value === "" || value == null ) return body[field] = null
+
+      const { type } = schema.properties[field]
+      var final_value: any = value; 
+
+      switch(type){
+        case "cep": final_value = (value+"").replace(/[^\d]+/g,''); break;
+        case "number": { if(!isNaN(value)) final_value = Number(value); };break;
+        case "date": if(!isNaN(Date.parse(value))) final_value = new Date(value);break;
+        case "boolean": try{ final_value = JSON.parse(value)} catch(err){final_value = value}; break;
+      }
+
+      return body[field] = final_value 
+  
+    }) 
+  }
+
+  private checkType( value:any, type:string): boolean{
+ 
+    switch(type){
+
+      case "uuid" :{
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+        if(!regexExp.test(value)) return false
+      };break;
+
+      case "json" :{
+        try { JSON.parse(value); } catch (e) { return false }
+      };break;
+
+      case "cep" : {
+          const regex = /\b\d{8}\b/;
+          if(!regex.test(value)) return false
+      };break;
+
+      case "date" : if( !(value instanceof Date) ) return false;break;
+    
+      case "array": if( Array.isArray(value) === false ) return false; break;
+
+      default: if(type !== typeof value) return false; break;
+
+    }
+
+    return true
+  }
+
+}
+
+
+
+
+
+
+
+

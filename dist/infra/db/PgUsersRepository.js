@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -41,107 +56,38 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PgUsersRepository = void 0;
 var KnexAdapter_1 = __importDefault(require("./KnexAdapter"));
-var PgUsersRepository = (function () {
+var PgBaseRepository_1 = require("./PgBaseRepository");
+var PgUsersRepository = (function (_super) {
+    __extends(PgUsersRepository, _super);
     function PgUsersRepository() {
+        return _super.call(this, "users") || this;
     }
-    PgUsersRepository.prototype.findByUsername = function (username) {
-        throw new Error("Method not implemented.");
+    PgUsersRepository.prototype.upsert = function (model) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this._upsert(model, ['username', 'name', 'updated_at'])];
+                    case 1:
+                        _a.sent();
+                        return [2];
+                }
+            });
+        });
     };
-    PgUsersRepository.prototype.findByEmailOrPhone = function (email, phone) {
+    PgUsersRepository.prototype.findByUsername = function (username) {
         return __awaiter(this, void 0, void 0, function () {
             var user;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4, KnexAdapter_1.default.getConnection('users').where({ email: email }).orWhere(phone)];
+                    case 0: return [4, KnexAdapter_1.default.connection("users").where({ username: username }).first()];
                     case 1:
                         user = _a.sent();
                         return [2, user];
-                }
-            });
-        });
-    };
-    PgUsersRepository.prototype.find = function (id) {
-        return __awaiter(this, void 0, void 0, function () {
-            var query, user;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        query = KnexAdapter_1.default.getConnection('users').where({ id: id }).first();
-                        return [4, query];
-                    case 1:
-                        user = _a.sent();
-                        return [2, user];
-                }
-            });
-        });
-    };
-    PgUsersRepository.prototype.add = function (model) {
-        return __awaiter(this, void 0, void 0, function () {
-            var id, name, username, password, role, station;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = model.id, name = model.name, username = model.username, password = model.password, role = model.role, station = model.station;
-                        return [4, KnexAdapter_1.default.getConnection('users').insert({
-                                id: id,
-                                name: name,
-                                username: username,
-                                password: password,
-                                role: role
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [2];
-                }
-            });
-        });
-    };
-    PgUsersRepository.prototype.list = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var users;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, KnexAdapter_1.default.getConnection('users')];
-                    case 1:
-                        users = _a.sent();
-                        return [2, users];
-                }
-            });
-        });
-    };
-    PgUsersRepository.prototype.remove = function (id) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, KnexAdapter_1.default.getConnection('users').del()];
-                    case 1:
-                        _a.sent();
-                        return [2, true];
-                }
-            });
-        });
-    };
-    PgUsersRepository.prototype.update = function (model) {
-        return __awaiter(this, void 0, void 0, function () {
-            var id, name, username, password, role, station;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = model.id, name = model.name, username = model.username, password = model.password, role = model.role, station = model.station;
-                        return [4, KnexAdapter_1.default.getConnection('users').where({ id: id }).update({
-                                name: name,
-                                username: username,
-                                password: password,
-                                role: role
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [2];
                 }
             });
         });
     };
     return PgUsersRepository;
-}());
+}(PgBaseRepository_1.PgBaseRepository));
 exports.PgUsersRepository = PgUsersRepository;
 //# sourceMappingURL=PgUsersRepository.js.map

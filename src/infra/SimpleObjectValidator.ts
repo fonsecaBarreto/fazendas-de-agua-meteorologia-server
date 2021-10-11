@@ -1,4 +1,5 @@
 
+import { captureRejections } from 'events';
 import { ObjectValidator } from '../domain/Interfaces/ObjectValidator';
 
 const makeMissingMessage = (field: string, missingMessage: string) =>{
@@ -57,42 +58,43 @@ export class SimpleObjectValidator implements ObjectValidator{
       var final_value:any = value; 
 
       switch(type){
-        case "cep": final_value = (value+"").replace(/[^\d]+/g,'');break;
+        case "cep": final_value = (value+"").replace(/[^\d]+/g,''); break;
         case "number": { if(!isNaN(value)) final_value = Number(value); };break;
         case "date": if(!isNaN(Date.parse(value))) final_value = new Date(value);break;
         case "boolean": final_value = JSON.parse(value); break;
       }
-
       return body[field] = final_value
-
+  
     })
   }
 
-  private checkType( value:any, type:string){
-    var isValid = true
+  private checkType( value:any, type:string): boolean{
+ 
     switch(type){
 
+      case "uuid" :{
+        const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+        if(!regexExp.test(value)) return false
+      };break;
+
       case "json" :{
-        try {
-          JSON.parse(value);
-          isValid = true;
-        } catch (e) {
-          isValid = false;
-        }
+        try { JSON.parse(value); } catch (e) { return false }
       };break;
 
-      case "cep" :{
-          isValid = true;
+      case "cep" : {
+          const regex = /\b\d{8}\b/;
+          if(!regex.test(value)) return false
       };break;
 
-      case "date" : if( !(value instanceof Date) ) isValid = false ; break;
+      case "date" : if( !(value instanceof Date) ) return false;break;
     
-      case "array": if(Array.isArray(value) === false ) isValid = false; break;
+      case "array": if( Array.isArray(value) === false ) return false; break;
 
-      default: if(type !== typeof value) isValid= false; break;
+      default: if(type !== typeof value) return false; break;
 
     }
-    return isValid
+
+    return true
   }
 
 }

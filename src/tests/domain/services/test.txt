@@ -1,0 +1,11 @@
+
+const MakeStationParams = (params?: Partial<UsersServices.StationParams>): UsersServices.StationParams  =>{
+     return {
+          altitude: 123123,
+          longitude:123213,
+          latitude:12323,
+          address_id:"any_address",
+          description:"descrição qualquer do lugar",
+          ...params
+     }
+}

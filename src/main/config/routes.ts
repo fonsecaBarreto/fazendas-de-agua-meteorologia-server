@@ -1,11 +1,9 @@
 import { Router, Express } from 'express'
-import { readdirSync } from 'fs'
-import path from 'path'
+import useRouteV1 from '../V1/index'
 
 export default async (app: Express): Promise<void>  => {
 
      const keys = app.get('keys')
-     const router = Router()
 
      app.get("/status", (req, res)=>{
           return res.json({
@@ -15,15 +13,8 @@ export default async (app: Express): Promise<void>  => {
           })
      })
 
-     app.use('/api/v1', router) 
+     await useRouteV1(app)
 
 
-     const ROUTERS = path.join(__dirname,"..","V1","routes")
-
-     await Promise.all(readdirSync(ROUTERS).map( async file => {
-         const name = file.split('.').slice(0, -1).join('.')
-          if(name == "index") return
-          (await import(`${ROUTERS}/${file}`)).default(router)
-     }))
 }
   

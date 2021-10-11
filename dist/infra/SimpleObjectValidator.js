@@ -47,6 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SimpleObjectValidator = void 0;
 var makeMissingMessage = function (field, missingMessage) {
     return missingMessage || "Campo '" + field + "' \u00E9 obrigat\u00F3rio";
 };
@@ -54,18 +55,17 @@ var makeInvalidMessage = function (field, invalidMessage) {
     return invalidMessage || "Campo '" + field + "' contem valor inv\u00E1lido ";
 };
 var SimpleObjectValidator = (function () {
-    function SimpleObjectValidator(schema) {
-        this.schema = schema;
+    function SimpleObjectValidator() {
     }
-    SimpleObjectValidator.prototype.validate = function (body) {
+    SimpleObjectValidator.prototype.validate = function (schema, body) {
         return __awaiter(this, void 0, void 0, function () {
             var params;
             var _this = this;
             return __generator(this, function (_a) {
-                this.sanitize(body);
+                this.sanitize(schema, body);
                 params = {};
-                Object.keys(this.schema).map(function (field) {
-                    var _a = _this.schema[field], type = _a.type, length = _a.length, optional = _a.optional, label = _a.label, missingMessage = _a.missingMessage, invalidMessage = _a.invalidMessage;
+                Object.keys(schema).map(function (field) {
+                    var _a = schema[field], type = _a.type, optional = _a.optional, label = _a.label, missingMessage = _a.missingMessage, invalidMessage = _a.invalidMessage;
                     var value = body[field];
                     if (type === "any")
                         return;
@@ -82,16 +82,15 @@ var SimpleObjectValidator = (function () {
             });
         });
     };
-    SimpleObjectValidator.prototype.sanitize = function (body) {
-        var _this = this;
+    SimpleObjectValidator.prototype.sanitize = function (schema, body) {
         Object.keys(body).map(function (param) {
-            if (!_this.schema[param]) {
+            if (!schema[param]) {
                 delete body[param];
             }
         });
         var initialBody = __assign({}, body);
-        Object.keys(this.schema).forEach(function (field) {
-            var type = _this.schema[field].type;
+        Object.keys(schema).forEach(function (field) {
+            var type = schema[field].type;
             var value = initialBody[field];
             if (value === undefined || value === "" || value == null)
                 return body[field] = null;
@@ -119,42 +118,50 @@ var SimpleObjectValidator = (function () {
         });
     };
     SimpleObjectValidator.prototype.checkType = function (value, type) {
-        var isValid = true;
         switch (type) {
+            case "uuid":
+                {
+                    var regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+                    if (!regexExp.test(value))
+                        return false;
+                }
+                ;
+                break;
             case "json":
                 {
                     try {
                         JSON.parse(value);
-                        isValid = true;
                     }
                     catch (e) {
-                        isValid = false;
+                        return false;
                     }
                 }
                 ;
                 break;
             case "cep":
                 {
-                    isValid = true;
+                    var regex = /\b\d{8}\b/;
+                    if (!regex.test(value))
+                        return false;
                 }
                 ;
                 break;
             case "date":
                 if (!(value instanceof Date))
-                    isValid = false;
+                    return false;
                 break;
             case "array":
                 if (Array.isArray(value) === false)
-                    isValid = false;
+                    return false;
                 break;
             default:
                 if (type !== typeof value)
-                    isValid = false;
+                    return false;
                 break;
         }
-        return isValid;
+        return true;
     };
     return SimpleObjectValidator;
 }());
-exports.default = SimpleObjectValidator;
+exports.SimpleObjectValidator = SimpleObjectValidator;
 //# sourceMappingURL=SimpleObjectValidator.js.map

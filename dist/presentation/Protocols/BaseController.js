@@ -46,16 +46,100 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseController = void 0;
-__exportStar(require("./http-helper"), exports);
+exports.BaseController = exports.AccessType = void 0;
+var User_1 = require("../../domain/Entities/User");
+var Http_1 = require("./Http");
+var http_helper_1 = require("./http-helper");
+__exportStar(require("./Http"), exports);
+var AccessType;
+(function (AccessType) {
+    AccessType[AccessType["PUBLIC"] = 0] = "PUBLIC";
+    AccessType[AccessType["BASIC"] = 1] = "BASIC";
+    AccessType[AccessType["ADMIN"] = 2] = "ADMIN";
+    AccessType[AccessType["STATION"] = 3] = "STATION";
+    AccessType[AccessType["ANY_USER"] = 4] = "ANY_USER";
+})(AccessType = exports.AccessType || (exports.AccessType = {}));
 var BaseController = (function () {
-    function BaseController(config) {
-        var method = config.method;
-        config.method = method || 'GET';
-        this.config = config;
+    function BaseController(accessType, schemas) {
+        if (accessType === void 0) { accessType = AccessType.PUBLIC; }
+        this.accessType = accessType;
+        this.schemas = schemas;
     }
-    BaseController.prototype.execute = function (req, res, next) {
+    BaseController.prototype.securityGuard = function (user) {
+        if (this.accessType === AccessType.PUBLIC)
+            return true;
+        if (!user || user.role == null)
+            return false;
+        switch (this.accessType) {
+            case AccessType.BASIC:
+                if (user.role != User_1.UsersRole.Basic)
+                    return false;
+                break;
+            case AccessType.ADMIN:
+                if (user.role != User_1.UsersRole.Admin)
+                    return false;
+                break;
+            case AccessType.STATION:
+                if (user.role != User_1.UsersRole.Station)
+                    return false;
+                break;
+            default: return true;
+        }
+        return true;
+    };
+    BaseController.prototype.validationGuard = function (req) {
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function () {
+            var hasError, hasError;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        if (!((_a = this.schemas) === null || _a === void 0 ? void 0 : _a.body)) return [3, 2];
+                        return [4, BaseController._validator.validate((_b = this.schemas) === null || _b === void 0 ? void 0 : _b.body, req.body)];
+                    case 1:
+                        hasError = _e.sent();
+                        if (hasError)
+                            return [2, hasError];
+                        _e.label = 2;
+                    case 2:
+                        if (!((_c = this.schemas) === null || _c === void 0 ? void 0 : _c.params)) return [3, 4];
+                        return [4, BaseController._validator.validate((_d = this.schemas) === null || _d === void 0 ? void 0 : _d.params, req.params)];
+                    case 3:
+                        hasError = _e.sent();
+                        if (hasError)
+                            return [2, hasError];
+                        _e.label = 4;
+                    case 4: return [2, null];
+                }
+            });
+        });
+    };
+    BaseController.prototype._handler = function (request) {
+        return __awaiter(this, void 0, void 0, function () {
+            var isSafe, hasErrors, response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, this.securityGuard(request.user)];
+                    case 1:
+                        isSafe = _a.sent();
+                        if (!isSafe)
+                            return [2, (0, http_helper_1.Unauthorized)()];
+                        return [4, this.validationGuard(request)];
+                    case 2:
+                        hasErrors = _a.sent();
+                        if (hasErrors)
+                            return [2, (0, Http_1.Unprocessable)(hasErrors)];
+                        return [4, this.handler(request)];
+                    case 3:
+                        response = _a.sent();
+                        return [2, response];
+                }
+            });
+        });
+    };
+    BaseController.prototype.execute = function () {
+        var _this = this;
+        return function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             var request, response, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -71,18 +155,23 @@ var BaseController = (function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4, this.handler(request)];
+                        return [4, this._handler(request)];
                     case 2:
                         response = _a.sent();
-                        return [2, res.status(response.status).json(response.body)];
+                        if (response.status >= 400) {
+                            console.log("\n ** ClientError: ", response.body.name);
+                            return [2, res.status(response.status).json({ error: response.body })];
+                        }
+                        res.status(response.status).json(response.body);
+                        return [3, 4];
                     case 3:
                         err_1 = _a.sent();
-                        console.log(console.log("\n *Error: ", err_1.stack));
+                        console.log(console.log("\n ** ServerError: ", err_1.stack));
                         return [2, res.status(500).json({ error: "Erro no Servidor" })];
                     case 4: return [2];
                 }
             });
-        });
+        }); };
     };
     return BaseController;
 }());

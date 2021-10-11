@@ -9,7 +9,4 @@ export interface Station extends BaseEntity {
      latitude: number,
      altitude: number,
      address_id:string,
-     //relations
-     address?: Address
-     measurements?: Measurements[]
 }

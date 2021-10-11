@@ -16,13 +16,21 @@ export const Unauthorized = () =>{
     return { status: 401, body: "Acesso Negado!"  }
 }
 
-export const Forbidden = (error: Error) => {
-    return { status: 403, body: error.message }
+export const Forbidden = (error: Error | string) => {
+    const msg = typeof error === "string" ? error : error.message
+    return { status: 403, body: msg }
 } 
 
-export const BadRequest = (message: string) => {
-    return { status: 400, body: message }
+export const BadRequest = (error: Error | string) => {
+    const msg = typeof error === "string" ? error : error.message
+    return { status: 400, body: msg }
 } 
+
+export const NotFound = (error?: Error | string) => {
+    const msg = error ? (typeof error === "string" ? error : error.message) : undefined
+    return { status: 404, body: msg }
+} 
+
 
 export const Unprocessable = ( params: Record<string, string>, message?:string) => {
     return { status: 400, body: {

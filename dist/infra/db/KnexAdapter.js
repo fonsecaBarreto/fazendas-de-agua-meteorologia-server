@@ -44,9 +44,6 @@ var knexfile = require("../../../knexfile");
 var KnexAdapter = (function () {
     function KnexAdapter() {
     }
-    KnexAdapter.getConnection = function (table) {
-        return this.connection(table);
-    };
     KnexAdapter.resetMigrations = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -80,6 +77,19 @@ var KnexAdapter = (function () {
                         _a.sent();
                         KnexAdapter.connection = null;
                         return [2];
+                }
+            });
+        });
+    };
+    KnexAdapter.count = function (table) {
+        return __awaiter(this, void 0, void 0, function () {
+            var count;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4, KnexAdapter.connection(table).count().first()];
+                    case 1:
+                        count = (_a.sent()).count;
+                        return [2, Number(count)];
                 }
             });
         });

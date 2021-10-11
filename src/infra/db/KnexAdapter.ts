@@ -22,4 +22,9 @@ export default class KnexAdapter {
         KnexAdapter.connection = null
     }
 
+    static async count(table: string): Promise<number>{
+        const { count } = await KnexAdapter.connection(table).count().first()
+        return Number(count);
+    }
+
 }

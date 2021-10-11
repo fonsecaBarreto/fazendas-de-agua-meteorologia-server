@@ -41,17 +41,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var middlewares_1 = __importDefault(require("./middlewares"));
-var routes_1 = __importDefault(require("../routes"));
+var routes_1 = __importDefault(require("./routes"));
+var KnexAdapter_1 = __importDefault(require("../../infra/db/KnexAdapter"));
 exports.default = (function (keys) { return __awaiter(void 0, void 0, void 0, function () {
     var app;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
+            case 0: return [4, KnexAdapter_1.default.open(keys.NODE_ENV)];
+            case 1:
+                _a.sent();
                 app = (0, express_1.default)();
                 app.set('keys', keys);
                 (0, middlewares_1.default)(app);
                 return [4, (0, routes_1.default)(app)];
-            case 1:
+            case 2:
                 _a.sent();
                 return [2, app];
         }

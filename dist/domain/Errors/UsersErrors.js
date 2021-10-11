@@ -15,29 +15,45 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserInUseError = exports.UserNotFoundError = exports.UsersErrors = void 0;
-var UsersErrors = (function (_super) {
-    __extends(UsersErrors, _super);
-    function UsersErrors(msg) {
-        return _super.call(this, msg) || this;
+exports.UserNotAllowedError = exports.UserNameInUseError = exports.UserNotFoundError = exports.UserRoleIsInvalidError = void 0;
+var UserRoleIsInvalidError = (function (_super) {
+    __extends(UserRoleIsInvalidError, _super);
+    function UserRoleIsInvalidError() {
+        var _this = _super.call(this, "Tipo de usuário desconhecido") || this;
+        Object.setPrototypeOf(_this, UserRoleIsInvalidError.prototype);
+        return _this;
     }
-    return UsersErrors;
+    return UserRoleIsInvalidError;
 }(Error));
-exports.UsersErrors = UsersErrors;
+exports.UserRoleIsInvalidError = UserRoleIsInvalidError;
 var UserNotFoundError = (function (_super) {
     __extends(UserNotFoundError, _super);
     function UserNotFoundError() {
-        return _super.call(this, "Usuario nao encontrado.") || this;
+        var _this = _super.call(this, "Usuario nao encontrado.") || this;
+        Object.setPrototypeOf(_this, UserNotFoundError.prototype);
+        return _this;
     }
     return UserNotFoundError;
-}(UsersErrors));
+}(Error));
 exports.UserNotFoundError = UserNotFoundError;
-var UserInUseError = (function (_super) {
-    __extends(UserInUseError, _super);
-    function UserInUseError() {
-        return _super.call(this, "J\u00E1 existe um usuario para esse E-mail ou numero de telefone") || this;
+var UserNameInUseError = (function (_super) {
+    __extends(UserNameInUseError, _super);
+    function UserNameInUseError() {
+        var _this = _super.call(this, "J\u00E1 existe um usuario para esse Nome de Usuario") || this;
+        Object.setPrototypeOf(_this, UserNameInUseError.prototype);
+        return _this;
     }
-    return UserInUseError;
-}(UsersErrors));
-exports.UserInUseError = UserInUseError;
+    return UserNameInUseError;
+}(Error));
+exports.UserNameInUseError = UserNameInUseError;
+var UserNotAllowedError = (function (_super) {
+    __extends(UserNotAllowedError, _super);
+    function UserNotAllowedError() {
+        var _this = _super.call(this, "Operação negada.") || this;
+        Object.setPrototypeOf(_this, UserNotAllowedError.prototype);
+        return _this;
+    }
+    return UserNotAllowedError;
+}(Error));
+exports.UserNotAllowedError = UserNotAllowedError;
 //# sourceMappingURL=UsersErrors.js.map

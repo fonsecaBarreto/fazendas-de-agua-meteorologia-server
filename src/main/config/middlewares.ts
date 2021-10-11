@@ -1,5 +1,6 @@
 import { Express, Request, Response, NextFunction, json, urlencoded} from 'express'
 import cors from 'cors';
+import { AuthenticateUserMiddleware } from '../V1/middlewares/UserAuthentication'
 export default (app: Express) => {
 
      app.use((req: Request, res: Response, next: NextFunction) =>{
@@ -10,6 +11,12 @@ export default (app: Express) => {
      app.use(cors()) 
      app.use(json())
      app.use(urlencoded({ extended: true }))
+
+     app.use(AuthenticateUserMiddleware)
+
+   
+
+
 }
 
 

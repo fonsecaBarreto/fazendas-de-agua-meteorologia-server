@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BadRequest = exports.Forbidden = exports.Unauthorized = exports.Download = exports.Ok = exports.ServerError = void 0;
+exports.Unprocessable = exports.NotFound = exports.BadRequest = exports.Forbidden = exports.Unauthorized = exports.Download = exports.Ok = exports.ServerError = void 0;
 var ServerError = function () {
     return { status: 500, body: "Erro no servidor." };
 };
@@ -18,11 +18,25 @@ var Unauthorized = function () {
 };
 exports.Unauthorized = Unauthorized;
 var Forbidden = function (error) {
-    return { status: 403, body: error };
+    var msg = typeof error === "string" ? error : error.message;
+    return { status: 403, body: msg };
 };
 exports.Forbidden = Forbidden;
 var BadRequest = function (error) {
-    return { status: 400, body: error };
+    var msg = typeof error === "string" ? error : error.message;
+    return { status: 400, body: msg };
 };
 exports.BadRequest = BadRequest;
+var NotFound = function (error) {
+    var msg = error ? (typeof error === "string" ? error : error.message) : undefined;
+    return { status: 404, body: msg };
+};
+exports.NotFound = NotFound;
+var Unprocessable = function (params, message) {
+    return { status: 400, body: {
+            message: message || "Preencha todos os campos corretamente!",
+            params: params
+        } };
+};
+exports.Unprocessable = Unprocessable;
 //# sourceMappingURL=http-helper.js.map
