@@ -27,9 +27,9 @@ exports.up = function(knex) {
      .createTable('stations', t =>{
           t.uuid('id').primary()
           t.text('description')
-          t.integer('longitude').notNull()
-          t.integer('latitude').notNull()
-          t.integer("altitude").notNull()
+          t.float('longitude').notNull()
+          t.float('latitude').notNull()
+          t.float("altitude").notNull()
           t.uuid("address_id").notNull().references('addresses.id').onDelete('CASCADE');
           t.timestamp('created_at').default(knex.fn.now())
           t.timestamp('updated_at').default(knex.fn.now())
