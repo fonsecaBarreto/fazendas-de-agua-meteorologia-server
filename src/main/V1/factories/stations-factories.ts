@@ -4,22 +4,20 @@ import { CreateStationController, UpdateStationController, RemoveStationControll
 import { StationsServices } from '../../../domain/Services/Stations/Station_Services'
 
 /* dependencies */
-/* import { PgUsersRepository, PgAddressesRepository } from '../../../infra/db'
+import { PgStationsRepository, PgAddressesRepository } from '../../../infra/db'
 import { BcryptAdapter, UuidAdapter } from '../../../infra'
 
-const usersRepository = new PgUsersRepository()
+const stationRepository = new PgStationsRepository()
 const addressRepository = new PgAddressesRepository()
 
-const hasher = new BcryptAdapter()
 const idGenerator = new UuidAdapter()
 
-export const usersServices = new UsersServices(usersRepository, idGenerator, hasher)
-export const addressServices = new AddressesServices(addressRepository, idGenerator)
+export const stationsServices = new StationsServices(idGenerator, stationRepository, addressRepository)
 
 export const controllers = {
-     create: new CreateUserController(usersServices, addressServices),   
-     update: new UpdateUserController(usersServices),
-     find: new FindUserController(usersServices),
-     remove: new RemoveUserController(usersServices)    
+     create: new CreateStationController(stationsServices),   
+     update: new UpdateStationController(stationsServices),
+     find: new FindStationController(stationsServices),
+     remove: new RemoveStationController(stationsServices)    
 }
- */
+ 

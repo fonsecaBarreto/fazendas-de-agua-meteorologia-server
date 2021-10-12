@@ -1,21 +1,7 @@
 const { hashSync } = require("bcrypt");
 const { v4 } = require("uuid");
 
-const createBasic = () =>({
-  id: v4(),
-  name: "Usuario Basico",
-  username: "test_user",
-  password: hashSync("123456",12), 
-  role: 0
-})
 
-const cretaeAdmin = () =>({
-  id: v4(),
-  name: "admin",
-  username: "admin",
-  password: hashSync("123456",12), 
-  role: 1
-})
 
 const createAddress = () =>({
   id: v4(),
@@ -28,13 +14,39 @@ const createAddress = () =>({
   postalCode: "00000000"
 })
 
+
+const createUser = (role, username) =>({
+  id: v4(),
+  name: "Usuario Basico",
+  password: hashSync("123456",12), 
+  username,
+  role
+})
+
+
+const createStation = (address_id) =>({
+  id: v4(),
+  description: "Estação teste",
+  longitude: 234,
+  latitude: 3432,
+  altitude: 234,
+  address_id
+})
+
+const testAddresses = [createAddress()]
+const testUsers = [ createUser(0, 'usuario_test'), createUser(1, "admin") ]
+const testStations = [ createStation(testAddresses[0].id) ]
+
 exports.seed = async function(knex) {
 
-  await knex('users').del()
-  await knex('users').insert( [ createBasic(), cretaeAdmin() ]);
-
   await knex('addresses').del()
-  await knex('addresses').insert( [ createAddress() ]);
+  await knex('addresses').insert(testAddresses);
+
+  await knex('users').del()
+  await knex('users').insert(testUsers);
+
+  await knex('stations').del()
+  await knex('stations').insert(testStations);
    
 };
 

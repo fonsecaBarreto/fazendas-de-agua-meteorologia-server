@@ -4,7 +4,7 @@ import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
 import { MakeFakeStation } from '../../mocks/entities/MakeStation'
 
 const makeSut = () =>{
-     return new PgStationsRepository('stations')
+     return new PgStationsRepository()
 }
 
 const fakeAddresses = [
@@ -26,7 +26,7 @@ describe("Stations Pg Repository", () =>{
 
      afterAll(async ()=> { await KnexAdapter.close() })
 
-     test('Should find user By id', async () =>{
+     test('Should find station By id', async () =>{
           const sut = makeSut();
           const result = await sut.find(fakeStations[0].id)
           expect(result).toMatchObject(fakeStations[0])
@@ -69,7 +69,7 @@ describe("Stations Pg Repository", () =>{
                expect(recontagem).toBe(  count + 1 )
           })
 
-         test('[update] Should merge user if id were found', async () =>{
+         test('[update] Should merge station if id were found', async () =>{
 
                const count  = await KnexAdapter.count('stations') 
                const station = await KnexAdapter.connection('stations').where({ id: fakeStations[0].id }).first()
@@ -82,9 +82,9 @@ describe("Stations Pg Repository", () =>{
                const recontagem = await KnexAdapter.count('stations')
                expect(recontagem).toBe( count ) 
 
-               var updatedAddress = await KnexAdapter.connection('stations').where({ id: fakeStations[0].id }).first()
+               var updatedStation = await KnexAdapter.connection('stations').where({ id: fakeStations[0].id }).first()
 
-               expect(updatedAddress).toEqual({ ...stationToUpdate, created_at: station.created_at, updated_at: updatedAddress.updated_at }) 
+               expect(updatedStation).toEqual({ ...stationToUpdate, created_at: station.created_at, updated_at: updatedStation.updated_at }) 
           })
  
      }) 

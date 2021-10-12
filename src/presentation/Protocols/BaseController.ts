@@ -52,15 +52,16 @@ export abstract class BaseController {
 
      public async validationGuard(req: Request): Promise<any>{
 
-          if(this.schemas?.body){
-               let hasError = await BaseController._validator.validate(this.schemas?.body, req.body)
-               if(hasError) return hasError;
-          }
 
           if(this.schemas?.params){
                let hasError = await BaseController._validator.validate(this.schemas?.params, req.params)
                if(hasError) return hasError;
           } 
+
+          if(this.schemas?.body){
+               let hasError = await BaseController._validator.validate(this.schemas?.body, req.body)
+               if(hasError) return hasError;
+          }
  
           return null
 

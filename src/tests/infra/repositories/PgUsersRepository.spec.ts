@@ -73,7 +73,7 @@ describe("Users Pg Repository", () =>{
      })
 
 
-     test('Should remove address by id', async () =>{
+     test('Should remove user by id', async () =>{
 
           const userToBeRemoved = MakeFakeUser();
           await KnexAdapter.connection('users').insert(userToBeRemoved);
@@ -116,9 +116,9 @@ describe("Users Pg Repository", () =>{
                const recontagem = await KnexAdapter.count('users')
                expect(recontagem).toBe( count ) 
 
-               var updatedAddress = await KnexAdapter.connection('users').where({ id: fakeUsers[0].id }).first()
+               var updatedUser = await KnexAdapter.connection('users').where({ id: fakeUsers[0].id }).first()
 
-               expect(updatedAddress).toEqual({ ...userToUpdate, created_at: user.created_at, updated_at: updatedAddress.updated_at }) 
+               expect(updatedUser).toEqual({ ...userToUpdate, created_at: user.created_at, updated_at: updatedUser.updated_at }) 
           })
 
      }) 
