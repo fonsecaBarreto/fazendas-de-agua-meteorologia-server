@@ -5,11 +5,9 @@ import { AddressesServices } from '../../../domain/Services/Addresses/Addresses_
 /* dependencies */
 import { UuidAdapter } from '../../../infra'
 import { PgAddressesRepository } from '../../../infra/db/PgAddressesRepository'
-import { PgUsersRepository } from '../../../infra/db'
 
 const idGenerator = new UuidAdapter()
 const addressesRepository = new PgAddressesRepository()
-const usersRepository = new PgUsersRepository()
 
 const services = new AddressesServices(addressesRepository, idGenerator)
 
