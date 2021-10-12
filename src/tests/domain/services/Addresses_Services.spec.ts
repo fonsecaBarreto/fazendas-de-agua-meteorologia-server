@@ -12,6 +12,7 @@ import { IUserRepository } from "../../../domain/Interfaces"
 import { User } from "../../../domain/Entities/User"
 import { MakeFakeUser } from "../../mocks/entities/MakeUser"
 import { UserNotAllowedError, UserNotFoundError } from "../../../domain/Errors/UsersErrors"
+import { UserView } from "../../../domain/Views/UserView"
 
 
 const makeSut = () =>{
@@ -47,11 +48,10 @@ const makeSut = () =>{
      }
 
      const addressRepository = new AddressRepositoryStub
-     const usersRepository = new UsersRepositoryStub()
      const idGenerator = new IdGeneratorStub();
 
-     const sut = new AddressesServices(addressRepository, usersRepository, idGenerator)
-     return { sut, idGenerator, addressRepository, usersRepository, fakeAddresses}
+     const sut = new AddressesServices(addressRepository, idGenerator)
+     return { sut, idGenerator, addressRepository, fakeAddresses}
   
 }
 
@@ -74,7 +74,7 @@ describe("Addresses Services", () =>{
 
      describe("AddressesServices.appendUserToAddress", () =>{
 
-          test("Should throw error if no user were found", async () =>{
+         /*  test("Should throw error if no user were found", async () =>{
                const { sut, usersRepository } = makeSut()
                jest.spyOn(usersRepository, 'find').mockImplementationOnce(async ()=>{
                     return null
@@ -90,21 +90,24 @@ describe("Addresses Services", () =>{
                })
                const resp = sut.appendUserToAddress({user_id:"any_id", address_id:"invalid_address_id"})
                await expect(resp).rejects.toThrow(new AddressNotFoundError())
-          })
+          }) */
 
           test("Should throw error if repository return false", async () =>{
                const { sut, addressRepository } = makeSut()
                jest.spyOn(addressRepository, 'relateUser').mockImplementationOnce(async ()=>{
                     return false
                })
-               const resp = sut.appendUserToAddress({user_id:"any_id", address_id:"address_id"})
+               const resp = sut.appendUserToAddress({ user: new UserView(MakeFakeUser()), address: MakeFakeAddress()})
                await expect(resp).rejects.toThrow(new UserNotAllowedError())
           })
 
-          test("Should return null if everything went fine", async () =>{
+          test("Should set Address to the userView", async () =>{
                const { sut } = makeSut()
-               const resp = await sut.appendUserToAddress({user_id:"any_id", address_id:"address_id"})
-               expect(resp).toBe(null)
+               const usuario = new UserView(MakeFakeUser())
+               const address = MakeFakeAddress();
+               const resp = await sut.appendUserToAddress({ user: usuario , address })
+               expect(resp).toBeNull()
+               expect(usuario.address).toEqual(address)
           })
 
        

@@ -46,7 +46,7 @@ export class UsersServices implements IUsersServices{
           
      }
 
-     public async create(params: IUsersServices.Params.Create): Promise<UserView>{
+     public async create(params: IUsersServices.Params.Create ): Promise<UserView>{
 
           const { name, username, password, role } = params
 
@@ -89,8 +89,8 @@ export class UsersServices implements IUsersServices{
      }
 
      async find(id:string): Promise<UserView>{
-          const user: User = await this._usersRepository.find(id)
-          return user ? new UserView(user) : null
+          const user: UserView = await this._usersRepository.findUser(id)
+          return user || null
      }
 
      async list(): Promise<User[]>{

@@ -11,7 +11,7 @@ const idGenerator = new UuidAdapter()
 const addressesRepository = new PgAddressesRepository()
 const usersRepository = new PgUsersRepository()
 
-const services = new AddressesServices(addressesRepository, usersRepository, idGenerator)
+const services = new AddressesServices(addressesRepository, idGenerator)
 
 export const controllers = {
      create: new CreateAddressController(services),

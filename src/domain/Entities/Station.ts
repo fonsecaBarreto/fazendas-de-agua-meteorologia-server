@@ -1,6 +1,4 @@
-import { Address } from "./Address";
 import { BaseEntity } from "./BaseEntity";
-import { Measurements } from "./Measurements";
 
 export interface Station extends BaseEntity {
      id: string,

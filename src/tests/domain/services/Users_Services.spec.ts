@@ -18,7 +18,7 @@ const makeSut = () =>{
 
      class UsersRepositoryStub implements IUserRepository {
           async findUser(id: string): Promise<UserView> {
-               return new UserView(MakeFakeUser({}))
+               return new UserView(mockedFakeUser[0])
           }
 
           async list(): Promise<User[]> {
@@ -170,7 +170,7 @@ describe("CreateUser Services", () =>{
     
           test("Should return null if no user were found", async () =>{
                const { sut, usersRepository } = makeSut()
-               jest.spyOn(usersRepository, "find").mockImplementationOnce(async () =>{
+               jest.spyOn(usersRepository, "findUser").mockImplementationOnce(async () =>{
                     return null
                });
                const resp = await sut.find('invalid_id')
@@ -181,12 +181,12 @@ describe("CreateUser Services", () =>{
           test("Should return userView", async () =>{
                const { sut, mockedFakeUser } = makeSut()
                const resp = await sut.find('valid_id')
-               await expect(resp).toEqual( new UserView({ ...mockedFakeUser[0]}))
+               await expect(resp).toEqual( new UserView(mockedFakeUser[0]))
           }) 
 
      })
  
-     describe("AddressesServices.list", () =>{
+     describe("list", () =>{
     
           test("Should return empty array if no address were found", async () =>{
                const { sut, usersRepository } = makeSut()
@@ -206,7 +206,7 @@ describe("CreateUser Services", () =>{
 
      })
 
-     describe("AddressesServices.remove", () =>{
+     describe("remove", () =>{
     
           test("Should throw error if repository return false", async () =>{
                const { sut, usersRepository } = makeSut()
@@ -218,7 +218,7 @@ describe("CreateUser Services", () =>{
             
           })
 
-          test("Should return void if repository retyrn true", async () =>{
+          test("Should return void if repository returns true", async () =>{
                const { sut, usersRepository } = makeSut()
                jest.spyOn(usersRepository, "remove").mockImplementationOnce((id:string)=>{
                     return Promise.resolve(true)

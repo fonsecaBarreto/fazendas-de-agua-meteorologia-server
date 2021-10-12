@@ -1,9 +1,11 @@
 
+import { address } from "faker";
 import { Address } from "../../Entities/Address";
 import { AddressNotFoundError, AddressUfInvalidError } from "../../Errors/AddressesErrors";
 import { UserNotAllowedError, UserNotFoundError } from "../../Errors/UsersErrors";
 import { IIdGenerator, IUserRepository } from "../../Interfaces";
 import { IAddressRepository } from "../../Interfaces/repositories/IAddressRepository";
+import { UserView } from "../../Views/UserView";
 import ufs from './ufs.json'
 
 const ufs_prefixs = Object.values(ufs);
@@ -12,7 +14,7 @@ export namespace IAddressesServices {
 
      export namespace Params {
           export type Create = Omit<Address, 'id' | 'created_at' | 'updated_at'>
-          export type AppendUser = { user_id: string, address_id: string }
+          export type AppendUser = { user: UserView, address: Address }
      }
      
 }
@@ -29,7 +31,6 @@ export interface IAddressesServices {
 export class AddressesServices implements IAddressesServices {
      constructor(
           private readonly _addressRepository: IAddressRepository,
-          private readonly _usersRepository: Pick<IUserRepository,'find'>,
           private readonly _idGenerator: IIdGenerator
      ){}
 
@@ -76,21 +77,15 @@ export class AddressesServices implements IAddressesServices {
           if(!wasDeleted) throw new AddressNotFoundError()
      }
 
-
      public async appendUserToAddress(params: IAddressesServices.Params.AppendUser): Promise<void>{
-          const { user_id, address_id } = params
 
-          const userExists = await this._usersRepository.find(user_id)
-          if(!userExists) throw new UserNotFoundError();
+          const { user, address } = params
 
-          const addressExists = await this._addressRepository.find(address_id)
-          if(!addressExists) throw new AddressNotFoundError();
-
-          const done = await this._addressRepository.relateUser(user_id, address_id);
+          const done = await this._addressRepository.relateUser(user.id, address.id);
           if(!done) throw new UserNotAllowedError()
 
+          user.setAddress(address)
           return null
-
      }
 
 }

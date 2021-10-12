@@ -1,13 +1,16 @@
 import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../presentation/Controllers/V1/Users.Controllers'
 import { IUsersServices } from '../../domain/Services/Users/Users_Services'
 import { Forbidden, Ok, NotFound } from '../../presentation/Protocols/Http'
-import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'
+import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'
 import { MakeFakeUser } from '../mocks/entities/MakeUser'
 import { MakeRequest } from './mocks/MakeRequest'
 import { User, UsersRole } from '../../domain/Entities/User'
 import { AddressesServices, IAddressesServices } from '../../domain/Services/Addresses/Addresses_Services'
 import { UserView } from '../../domain/Views/UserView'
 import { AddressNotFoundError } from '../../domain/Errors/AddressesErrors'
+import { Address } from '../../domain/Entities/Address'
+import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
+import { address } from 'faker'
 
 const makeSut = () =>{
 
@@ -29,7 +32,10 @@ const makeSut = () =>{
           }
      }
 
-     class AddressServicesStub  implements Pick<AddressesServices,'appendUserToAddress'>{
+     class AddressServicesStub  implements Pick<AddressesServices,'appendUserToAddress' | 'find'>{
+          async find(id: string): Promise<Address> {
+               return MakeFakeAddress()
+          }
           public appendUserToAddress(params: IAddressesServices.Params.AppendUser): Promise<void> {
                return Promise.resolve(null)
           }
@@ -56,6 +62,19 @@ describe("CreateUserController", () =>{
                password: "123456",
           })
      }
+
+
+     test("Should return 404 if address were provided and not found", async () =>{
+          const { create, usersServices, addressServices} = makeSut()
+
+          jest.spyOn(addressServices, 'find').mockImplementationOnce(async ()=>{
+               return null
+          })
+          
+          const req = MakeRequest({ body: { ...makeCreateUserParams(), address_id: 'invalid_address' } })
+          const res = await create.handler(req)
+          expect(res).toEqual(NotFound(new AddressNotFoundError()))
+     })
      test("Should return status 403 if invalid role", async () =>{
           const { create, usersServices } = makeSut()
 
@@ -101,19 +120,23 @@ describe("CreateUserController", () =>{
           expect(spy).toHaveBeenCalledWith(params)
      })
 
-     test("Should call 'addressServices' if a address_id were provided", async () =>{
-          const { create, addressServices, usersServices } = makeSut()
-
-          jest.spyOn(usersServices,'create').mockImplementationOnce(async ()=>{
-               return new UserView(MakeFakeUser({ role: UsersRole.Basic, id:"generated_id" }))
-          })
-
+     test("Should call 'appendUserToAddress' if a address_id were provided", async () =>{
+          const { create, addressServices } = makeSut()
           const spy = jest.spyOn(addressServices, 'appendUserToAddress');
-
           const req = MakeRequest({body:{ ...makeCreateUserParams(), role: UsersRole.Basic, address_id: "any_id"}})
           await create.handler(req);
           expect(spy).toHaveBeenCalledTimes(1)
-          expect(spy).toHaveBeenCalledWith({user_id:'generated_id', address_id: 'any_id'})
+     })
+
+     test("Should return 403 if appendUserToAddress throw error", async () =>{
+          const { create, addressServices } = makeSut()
+          const spy = jest.spyOn(addressServices, 'appendUserToAddress').mockImplementationOnce( async ()=>{
+               throw new UserNotAllowedError()
+          })
+          const req = MakeRequest({body:{ ...makeCreateUserParams(),  address_id: "any_id"}})
+          const resp = await create.handler(req);
+          expect(spy).toHaveBeenCalledTimes(1)
+          expect(resp.status).toBe(403)
      })
 
      test("Should return status 200 ", async () =>{

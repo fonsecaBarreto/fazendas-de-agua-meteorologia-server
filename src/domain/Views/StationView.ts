@@ -1,11 +1,10 @@
-import { Address } from "cluster";
+
 import { Measurements } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
-import { User } from "../Entities/User";
-import { UserView } from "./UserView";
 
 
 export class StationView implements Station {
+
   id: string;
   created_at?: Date;
   updated_at?: Date;
@@ -17,20 +16,12 @@ export class StationView implements Station {
   address_id: string;
 
   //Relactions
-  address: Address
   measurements?: Measurements[] 
 
- /*  constructor(user:User, station:Station){
-    super(user)
+  constructor(station:Station, ms: Measurements[] = []){
     Object.assign(this,station)
+    this.measurements = ms;
   }
-
-  toStation(): Station {
-    const { id, address_id, altitude, latitude, longitude, description  } = this
-    const station: Station = { address_id, altitude, description, id, latitude, longitude }
-    return station
-  } */
-
   
 }
 

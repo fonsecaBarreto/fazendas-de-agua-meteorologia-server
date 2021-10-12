@@ -14,7 +14,7 @@ const hasher = new BcryptAdapter()
 const idGenerator = new UuidAdapter()
 
 export const usersServices = new UsersServices(usersRepository, idGenerator, hasher)
-export const addressServices = new AddressesServices(addressRepository, usersRepository, idGenerator)
+export const addressServices = new AddressesServices(addressRepository, idGenerator)
 /* controllers */
 export const controllers = {
      create: new CreateUserController(usersServices, addressServices),   
