@@ -1,48 +1,33 @@
 import { AccessType, BaseController, Forbidden, Ok, Unauthorized, Unprocessable} from "../../Protocols/BaseController";
 import { NotFound, Request, Response } from "../../Protocols/Http";
-import { IUsersServices, UsersServices } from "../../../domain/Services/Users/Users_Services";
-import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError } from "../../../domain/Errors/UsersErrors";
+import { IUsersServices } from "../../../domain/Services/Users/Users_Services";
+import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../domain/Errors/UsersErrors";
 import { CreateUser_BodySchema, UserId_ParamsSchema, UserIdOptional_ParamsSchema, UpdateUser_BodySchema } from "../../Models/Schemas/UsersSchemas";
 import { UserView } from "../../../domain/Views/UserView";
-import { User, UsersRole } from "../../../domain/Entities/User";
-import { AddressesServices } from "../../../domain/Services/Addresses/Addresses_Services";
+import { User } from "../../../domain/Entities/User";
 import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors";
-import { Address } from "../../../domain/Entities/Address";
 
 export class CreateUserController extends BaseController {
 
      constructor( 
           private readonly usersServices: Pick<IUsersServices, 'create'> ,
-          private readonly addressServices: Pick<AddressesServices,'appendUserToAddress' | 'find'>
      ){ super( AccessType.ADMIN, { body: CreateUser_BodySchema }) }
 
      async handler(request: Request): Promise<Response> {
           const { name, username, password, role, address_id } =request.body
-          var address: Address;
 
           try{
 
-               if (address_id) { // Verfifica se endereço existe
-                    address = await this.addressServices.find(address_id)
-                    if(!address) return NotFound(new AddressNotFoundError())
-               }
-               
-               const user: UserView = await this.usersServices.create({name, username, password, role})
-
-               if (address_id) { // Relaciona o endereço ao usuario
-                    await this.addressServices.appendUserToAddress({ user, address })
-               }
-     
+               const user: UserView = await this.usersServices.create({name, username, password, role, address_id })
                return Ok(user);
 
           }catch(err){
-               if(err instanceof UserRoleIsInvalidError || err instanceof UserNameInUseError ){
-                    return Forbidden(err)
-               }
-               if( err instanceof UserNotAllowedError){
-                    return Forbidden('O Endereço referenciado é inapropriado para esse usuario!')
-               }
-     
+               if(err instanceof UserRoleIsInvalidError || err instanceof UserNameInUseError )
+                    return Forbidden(err);
+
+               if( err instanceof AddressNotFoundError)
+                    return NotFound(err);
+
                throw err
           }
      }

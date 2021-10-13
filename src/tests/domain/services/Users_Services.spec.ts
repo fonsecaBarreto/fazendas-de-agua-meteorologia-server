@@ -1,8 +1,12 @@
 
+import { Address } from "../../../domain/Entities/Address"
 import { User } from "../../../domain/Entities/User"
+import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors"
 import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../domain/Errors/UsersErrors"
+import { IAddressRepository } from "../../../domain/Interfaces/repositories/IAddressRepository"
 import { IUserRepository } from "../../../domain/Interfaces/repositories/IUserRepository"
 import { IUsersServices, UsersServices } from "../../../domain/Services/Users/Users_Services"
+import { AddressView } from "../../../domain/Views/AddressView"
 import { UserView } from "../../../domain/Views/UserView"
 import { MakeFakeAddress } from "../../mocks/entities/MakeAddress"
 import { MakeFakeUser } from "../../mocks/entities/MakeUser"
@@ -11,21 +15,25 @@ import { HasherStub, IdGeneratorStub  } from '../../mocks/vendors/index'
 
 const makeSut = () =>{
      
-     const mockedFakeUser = [
+     const mocked_users = [
           MakeFakeUser(),
           MakeFakeUser()
+     ]
+     
+     const mocked_addresses = [
+          MakeFakeAddress()
      ]
 
      class UsersRepositoryStub implements IUserRepository {
           async findUser(id: string): Promise<UserView> {
-               return new UserView(mockedFakeUser[0])
+               return new UserView(mocked_users[0])
           }
 
           async list(): Promise<User[]> {
-              return mockedFakeUser
+              return mocked_users
           }
           async find(id: string): Promise<User> {
-               return mockedFakeUser[0]
+               return mocked_users[0]
           }
           async remove(id: string): Promise<boolean> {
                return true
@@ -40,12 +48,24 @@ const makeSut = () =>{
  
      }
 
+     class AddressRepositoryStub implements Pick<IAddressRepository,'find' | 'relateUser'> {
+          relateUser(user_id: string, address_id: string): Promise<boolean> {
+               return Promise.resolve(true)
+          }
+          async find(id: string): Promise<Address> {
+               return mocked_addresses[0]
+          }
+        
+
+     }
+
      const usersRepository = new UsersRepositoryStub()
+     const addressRepository = new AddressRepositoryStub()
      const idGenerator = new IdGeneratorStub();
      const hasher =  new HasherStub()
 
-     const sut = new UsersServices( usersRepository, idGenerator, hasher)
-     return { sut, idGenerator, hasher, usersRepository, mockedFakeUser  }
+     const sut = new UsersServices( usersRepository, addressRepository, idGenerator, hasher)
+     return { sut, idGenerator, hasher, usersRepository, addressRepository, mocked_users, mocked_addresses  }
   
 }
 
@@ -55,6 +75,7 @@ const makeCreateUserParams = (params?: Partial<IUsersServices.Params.Create>): I
           password:"123456",
           role: 0,
           username: "NomeDeUsuarioTeste",
+          address_id: undefined,
           ...params
      }
 }
@@ -75,6 +96,23 @@ describe("CreateUser Services", () =>{
                const { sut } = makeSut()
                const resp = sut.create(makeCreateUserParams({role: 3}))
                await expect(resp).rejects.toThrow(new UserRoleIsInvalidError())
+          })
+
+          test("Should not call addressRepository if no address_id were provided", async () =>{
+               const { sut, addressRepository } = makeSut()
+               const findAddSpy = jest.spyOn(addressRepository,'find')
+               await sut.create(makeCreateUserParams({address_id: null}))
+               expect(findAddSpy).toHaveBeenCalledTimes(0)
+          })
+
+          test("Should throw error if address_id were provided and addressRepository return null", async () =>{
+               const { sut, addressRepository } = makeSut()
+               const findAddSpy = jest.spyOn(addressRepository,'find').mockImplementationOnce(()=>{
+                    return Promise.resolve(null)
+               })
+               const resp = sut.create(makeCreateUserParams({address_id: "any_address_id"}))
+               await expect(resp).rejects.toThrow(new AddressNotFoundError())
+               expect(findAddSpy).toHaveBeenCalledWith('any_address_id')
           })
 
           test("Should throw error if repository returns user with the same username", async () =>{
@@ -105,21 +143,41 @@ describe("CreateUser Services", () =>{
           })
 
           
-          test("Should call repository with correct values and return data", async () =>{
+          test("Should call repository with correct values ", async () =>{
                const { sut, usersRepository } = makeSut()
                const addSpy = jest.spyOn(usersRepository, "upsert");
-               
                const params = makeCreateUserParams()
-               const resp = await sut.create(params)
-               
+               await sut.create(params)
                expect(addSpy).toHaveBeenCalledWith({
                     ...params,
                     id: "generated_id",
                     password:"hashed_password"
                })
-     
-               expect(resp).toEqual( new UserView( {  ...params,   id: "generated_id" }))
-               
+          })  
+
+          test("Should not call addressRepository relateUser if no address_id were provided", async () =>{
+               const { sut, addressRepository } = makeSut()
+               const addSpy = jest.spyOn(addressRepository, "relateUser");
+               const params = makeCreateUserParams({address_id: null})
+               await sut.create(params)
+               expect(addSpy).toHaveBeenCalledTimes(0)
+            
+          })  
+
+          test("Should call addressRepository relateUser if a address_id were provided", async () =>{
+               const { sut, addressRepository, mocked_addresses } = makeSut()
+               const addSpy = jest.spyOn(addressRepository, "relateUser");
+               const params = makeCreateUserParams({address_id: "any_address_id"})
+               const respo = await sut.create(params)
+               expect(addSpy).toHaveBeenCalledWith('generated_id','any_address_id')
+            
+          })  
+
+          test("Should return data", async () =>{
+               const { sut } = makeSut()
+               const params = makeCreateUserParams()
+               const resp = await sut.create(params)
+               expect(resp).toEqual( new UserView( {  ...params,   id: "generated_id" }))    
           })  
      })
 
@@ -150,14 +208,14 @@ describe("CreateUser Services", () =>{
           })
           
           test("Should call repository with correct values and return data", async () =>{
-               const { sut, usersRepository, mockedFakeUser } = makeSut()
+               const { sut, usersRepository, mocked_users } = makeSut()
                const addSpy = jest.spyOn(usersRepository, "upsert");
                
                const params = makeUpdateUserParams({username:"OutroUserName", 'name':"Um outro nome"})
                const resp = await sut.update('any_id',params)
                
                const final_user= {
-                    ...mockedFakeUser[0],
+                    ...mocked_users[0],
                     ...params
                }
 
@@ -179,9 +237,9 @@ describe("CreateUser Services", () =>{
           })
 
           test("Should return userView", async () =>{
-               const { sut, mockedFakeUser } = makeSut()
+               const { sut, mocked_users } = makeSut()
                const resp = await sut.find('valid_id')
-               await expect(resp).toEqual( new UserView(mockedFakeUser[0]))
+               await expect(resp).toEqual( new UserView(mocked_users[0]))
           }) 
 
      })
@@ -199,9 +257,9 @@ describe("CreateUser Services", () =>{
           })
 
           test("Should a array of addresses", async () =>{
-               const { sut, mockedFakeUser } = makeSut()
+               const { sut, mocked_users } = makeSut()
                const resp = await sut.list();
-               await expect(resp).toEqual(mockedFakeUser)
+               await expect(resp).toEqual(mocked_users)
           }) 
 
      })
