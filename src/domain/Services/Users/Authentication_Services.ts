@@ -2,6 +2,7 @@ import { User, UsersRole } from "../../Entities/User";
 import { IEncrypter } from "../../Interfaces/IEncrypter";
 import { IHasher } from "../../Interfaces/IHasher";
 import { IUserRepository } from "../../Interfaces/repositories/IUserRepository";
+import { UserView } from "../../Views/UserView";
 
 
 export namespace AuthenticationServices {
@@ -13,7 +14,7 @@ export namespace AuthenticationServices {
 
 export class AuthenticationServices{
      constructor(
-          private readonly _usersRepository: Pick<IUserRepository, "find" | "findByUsername">,
+          private readonly _usersRepository: Pick<IUserRepository, "findUser" | "findByUsername">,
           private readonly _hasher: IHasher,
           private readonly _encrypter: IEncrypter
      ){}
@@ -41,7 +42,7 @@ export class AuthenticationServices{
      }
 
 
-     public async verifyToken(token:string): Promise<User>{ //Para o Middleware
+     public async verifyToken(token:string): Promise<UserView>{ 
 
           var decoded: any;
 
@@ -53,9 +54,8 @@ export class AuthenticationServices{
                return null //403 
           }
 
-          const user = await this._usersRepository.find(decoded.id)
-          return user;
-               
+          const user = await this._usersRepository.findUser(decoded.id)
+          return user;    
      }
      
 }

@@ -1,7 +1,7 @@
-import { IdGeneratorStub } from "../../../tests/mocks/vendors";
 import { Station } from "../../Entities/Station";
 import { AddressNotFoundError } from "../../Errors/AddressesErrors";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
+import { IIdGenerator } from "../../Interfaces";
 import { IAddressRepository } from "../../Interfaces/repositories/IAddressRepository";
 import { IStationRepository } from "../../Interfaces/repositories/IStationRepository";
 import { StationView } from "../../Views/StationView";
@@ -32,7 +32,7 @@ export interface IStationService {
 
 export class StationsServices implements IStationService{
      constructor(
-          private readonly idGenerator: IdGeneratorStub,
+          private readonly idGenerator: IIdGenerator,
           private readonly _stationsRepository: IStationRepository,
           private readonly _addressRepository: Pick<IAddressRepository,'find'>
      ){}

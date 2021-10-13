@@ -1,11 +1,12 @@
-import { User } from "../../domain/Entities/User"
+import { UserView } from "../../domain/Views/UserView"
 export * from './http-helper'
+
 export type Request = {
     params: any,
     query: any,
     headers: any
     body?:any,
-    user?: User,
+    user?: UserView,
     files?: any
 }
 

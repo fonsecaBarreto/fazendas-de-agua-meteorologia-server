@@ -1,5 +1,5 @@
 /* controllers */
-import { CreateUserController, UpdateUserController, FindUserController, RemoveUserController } from '../../../presentation/Controllers/V1/Users.Controllers'
+import { CreateUserController, UpdateUserController, FindUserController, RemoveUserController } from '../../../presentation/Controllers/V1/Admin/Users.Controllers'
 /* services */
 import { UsersServices } from '../../../domain/Services/Users/Users_Services'
 /* dependencies */

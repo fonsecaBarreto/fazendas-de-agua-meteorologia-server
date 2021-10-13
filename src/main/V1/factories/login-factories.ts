@@ -1,5 +1,5 @@
 /* controllers */
-import { SignInUserController, AuthUserController } from '../../../presentation/Controllers/V1/Login.Controllers'
+import { SignInUserController, AuthUserController } from '../../../presentation/Controllers/V1/Public/Login.Controllers'
 /* services */
 import { AuthenticationServices } from '../../../domain/Services/Users/Authentication_Services'
 /* dependencies */

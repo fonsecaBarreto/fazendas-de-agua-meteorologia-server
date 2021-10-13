@@ -1,7 +1,6 @@
-import { StatOptions } from "fs";
+
 import { Address } from "../Entities/Address";
 import { Station } from "../Entities/Station";
-import { User, UsersRole } from "../Entities/User";
 
 export class AddressView implements Address{
 

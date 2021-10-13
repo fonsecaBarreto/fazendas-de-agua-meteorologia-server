@@ -1,17 +1,14 @@
-import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../presentation/Controllers/V1/Users.Controllers'
+import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../presentation/Controllers/V1/Admin/Users.Controllers'
 import { IUsersServices } from '../../domain/Services/Users/Users_Services'
 import { Forbidden, Ok, NotFound } from '../../presentation/Protocols/Http'
 import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'
 import { MakeFakeUser } from '../mocks/entities/MakeUser'
 import { MakeRequest } from './mocks/MakeRequest'
 import { User, UsersRole } from '../../domain/Entities/User'
-import { AddressesServices, IAddressesServices } from '../../domain/Services/Addresses/Addresses_Services'
+
 import { UserView } from '../../domain/Views/UserView'
 import { AddressNotFoundError } from '../../domain/Errors/AddressesErrors'
-import { Address } from '../../domain/Entities/Address'
-import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
-import { address } from 'faker'
-import { AddressView } from '../../domain/Views/AddressView'
+
 
 const makeSut = () =>{
 

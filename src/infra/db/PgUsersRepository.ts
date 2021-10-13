@@ -23,8 +23,6 @@ export class PgUsersRepository extends PgBaseRepository<User> implements IUserRe
 
           if(!resultado) return null
 
-          console.log(resultado)
-
           const address = resultado.address.length > 0 ? resultado.address[0] : null
           delete resultado.address
 

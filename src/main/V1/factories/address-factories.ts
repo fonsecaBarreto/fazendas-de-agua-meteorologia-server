@@ -1,5 +1,5 @@
 /* controllers */
-import { CreateAddressController, UpdateAddressController, FindAddresController, RemoveAddresController } from '../../../presentation/Controllers/V1/Addresses.Controller'
+import { CreateAddressController, UpdateAddressController, FindAddresController, RemoveAddresController } from '../../../presentation/Controllers/V1/Admin/Addresses.Controller'
 /* services */
 import { AddressesServices } from '../../../domain/Services/Addresses/Addresses_Services'
 /* dependencies */

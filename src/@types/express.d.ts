@@ -1,11 +1,10 @@
-import { User } from "../domain/Entities/User";
-
+import { UserView } from "../domain/Views/UserView";
 
 declare global {
      namespace Express {
           interface Request {
                files: any,
-               user: User
+               user: UserView
           }
      }
 }

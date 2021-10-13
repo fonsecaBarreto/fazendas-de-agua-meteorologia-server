@@ -5,15 +5,17 @@ import { AuthenticationServices } from '../../../domain/Services/Users/Authentic
 import { MakeFakeUser } from "../../mocks/entities/MakeUser"
 import { HasherStub } from '../../mocks/vendors/HasherStub'
 import { EncrypterStub } from '../../mocks/vendors/EncrypterStub'
+import { UserView } from "../../../domain/Views/UserView"
 
 const makeSut = () =>{
 
-     class UsersRepositoryStub implements Pick<IUserRepository, "find" | "findByUsername"> {
+     class UsersRepositoryStub implements Pick<IUserRepository, "findUser" | "findByUsername"> {
+
           async findByUsername(username: string): Promise<User> {
                return MakeFakeUser({ id:"id_authentication_test", password:"hashed_password"})
           }
-          async find(id: string): Promise<User> {
-               return MakeFakeUser()
+          async findUser(id: string): Promise<UserView> {
+               return new UserView(MakeFakeUser())
           }
      }
 
@@ -106,16 +108,15 @@ describe("AuthenticationServices", () =>{
                const { sut, usersRepository, encrypter} = makeSut()
                const usuarioDoRepository = MakeFakeUser({ id: "usuario_id"})
 
-               const spy = jest.spyOn(usersRepository, 'find').mockImplementationOnce(async()=>{
-                    return usuarioDoRepository
+               const spy = jest.spyOn(usersRepository, 'findUser').mockImplementationOnce( async ()=>{
+                    return new UserView(usuarioDoRepository)
                })
 
                const resp = await sut.verifyToken("any_token");
 
                expect(spy).toHaveBeenCalledWith('usuario_id')
-               expect(resp).toEqual({
-                    ...usuarioDoRepository
-               })
+               expect(resp).toEqual(new UserView(usuarioDoRepository)
+               )
 
           })
 

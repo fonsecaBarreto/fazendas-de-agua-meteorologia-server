@@ -1,2 +1,5 @@
 export * from './IBaseRepository'
 export * from './IUserRepository'
+export * from './IAddressRepository'
+export * from './IStationRepository'
+export * from './IMeasurementsRepository'

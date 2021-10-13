@@ -1,6 +1,7 @@
 
 import Express from 'express'
 import { User, UsersRole } from '../../domain/Entities/User'
+import { UserView } from '../../domain/Views/UserView'
 import { Request, Response, Unprocessable } from './Http'
 import { Unauthorized } from './http-helper'
 import { Presentation } from './_namespace'
@@ -10,6 +11,7 @@ export enum AccessType {
      PUBLIC,
      BASIC,
      ADMIN,
+     STATION,
      ANY_USER
 }
 
@@ -29,7 +31,7 @@ export abstract class BaseController {
 
      abstract handler(request: Request):  Promise<Response> 
 
-     securityGuard (user: User): boolean {
+     securityGuard (user: UserView): boolean {
 
           if(this.accessType === AccessType.PUBLIC) return true
           if(!user || user.role == null ) return false;
@@ -44,6 +46,10 @@ export abstract class BaseController {
                     if(user.role != UsersRole.Admin) return false;
                break;
 
+               case AccessType.STATION:
+                    if( user.role != UsersRole.Admin || !user.address) return false;
+               break;
+
                default: return true // Any user
           }
 
@@ -51,7 +57,6 @@ export abstract class BaseController {
      }
 
      public async validationGuard(req: Request): Promise<any>{
-
 
           if(this.schemas?.params){
                let hasError = await BaseController._validator.validate(this.schemas?.params, req.params)
@@ -64,12 +69,9 @@ export abstract class BaseController {
           }
  
           return null
-
      }
 
-
      async _handler(request: Request): Promise<Response>{
-
           const isSafe = await this.securityGuard(request.user)
           if(!isSafe) return Unauthorized();
 
@@ -78,7 +80,6 @@ export abstract class BaseController {
 
           const response:Response = await this.handler(request);
           return response
-
      }
 
      execute() {
@@ -95,7 +96,6 @@ export abstract class BaseController {
 
                try{
                     const response = await this._handler(request);
-                    
                     if(response.status >= 400 ){
                          console.log("\n ** ClientError: ", response.body?.name || response.body)
                          return res.status(response.status).json({  error: response.body })

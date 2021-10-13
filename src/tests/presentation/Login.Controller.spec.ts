@@ -1,4 +1,4 @@
-import { AuthUserController, SignInUserController } from '../../presentation/Controllers/V1/Login.Controllers'
+import { AuthUserController, SignInUserController } from '../../presentation/Controllers/V1/Public/Login.Controllers'
 
 import { AuthenticationServices } from '../../domain/Services/Users/Authentication_Services'
 
@@ -16,12 +16,13 @@ import { HasherStub } from '../mocks/vendors/HasherStub'
 import { MakeFakeUser } from '../mocks/entities/MakeUser'
 
 import { MakeRequest } from './mocks/MakeRequest'
+import { UserView } from '../../domain/Views/UserView'
 
 const makeSut = () =>{
 
-     class usersRepositoryStub implements Pick<IUserRepository, "find" | "findByUsername"> {
-          async find(id: string): Promise<User> {
-               return MakeFakeUser()
+     class usersRepositoryStub implements Pick<IUserRepository, "findUser" | "findByUsername"> {
+          async findUser(id: string): Promise<UserView> {
+               return new UserView(MakeFakeUser())
           }
           async findByUsername(username: string): Promise<User> {
                return MakeFakeUser()

@@ -1,7 +1,7 @@
-import { AccessType, BaseController, Ok, Unauthorized, Unprocessable} from "../../Protocols/BaseController";
-import { Request, Response } from "../../Protocols/Http";
-import { SignIn_BodySchema } from '../../Models/Schemas/LoginSchema'
-import { AuthenticationServices } from "../../../domain/Services/Users/Authentication_Services";
+import { AccessType, BaseController, Ok, Unauthorized, Unprocessable} from "../../../Protocols/BaseController";
+import { Request, Response } from "../../../Protocols/Http";
+import { SignIn_BodySchema } from '../../../Models/Schemas/LoginSchema'
+import { AuthenticationServices } from "../../../../domain/Services/Users/Authentication_Services";
 
 export class SignInUserController extends BaseController {
 
@@ -9,8 +9,6 @@ export class SignInUserController extends BaseController {
           private readonly authenticationServices: AuthenticationServices ){ super( AccessType.PUBLIC, { body: SignIn_BodySchema }) }
 
      async handler(request: Request): Promise<Response> {
-
-
 
           const { username, password } =request.body
 

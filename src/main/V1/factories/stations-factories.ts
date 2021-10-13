@@ -1,5 +1,5 @@
 /* controllers */
-import { CreateStationController, UpdateStationController, RemoveStationController, FindStationController } from '../../../presentation/Controllers/V1/Stations.Controller'
+import { CreateStationController, UpdateStationController, RemoveStationController, FindStationController } from '../../../presentation/Controllers/V1/Admin/Stations.Controller'
 /* services */
 import { StationsServices } from '../../../domain/Services/Stations/Station_Services'
 
