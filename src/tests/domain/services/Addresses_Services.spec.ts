@@ -2,24 +2,25 @@
 import { Address } from "../../../domain/Entities/Address"
 import { AddressesServices, IAddressesServices } from "../../../domain/Services/Addresses/Addresses_Services"
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../domain/Errors/AddressesErrors"
-
-import { IIdGenerator } from "../../../domain/Interfaces/IIdGenerator"
 import { IAddressRepository } from "../../../domain/Interfaces/repositories/IAddressRepository"
-
 import { MakeFakeAddress } from "../../mocks/entities/MakeAddress"
 import { IdGeneratorStub } from "../../mocks/vendors/IdGeneratorStub"
-import { IUserRepository } from "../../../domain/Interfaces"
-import { User } from "../../../domain/Entities/User"
 import { MakeFakeUser } from "../../mocks/entities/MakeUser"
 import { UserNotAllowedError, UserNotFoundError } from "../../../domain/Errors/UsersErrors"
 import { UserView } from "../../../domain/Views/UserView"
+import { AddressView } from "../../../domain/Views/AddressView"
+import { MakeFakeStation } from "../../mocks/entities/MakeStation"
 
 
 const makeSut = () =>{
      
      const fakeAddresses =[ MakeFakeAddress()]
+     const fakeStations = [ MakeFakeStation() ]
 
      class AddressRepositoryStub implements IAddressRepository {
+          async findAddress(id: string): Promise<AddressView> {
+               return new AddressView(fakeAddresses[0], fakeStations)
+          }
 
           async relateUser(user_id: string, address_id: string): Promise<boolean> {
                return true
@@ -41,17 +42,11 @@ const makeSut = () =>{
 
      }
 
-     class UsersRepositoryStub implements Pick<IUserRepository,'find'> {
-          async find(id: string): Promise<User> {
-              return MakeFakeUser()
-          }
-     }
-
      const addressRepository = new AddressRepositoryStub
      const idGenerator = new IdGeneratorStub();
 
      const sut = new AddressesServices(addressRepository, idGenerator)
-     return { sut, idGenerator, addressRepository, fakeAddresses}
+     return { sut, idGenerator, addressRepository, fakeAddresses, fakeStations }
   
 }
 
@@ -110,7 +105,6 @@ describe("Addresses Services", () =>{
                expect(usuario.address).toEqual(address)
           })
 
-       
      })
      describe("AddressesServices.create", () =>{
 
@@ -127,7 +121,7 @@ describe("Addresses Services", () =>{
                expect(spy).toHaveBeenCalledTimes(1)
           })
 
-          test("Should call repository with correct values and return data", async () =>{
+          test("Should call repository with correct values", async () =>{
                const { sut, addressRepository } = makeSut()
                const addSpy = jest.spyOn(addressRepository, "upsert");
                const params =  makeCreateAddressParams()
@@ -137,16 +131,18 @@ describe("Addresses Services", () =>{
                     ...params,
                     id: "generated_id",
                })
-               expect(resp).toBeTruthy()
-               expect(resp).toEqual({
-                    ...params,
-                    id: "generated_id",
-               })
+          })
+          test("Should call repository with correct values and return data", async () =>{
+               const { sut, addressRepository } = makeSut()
+               const addSpy = jest.spyOn(addressRepository, "upsert");
+               const params =  makeCreateAddressParams()
+
+               const resp = await sut.create(params)
+               expect(resp).toEqual(new AddressView({ ...params, id: "generated_id" }))
           })
      })
 
      describe("AddressesServices.update", () =>{
-
 
           test("Should throw error if repository doenst find the address", async () =>{
                const { sut, addressRepository } = makeSut()
@@ -171,29 +167,28 @@ describe("Addresses Services", () =>{
                expect(spy).toHaveBeenCalledTimes(0)
           })
 
-          test("Should call repository with correct values and return data", async () =>{
+          test("Should call repository with correct values", async () =>{
                const { sut, addressRepository } = makeSut()
                const addSpy = jest.spyOn(addressRepository, "upsert");
                const address =  makeCreateAddressParams()
-
                const resp = await sut.update('any_id',address)
-               expect(addSpy).toHaveBeenCalledWith({
-                    id:'any_id',
-                    ...address,
-               })
+               expect(addSpy).toHaveBeenCalledWith({ id:'any_id', ...address })
                expect(resp).toBeTruthy()
-               expect(resp).toEqual({
-                    id:'any_id',
-                    ...address,
-               })
           }) 
+
+          test("Should return correct data", async () =>{
+               const { sut, addressRepository } = makeSut()
+               const address =  makeCreateAddressParams()
+               const resp = await sut.update('any_id',address)
+               expect(resp).toEqual( new AddressView({ id:'any_id', ...address }))
+          })   
      })
 
      describe("AddressesServices.find", () =>{
     
           test("Should return null if no address were found", async () =>{
                const { sut, addressRepository } = makeSut()
-               jest.spyOn(addressRepository, "find").mockImplementationOnce(async () =>{
+               jest.spyOn(addressRepository, "findAddress").mockImplementationOnce(async () =>{
                     return null
                });
                const resp = await sut.find('invalid_id')
@@ -201,10 +196,10 @@ describe("Addresses Services", () =>{
             
           })
 
-          test("Should a address", async () =>{
-               const { sut, fakeAddresses } = makeSut()
+          test("Should return addressView", async () =>{
+               const { sut, fakeAddresses, fakeStations } = makeSut()
                const resp = await sut.find('valid_id')
-               await expect(resp).toEqual(fakeAddresses[0])
+               await expect(resp).toEqual(new AddressView(fakeAddresses[0], fakeStations ))
           }) 
 
      })

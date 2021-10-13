@@ -1,10 +1,10 @@
 
-import { address } from "faker";
 import { Address } from "../../Entities/Address";
 import { AddressNotFoundError, AddressUfInvalidError } from "../../Errors/AddressesErrors";
 import { UserNotAllowedError, UserNotFoundError } from "../../Errors/UsersErrors";
 import { IIdGenerator, IUserRepository } from "../../Interfaces";
 import { IAddressRepository } from "../../Interfaces/repositories/IAddressRepository";
+import { AddressView } from "../../Views/AddressView";
 import { UserView } from "../../Views/UserView";
 import ufs from './ufs.json'
 
@@ -20,9 +20,9 @@ export namespace IAddressesServices {
 }
 
 export interface IAddressesServices {
-     create(params: IAddressesServices.Params.Create): Promise<Address>
-     update(id:string, address:  IAddressesServices.Params.Create): Promise<Address> 
-     find(id:string): Promise<Address>
+     create(params: IAddressesServices.Params.Create): Promise<AddressView>
+     update(id:string, address:  IAddressesServices.Params.Create): Promise<AddressView> 
+     find(id:string): Promise<AddressView>
      list(): Promise<Address[]>
      remove(id:string): Promise<void>
      appendUserToAddress(params: IAddressesServices.Params.AppendUser): Promise<void>
@@ -34,7 +34,7 @@ export class AddressesServices implements IAddressesServices {
           private readonly _idGenerator: IIdGenerator
      ){}
 
-     private async createOrUpdate(params: IAddressesServices.Params.Create, id?:string): Promise<Address>{
+     private async createOrUpdate(params: IAddressesServices.Params.Create, id?:string): Promise<AddressView>{
 
           if(id) {
                const addressExists = await this._addressRepository.find(id);
@@ -49,23 +49,23 @@ export class AddressesServices implements IAddressesServices {
           
           await this._addressRepository.upsert(address);
 
-          return address
+          return new AddressView(address)
 
      }
 
      /* Interfaces publicas */
  
-     public async create(params: IAddressesServices.Params.Create): Promise<Address> {
+     public async create(params: IAddressesServices.Params.Create): Promise<AddressView> {
           return await this.createOrUpdate(params)
      }
 
-     public async update(id:string, address: IAddressesServices.Params.Create): Promise<Address> {
+     public async update(id:string, address: IAddressesServices.Params.Create): Promise<AddressView> {
           return await this.createOrUpdate(address, id)
      }
 
-     public async find(id:string): Promise<Address>{
-          const address: Address = await this._addressRepository.find(id)
-          return address ? address : null
+     public async find(id:string): Promise<AddressView>{
+          const address: AddressView = await this._addressRepository.findAddress(id)
+          return address;
      }
 
      public async list(): Promise<Address[]>{

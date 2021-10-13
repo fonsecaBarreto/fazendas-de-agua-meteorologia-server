@@ -11,6 +11,7 @@ import { AddressNotFoundError } from '../../domain/Errors/AddressesErrors'
 import { Address } from '../../domain/Entities/Address'
 import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 import { address } from 'faker'
+import { AddressView } from '../../domain/Views/AddressView'
 
 const makeSut = () =>{
 
@@ -33,8 +34,8 @@ const makeSut = () =>{
      }
 
      class AddressServicesStub  implements Pick<AddressesServices,'appendUserToAddress' | 'find'>{
-          async find(id: string): Promise<Address> {
-               return MakeFakeAddress()
+          async find(id: string): Promise<AddressView> {
+               return new AddressView(MakeFakeAddress())
           }
           public appendUserToAddress(params: IAddressesServices.Params.AppendUser): Promise<void> {
                return Promise.resolve(null)

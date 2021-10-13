@@ -11,7 +11,8 @@ const makeSut = () =>{
 
 const fakeUsers = [
      MakeFakeUser({ name: "Usuario um", username: 'Usuario01'}),
-     MakeFakeUser({ name: "Usuario basico mas sem referencias", username: 'Usuario 2'})
+     MakeFakeUser({ name: "Usuario basico mas sem referencias", username: 'Usuario 2'}),
+     MakeFakeUser({ name: "Usuario ", username: 'Usuario 3'})
 ]
 const fakeAddress = [
      MakeFakeAddress({ city: "Campos dos Goytacazes"}),
@@ -26,29 +27,34 @@ describe("Users Pg Repository", () =>{
           await KnexAdapter.connection('users').insert(fakeUsers)
           await KnexAdapter.connection('addresses').insert(fakeAddress)
           await KnexAdapter.connection('users_addresses').insert({user_id: fakeUsers[0].id, address_id: fakeAddress[0].id})
+          await KnexAdapter.connection('users_addresses').insert({user_id: fakeUsers[2].id, address_id: fakeAddress[0].id})
      })
 
      afterAll(async ()=>{
           await KnexAdapter.close()
      })
 
-     test("Should return a UserView with adress joined", async () =>{
-          const sut = makeSut();
-          const result = await sut.findUser(fakeUsers[0].id)
-          expect(result).toMatchObject({ ...new UserView( fakeUsers[0], fakeAddress[0])} ) 
-     })
+     describe("find User", () =>{
+        
+          test("should return null if no user were found", async () =>{
+               const sut = makeSut();
+               const result = await sut.findUser(NIL)
+               expect(result).toBe(null)
+          })
+          test("should return no address related if user doest have any", async () =>{
+               const sut = makeSut();
+               const result = await sut.findUser(fakeUsers[1].id)
+               expect(result).toMatchObject(new UserView({...fakeUsers[1]})) 
+               expect(result).toBeTruthy()
+               expect(result.address).toBe(null)
+          })
 
-     test("should return null with no user were found", async () =>{
-          const sut = makeSut();
-          const result = await sut.findUser(NIL)
-          expect(result).toBe(null)
-     })
-     test("should return no address related if user doest have any", async () =>{
-          const sut = makeSut();
-          const result = await sut.findUser(fakeUsers[1].id)
-          expect(result).toMatchObject(new UserView({...fakeUsers[1]})) 
-          expect(result).toBeTruthy()
-          expect(result.address).toBe(null)
+          test("Should return a UserView with adress joined", async () =>{
+               const sut = makeSut();
+               const result = await sut.findUser(fakeUsers[0].id);
+               expect(result).toMatchObject({ ...new UserView( fakeUsers[0], fakeAddress[0])} ) 
+          })
+          
      })  
 
      test('Should find user By id', async () =>{

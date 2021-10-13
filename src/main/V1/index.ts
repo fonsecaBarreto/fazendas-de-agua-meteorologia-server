@@ -3,8 +3,8 @@ import fs from "fs"
 import path from 'path'
 import './factories/index'
 
-/* import useDocumentation from './docs/__init__'
- */
+import useDocumentation from './docs/__init__'
+
 export default async (app: Express ): Promise<void>  => {
      const router = Router()
      app.use('/api/v1', router) 
@@ -15,6 +15,9 @@ export default async (app: Express ): Promise<void>  => {
           if(name == "index") return
           (await import(`${ROUTERS}/${file}`)).default(router)
      }))
+
+
+     useDocumentation(router)
 
 }
   

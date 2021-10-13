@@ -6,6 +6,7 @@ import { BadRequest, Forbidden, NotFound, Ok } from '../../presentation/Protocol
 import { AddressNotFoundError, AddressUfInvalidError } from '../../domain/Errors/AddressesErrors'
 import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 import { MakeRequest } from './mocks/MakeRequest'
+import { AddressView } from '../../domain/Views/AddressView'
 
 const makeSut = () =>{
 
@@ -14,14 +15,14 @@ const makeSut = () =>{
      ]
     class AddressesServicesStub implements IAddressesServices{
 
-         async create(params: IAddressesServices.Params.Create): Promise<Address> {
-              return MakeFakeAddress()
+         async create(params: IAddressesServices.Params.Create): Promise<AddressView> {
+              return new AddressView(MakeFakeAddress())
          }
-         async update(id: string, address: IAddressesServices.Params.Create): Promise<Address> {
-               return MakeFakeAddress()
+         async update(id: string, address: IAddressesServices.Params.Create): Promise<AddressView> {
+               return new AddressView(MakeFakeAddress())
          }
-         find(id: string): Promise<Address> {
-               return Promise.resolve(fake_addresses[0])
+         find(id: string): Promise<AddressView> {
+               return Promise.resolve(new AddressView(fake_addresses[0]))
          }
          list(): Promise<Address[]> {
               return Promise.resolve(fake_addresses)
@@ -182,7 +183,7 @@ describe("RemoveAddresController", () =>{
 describe("FindAddresController", () =>{
 
 
-     test("Should return 204 if no user were found", async () =>{
+     test("Should return 204 if no address were found", async () =>{
           const { find, addressesServices } = makeSut()
    
           jest.spyOn(addressesServices,'find').mockImplementationOnce(async ()=>{
@@ -194,11 +195,11 @@ describe("FindAddresController", () =>{
      }) 
 
 
-     test("Should return 200 if user were found", async () =>{
+     test("Should return 200 if address were found", async () =>{
           const { find, fake_addresses } = makeSut()
           const req = MakeRequest({params: {id: "any_id"}});
           const res = await find.handler(req)
-          expect(res).toEqual(Ok(fake_addresses[0])) 
+          expect(res).toEqual(Ok(new AddressView(fake_addresses[0]))) 
      }) 
 
 

@@ -1,4 +1,6 @@
-
+import schemas from '../../../presentation/Models/Schemas'
+import paths from './paths'
+import * as components from './components'
 export default {
   
      openapi: '3.0.0',
@@ -25,7 +27,8 @@ export default {
           name: 'Login',
           description: 'APIs relacionadas a login de usuarios'
      }],
-     schemas: {}
+     components,
+     paths
 }
 
   

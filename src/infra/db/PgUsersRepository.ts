@@ -10,19 +10,26 @@ export class PgUsersRepository extends PgBaseRepository<User> implements IUserRe
 
      async findUser(id: string): Promise<UserView> {
 
-          const outro: any = await KnexAdapter.connection('users')
+          const resultado: any = await KnexAdapter.connection('users')
+               .select([
+                    "users.*", 
+                    KnexAdapter.connection.raw("COALESCE (json_agg( add.* ) FILTER (WHERE add IS NOT NULL), '[]')  as address")
+               ])
                .leftJoin('users_addresses AS ua', 'ua.user_id', "=", "users.id")
+               .leftJoin('addresses AS add', 'ua.address_id', "=", "add.id")
+               .groupBy("users.id")
+               .where({'users.id':id})
                .first()
-               .where({id:id})
-               .select()
-          if(!outro) return null
 
-          const view = new UserView(outro)
-          if(outro.address_id){
-               const address: Address = await KnexAdapter.connection('addresses').where({id: outro.address_id}).first()
-               view.setAddress(address)
-          }
-          return view
+          if(!resultado) return null
+
+          console.log(resultado)
+
+          const address = resultado.address.length > 0 ? resultado.address[0] : null
+          delete resultado.address
+
+          return new UserView(resultado, address)
+
      }
 
      async upsert(model: User): Promise<void> {
@@ -37,4 +44,3 @@ export class PgUsersRepository extends PgBaseRepository<User> implements IUserRe
 
 }
 
- /*  KnexAdapter.connection.raw("json_agg( ua.address_id) as address") */

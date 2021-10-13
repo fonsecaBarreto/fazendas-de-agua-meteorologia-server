@@ -1,9 +1,13 @@
 
 import { KeyObject } from 'crypto'
+import { DESTRUCTION } from 'dns'
+import { v4 } from 'uuid'
+import { AddressView } from '../../../domain/Views/AddressView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'
 
 import { PgAddressesRepository } from '../../../infra/db/PgAddressesRepository'
 import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
+import { MakeFakeStation } from '../../mocks/entities/MakeStation'
 import { MakeFakeUser } from '../../mocks/entities/MakeUser'
 
 
@@ -20,35 +24,42 @@ const initial_fake_user = [
      MakeFakeUser({})
 ];
 
+const initial_fake_stations = [
+     MakeFakeStation({ address_id: initial_fake_addresses[0].id }),
+     MakeFakeStation({ address_id: initial_fake_addresses[0].id })
+]
+
 describe("Adresses Pg Repository", () =>{
 
      beforeAll(async ()=>{
-
           await KnexAdapter.open("test")
           await KnexAdapter.resetMigrations()
           await KnexAdapter.connection('addresses').insert(initial_fake_addresses)
           await KnexAdapter.connection('users').insert(initial_fake_user)
+          await KnexAdapter.connection('stations').insert(initial_fake_stations)
      })
      afterAll(async ()=>{ await KnexAdapter.close()  })
 
 
-     describe("Relate address to a user", () => {
+     describe("Find Address", () => {
 
-          beforeEach( async ()=>{
-               await KnexAdapter.connection('users_addresses').delete()
-          })
-          test('Should return true if was succed', async () =>{
+          test("should return null if no address were found", async () =>{
                const sut = makeSut();
-               const result = await sut.relateUser(initial_fake_user[0].id, initial_fake_addresses[0].id)
-               expect(result).toBe(true)
+               const result = await sut.findAddress(v4())
+               expect(result).toBeFalsy()
           })
 
-         test('Should return false entities were already related ', async () =>{
+          test("should find address with stations related", async () =>{
                const sut = makeSut();
-               await KnexAdapter.connection("users_addresses").insert({user_id: initial_fake_user[0].id, address_id: initial_fake_addresses[0].id})
-               const result = await sut.relateUser(initial_fake_user[0].id, initial_fake_addresses[0].id)
-               expect(result).toBe(false)
-          }) 
+               const result = await sut.findAddress(initial_fake_addresses[0].id)
+               expect(result).toMatchObject( new AddressView(initial_fake_addresses[0], initial_fake_stations))
+          })
+    
+          test("should find address with empty stations array", async () =>{
+               const sut = makeSut();
+               const result = await sut.findAddress(initial_fake_addresses[1].id)
+               expect(result).toMatchObject( new AddressView(initial_fake_addresses[1], []))
+          })
      })
 
      test('Should find address By id', async () =>{
@@ -115,4 +126,23 @@ describe("Adresses Pg Repository", () =>{
           })
 
      }) 
+
+     describe("Relate address to a user", () => {
+
+          beforeEach( async ()=>{
+               await KnexAdapter.connection('users_addresses').delete()
+          })
+          test('Should return true if was succed', async () =>{
+               const sut = makeSut();
+               const result = await sut.relateUser(initial_fake_user[0].id, initial_fake_addresses[0].id)
+               expect(result).toBe(true)
+          })
+
+         test('Should return false entities were already related ', async () =>{
+               const sut = makeSut();
+               await KnexAdapter.connection("users_addresses").insert({user_id: initial_fake_user[0].id, address_id: initial_fake_addresses[0].id})
+               const result = await sut.relateUser(initial_fake_user[0].id, initial_fake_addresses[0].id)
+               expect(result).toBe(false)
+          }) 
+     })
 })
