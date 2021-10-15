@@ -1,12 +1,12 @@
-import { AppSchemaTools, AppSchema } from "./protocols/AppSchemaTools";
-export * from './protocols/AppSchemaTools'
+import { SchemaBuilder, AppSchema } from "./protocols/AppSchemaTools";
+export * from './protocols'
 
-export class SchemaBuilder implements AppSchemaTools.IBuilder{
+export default class AppSchemaBuilder implements SchemaBuilder{
  
      private properties: AppSchema.Properties = {};
      private required: string[]=[];
 
-     setProperty(key:string, type?: string): AppSchemaTools.PropertiesHandler{
+     setProperty(key:string, type?: string): SchemaBuilder.PropertiesHandler{
 
           if(!this.properties[key]){
                this.properties[key] = { type }
@@ -14,46 +14,46 @@ export class SchemaBuilder implements AppSchemaTools.IBuilder{
                return this.setProperty(key, type)
           }
    
-          const optional = (): AppSchemaTools.PropertiesHandler =>{
+          const optional = (): SchemaBuilder.PropertiesHandler =>{
                this.required.splice(this.required.indexOf(key),1)
                return this.setProperty(key)
           }
 
-          const description = (value: string): AppSchemaTools.PropertiesHandler =>{
+          const description = (value: string): SchemaBuilder.PropertiesHandler =>{
                this.properties[key] = { ...this.properties[key], description: value}
                return this.setProperty(key)
           }
 
-          const actions: AppSchemaTools.PropertiesHandler = { optional, description };
+          const actions: SchemaBuilder.PropertiesHandler = { optional, description };
 
           if(!this.required.includes(key)) delete actions.optional
           if(this.properties?.[key]?.description) delete actions.description
           return actions
      }
 
-     number(key: string): AppSchemaTools.PropertiesHandler {
+     number(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'number')
      }
-     boolean(key: string): AppSchemaTools.PropertiesHandler {
+     boolean(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'boolean')
      }
-     date(key: string): AppSchemaTools.PropertiesHandler {
+     date(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'date')
      }
-     array(key: string): AppSchemaTools.PropertiesHandler {
+     array(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'array')
      }
-     json(key: string): AppSchemaTools.PropertiesHandler {
+     json(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'json')
      }
-     cep(key: string): AppSchemaTools.PropertiesHandler {
+     cep(key: string): SchemaBuilder.PropertiesHandler {
           return this.setProperty(key,'cep')
      }
-     uuid(key: string): AppSchemaTools.PropertiesHandler{
+     uuid(key: string): SchemaBuilder.PropertiesHandler{
           return this.setProperty(key,'uuid')
      }
 
-     string(key:string): AppSchemaTools.PropertiesHandler{
+     string(key:string): SchemaBuilder.PropertiesHandler{
           return this.setProperty(key,'string')
      }
 
@@ -65,8 +65,8 @@ export class SchemaBuilder implements AppSchemaTools.IBuilder{
           }) 
      }
 
-     static create(callback: (instance: AppSchemaTools.IBuilder) => void): AppSchema.Schema{
-          const instace =  new SchemaBuilder();
+     static create(callback: (instance: AppSchemaBuilder) => void): AppSchema.Schema{
+          const instace =  new AppSchemaBuilder();
           callback(instace)
           return instace.getSchema()
      }

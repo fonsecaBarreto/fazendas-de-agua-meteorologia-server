@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { Coordinates, Measurements } from "../../../domain/Entities/Measurements";
+import { Coordinates, Measurement } from "../../../domain/Entities/Measurements";
 import faker from 'faker'
 
 export function MakeFakeCoordinates(fields?:Partial<Coordinates>):Coordinates {
@@ -11,7 +11,7 @@ export function MakeFakeCoordinates(fields?:Partial<Coordinates>):Coordinates {
      })
 }
 
-export function MakeFakeMeasurement(params?: Partial<Measurements>): Measurements {
+export function MakeFakeMeasurement(params?: Partial<Measurement>): Measurement {
      return ({
           id: v4(),
           temperature: 30,

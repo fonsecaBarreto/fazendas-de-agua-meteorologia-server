@@ -25,6 +25,7 @@ export namespace BaseController {
 export abstract class BaseController {
      public static _validator: Presentation.Validator
 
+
      constructor( 
           private readonly accessType: AccessType = AccessType.PUBLIC, 
           private readonly schemas?: BaseController.RequestsSchema ){}
@@ -83,6 +84,7 @@ export abstract class BaseController {
      }
 
      execute() {
+
           return async (req : Express.Request, res: Express.Response, next: Express.NextFunction ) => {
 
                var request: Request = {  

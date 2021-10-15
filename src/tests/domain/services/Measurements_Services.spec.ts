@@ -1,18 +1,15 @@
 
-import { Measurements, Coordinates } from "../../../domain/Entities/Measurements"
+import { Measurement, Coordinates } from "../../../domain/Entities/Measurements"
 import { Station } from "../../../domain/Entities/Station";
 import { MeasurementNotFoundError } from "../../../domain/Errors/MeasurementsErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
 import { IMeasurementsRepository, IStationRepository } from "../../../domain/Interfaces";
 import { IMeasurementsService, MeasurementsService } from "../../../domain/Services/Stations/Measurements_Services"
-import { IStationService } from "../../../domain/Services/Stations/Station_Services";
 import { MeasurementView } from "../../../domain/Views/MeasurementView";
 import { StationView } from "../../../domain/Views/StationView";
-import { MakeFakeCoordinates, MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
+import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
 import { MakeFakeStation } from "../../mocks/entities/MakeStation";
-import { MakeFakeUser } from "../../mocks/entities/MakeUser";
 import { IdGeneratorStub } from "../../mocks/vendors";
-
 
 const makeSut = () =>{
      
@@ -20,16 +17,16 @@ const makeSut = () =>{
      const mockedMeasurements = [ MakeFakeMeasurement({ station_id: mockedStations[0].id })]
 
      class MeasurementsRepositoryStub implements IMeasurementsRepository {
-   
-          async find(id: string): Promise<Measurements> {
+          add(entity: Measurement): Promise<void> {
+               return Promise.resolve()
+          }
+          async find(id: string): Promise<Measurement> {
                return mockedMeasurements[0];
           }
           remove(id: string): Promise<boolean> {
                return Promise.resolve(true)
           }
-          upsert(model: Measurements): Promise<void> {
-               return Promise.resolve()
-          }
+
      }
 
      class StationsRepositoryStub implements Pick<IStationRepository, 'find'> {
@@ -59,6 +56,7 @@ describe("Measurement Services", () =>{
                     windSpeed: 234,
                     windDirection: 234,
                     station_id: 'any_station_id',
+                    created_at: new Date(),
                     ...fields
                })
           }
@@ -83,7 +81,7 @@ describe("Measurement Services", () =>{
 
           test("Should call repository with correct values", async () =>{
                const { sut, measurementsRepository, mockedStations } = makeSut()
-               const addSpy = jest.spyOn(measurementsRepository, "upsert");
+               const addSpy = jest.spyOn(measurementsRepository, "add");
                const params =  MakeCreateMeasurementParams({ station_id: "any_station_id" })
 
               await sut.create(params)

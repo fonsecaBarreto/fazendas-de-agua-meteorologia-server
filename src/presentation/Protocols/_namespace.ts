@@ -1,6 +1,6 @@
-import { AppSchema, AppSchemaTools } from '../../libs/ApplicatonSchema/protocols/AppSchemaTools'
+import { SchemaValidator } from '../../libs/ApplicatonSchema/protocols/AppSchemaTools'
 
 export namespace Presentation {
-     export type Schema = AppSchema.Schema 
-     export type Validator = AppSchemaTools.IValidator
+     export type Schema = SchemaValidator.Schema 
+     export type Validator = SchemaValidator
 }

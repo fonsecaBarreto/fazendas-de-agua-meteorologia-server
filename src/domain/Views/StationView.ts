@@ -1,5 +1,5 @@
 
-import { Measurements, Coordinates } from "../Entities/Measurements";
+import { Measurement, Coordinates } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
 
 
@@ -16,9 +16,9 @@ export class StationView implements Station {
   address_id: string;
 
   //Relactions
-  measurements?: Measurements[] 
+  measurements?: Measurement[] 
 
-  constructor(station:Station, ms: Measurements[] = []){
+  constructor(station:Station, ms: Measurement[] = []){
     Object.assign(this,station)
     this.measurements = ms;
   }

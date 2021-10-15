@@ -1,7 +1,7 @@
 
-import { Measurements, Coordinates } from "../Entities/Measurements";
+import { Measurement, Coordinates } from "../Entities/Measurements";
 
-export class MeasurementView implements Measurements{
+export class MeasurementView implements Measurement{
 
      temperature: number;
      airHumidity: number;
@@ -16,7 +16,7 @@ export class MeasurementView implements Measurements{
      updated_at?: Date;
 
   
-     constructor(params: Measurements){
+     constructor(params: Measurement){
           Object.assign(this,{ ...params })
      }
      

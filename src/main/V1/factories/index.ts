@@ -1,6 +1,6 @@
 import { BaseController } from '../../../presentation/Protocols/BaseController'
-import { SchemaValidator } from '../../../libs/ApplicatonSchema/SchemaValidator'
+import Validator from '../../../libs/ApplicatonSchema/SchemaValidator'
 
-const validator = new SchemaValidator
+const validator = new Validator()
 
 BaseController._validator = validator

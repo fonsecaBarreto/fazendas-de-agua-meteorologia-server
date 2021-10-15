@@ -1,5 +1,7 @@
-import { Measurements } from '../../Entities/Measurements';
-import { IBaseRepository } from './IBaseRepository'
+import { Measurement } from '../../Entities/Measurements';
 
-
-export interface IMeasurementsRepository extends Omit<IBaseRepository<Measurements>,'list'> {}
+export interface IMeasurementsRepository {
+     find(id:string): Promise<Measurement>
+     add(entity:Measurement): Promise<void>
+     remove(id:string): Promise<boolean>
+}

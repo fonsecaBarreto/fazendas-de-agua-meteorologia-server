@@ -1,11 +1,10 @@
 import { IdGeneratorStub } from "../../../tests/mocks/vendors";import { Station } from "../../Entities/Station";
-import { Measurements, Coordinates } from "../../Entities/Measurements";
+import { Measurement, Coordinates } from "../../Entities/Measurements";
 import { IMeasurementsRepository, IStationRepository } from "../../Interfaces/repositories";
 import { MeasurementView } from "../../Views/MeasurementView";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
 import { StationView } from "../../Views/StationView";
 import { MeasurementNotFoundError } from "../../Errors/MeasurementsErrors";
-
 
 export namespace IMeasurementsService {
      export namespace Params {
@@ -15,7 +14,8 @@ export namespace IMeasurementsService {
                rainVolume: number,
                windSpeed: number,
                windDirection: number,
-               station_id: string,
+               created_at: Date,
+               station_id: string
           }
      }
 }
@@ -26,7 +26,6 @@ export interface IMeasurementsService {
      remove(id:string): Promise<void>
 }
 
-
 export class MeasurementsService implements IMeasurementsService{
      constructor(
           private readonly idGenerator: IdGeneratorStub,
@@ -36,7 +35,7 @@ export class MeasurementsService implements IMeasurementsService{
 
      async create(params: IMeasurementsService.Params.Create): Promise<MeasurementView> {
 
-          const { temperature, airHumidity, rainVolume,  windSpeed, windDirection, station_id } = params
+          const { temperature, airHumidity, rainVolume,  windSpeed, windDirection, station_id, created_at } = params
 
           const stationExists = await this._stationsRepository.find(station_id);
           if(!stationExists) throw new StationNotFoundError()
@@ -45,14 +44,15 @@ export class MeasurementsService implements IMeasurementsService{
 
           const id = this.idGenerator.gen()
 
-          const measurements: Measurements = { 
+          const measurements: Measurement = { 
                id, 
                temperature, airHumidity, rainVolume,  windSpeed, windDirection,
                coordinates: station.getCoordinates(),
-               station_id: station_id
+               station_id: station_id,
+               created_at
            };
 
-          await this._measurementsRepository.upsert(measurements)
+          await this._measurementsRepository.add(measurements)
 
           return new MeasurementView(measurements)
 

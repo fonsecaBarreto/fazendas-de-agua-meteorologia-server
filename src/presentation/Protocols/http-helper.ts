@@ -32,7 +32,7 @@ export const NotFound = (error?: Error | string) => {
 } 
 
 
-export const Unprocessable = ( params: Record<string, string>, message?:string) => {
+export const Unprocessable = ( params: Record<string, any>, message?:string) => {
     return { status: 400, body: {
         message: message || "Preencha todos os campos corretamente!",
         params

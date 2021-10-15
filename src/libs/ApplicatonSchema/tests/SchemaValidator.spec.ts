@@ -1,6 +1,6 @@
 import { NIL } from 'uuid'
-import { SchemaBuilder, AppSchemaTools } from '../SchemaBuilder'
-import { makeInvalidMessage, makeMissingMessage, SchemaValidator } from '../SchemaValidator'
+import SchemaBd, { SchemaBuilder } from '../SchemaBuilder'
+import SchemaVl, { makeInvalidMessage, makeMissingMessage, SchemaValidator } from '../SchemaValidator'
 
 
 export type MockedBodyContent = {
@@ -15,7 +15,7 @@ export type MockedBodyContent = {
 }
 
 const makeSut = () => {
-     const schema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder) => {
+     const schema = SchemaBd.create( (s: SchemaBuilder) => {
           s.string("name")
           s.number("age")
           s.boolean("isAdmin")
@@ -25,7 +25,7 @@ const makeSut = () => {
           s.cep("cep")
           s.uuid("user_id")
      })  
-     const sut = new SchemaValidator()
+     const sut = new SchemaVl()
      return {sut, schema}
 }
 

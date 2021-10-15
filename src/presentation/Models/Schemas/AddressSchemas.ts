@@ -1,6 +1,6 @@
-import { SchemaBuilder, AppSchemaTools } from '../../../libs/ApplicatonSchema/SchemaBuilder'
+import SchemaBd, { SchemaBuilder } from '../../../libs/ApplicatonSchema/SchemaBuilder'
 
-export const Address_BodySchema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder )=> {
+export const Address_BodySchema = SchemaBd.create( (s: SchemaBuilder)=> {
   s.string("street").description("Logradouro")
   s.string("region").description("Bairro")
   s.string("number").description("Numero")
@@ -11,12 +11,12 @@ export const Address_BodySchema = SchemaBuilder.create( (s: AppSchemaTools.IBuil
 });
 
 
-export const Address_ParamsSchema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder )=> {
+export const Address_ParamsSchema = SchemaBd.create( (s:SchemaBuilder )=> {
   s.uuid("id").description("Identificação").optional()
 });
 
 
-export const Address_RemoveParamsSchema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder )=> {
+export const Address_RemoveParamsSchema = SchemaBd.create( (s: SchemaBuilder )=> {
   s.uuid("id").description("Identificação")
 });
 

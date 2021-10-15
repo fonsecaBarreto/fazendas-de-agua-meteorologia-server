@@ -1,28 +1,38 @@
-import { Interface } from "readline";
 import { AppSchema } from "./AppSchema";
 export * from './AppSchema'
-export namespace AppSchemaTools {
 
-     export interface ErrorsParams extends Record<string, string> {}
-     export interface IValidator {
-          validate(schema: AppSchema.Schema, params: Record<string, string>): Promise<ErrorsParams | null> 
-     }
-     
+
+/* Validator */
+export namespace SchemaValidator {
+     export type Schema = AppSchema.Schema
+     export interface Params extends Record<string, any> {}
+     export interface Errors extends Record<string, string> {}
+}
+
+export interface SchemaValidator {
+     validate(schema: SchemaValidator.Schema, params: SchemaValidator.Params): Promise<SchemaValidator.Errors | null> 
+}
+
+
+/* Schema Builder */
+export namespace SchemaBuilder{
+     export type Schema = AppSchema.Schema
      export type PropertiesHandler= {
           optional?: () => PropertiesHandler
           description?: (desc:string) => PropertiesHandler
      }
-
-     export interface IBuilder{
-          setProperty(key:string, type?: string):PropertiesHandler
-          getSchema(): AppSchema.Schema
-          string(key:string): PropertiesHandler
-          number(key:string): PropertiesHandler
-          boolean(key:string): PropertiesHandler
-          date(key:string): PropertiesHandler
-          array(key:string): PropertiesHandler
-          json(key:string): PropertiesHandler
-          cep(key:string): PropertiesHandler
-          uuid(key:string):PropertiesHandler
-     }
 }
+
+export interface SchemaBuilder{
+     getSchema(): SchemaBuilder.Schema
+     setProperty(key:string, type?: string): SchemaBuilder.PropertiesHandler
+     string(key:string): SchemaBuilder.PropertiesHandler
+     number(key:string): SchemaBuilder.PropertiesHandler
+     boolean(key:string): SchemaBuilder.PropertiesHandler
+     date(key:string): SchemaBuilder.PropertiesHandler
+     array(key:string): SchemaBuilder.PropertiesHandler
+     json(key:string): SchemaBuilder.PropertiesHandler
+     cep(key:string): SchemaBuilder.PropertiesHandler
+     uuid(key:string): SchemaBuilder.PropertiesHandler
+}
+

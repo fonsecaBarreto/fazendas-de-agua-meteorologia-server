@@ -12,5 +12,7 @@ export namespace AppSchema {
           properties: Properties,
           required: string[]
      }
+
+
 }
 

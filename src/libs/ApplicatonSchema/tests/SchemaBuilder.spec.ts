@@ -1,12 +1,11 @@
 
-import { AppSchemaTools } from '../protocols/AppSchemaTools'
-import { SchemaBuilder, } from '../SchemaBuilder'
+import SchemaBd, { SchemaBuilder } from '../SchemaBuilder'
 
 describe("Schema builder", () =>{
 
      test("Should cretae a schema", () =>{
 
-          const schema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder) => {
+          const schema = SchemaBd.create( (s: SchemaBuilder ) => {
                s.string("name")
           })   
           expect(schema).toEqual({
@@ -18,7 +17,7 @@ describe("Schema builder", () =>{
           }) 
      })
      test("Should cretae a optional param", () =>{
-          const schema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder) => {
+          const schema = SchemaBd.create( (s: SchemaBuilder) => {
                s.string("name").optional()
           })   
           expect(schema).toEqual({
@@ -32,7 +31,7 @@ describe("Schema builder", () =>{
      })
 
      test("Should description to params", () =>{
-          const schema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder) => {
+          const schema = SchemaBd.create( (s: SchemaBuilder) => {
                s.string("name").optional().description("Descrição para o meu nome")
                s.string("nickName").description("Apelido")
           })   
@@ -48,7 +47,7 @@ describe("Schema builder", () =>{
      })
 
      test("Should create a schema", () =>{
-          const schema = SchemaBuilder.create( (s: AppSchemaTools.IBuilder) => {
+          const schema = SchemaBd.create( (s: SchemaBuilder) => {
                s.string("name")
                s.number("age")
                s.boolean("isAdmin")

@@ -1,5 +1,5 @@
-import { AppSchemaTools, AppSchema } from "./protocols/AppSchemaTools";
-export * from './protocols/AppSchemaTools'
+import { SchemaValidator, AppSchema } from "./protocols/AppSchemaTools";
+export * from './protocols'
 
 export const makeMissingMessage = (field: string, missingMessage?: string) =>{
   return missingMessage || `Campo '${field}' é obrigatório`
@@ -9,29 +9,29 @@ export const makeInvalidMessage = (field: string, invalidMessage?:string) =>{
   return invalidMessage || `Campo '${field}' contem valor inválido `
 }
 
-export class SchemaValidator implements AppSchemaTools.IValidator{
+export default class AppSchemaValidator implements SchemaValidator{
 
   constructor(){}
 
-  public async validate( schema: AppSchema.Schema, body: Record<string, any>): Promise< AppSchemaTools.ErrorsParams>  {
+  public async validate( schema: AppSchema.Schema, body: Record<string, any>): Promise< SchemaValidator.Errors>  {
 
     this.sanitize(schema, body)
 
-    var params: AppSchemaTools.ErrorsParams = {}
+    var params: SchemaValidator.Errors = {}
  
     Object.keys(schema.properties).map( field => {
 
-      const { type } = schema.properties[field] 
+      const { type, description } = schema.properties[field] 
       const value = body[field]
 
       if ( value === null ){ 
         if( !schema.required.includes(field)) return;
 
-        return params[field]= makeMissingMessage(field)
+        return params[field]= makeMissingMessage(description|| field)
       } 
 
       let IsTypeValid = this.checkType( value, type )
-      if(IsTypeValid === false) return params[field] = makeInvalidMessage(field) 
+      if(IsTypeValid === false) return params[field] = makeInvalidMessage(description || field) 
     
     }) 
 

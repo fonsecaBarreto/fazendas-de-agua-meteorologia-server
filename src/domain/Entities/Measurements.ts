@@ -6,7 +6,7 @@ export type Coordinates = {
      altitude: number,
 }
 
-export interface Measurements extends BaseEntity{
+export interface Measurement extends BaseEntity{
      temperature: number
      airHumidity: number,
      rainVolume: number,
