@@ -1,6 +1,3 @@
-
-import { KeyObject } from 'crypto'
-import { DESTRUCTION } from 'dns'
 import { v4 } from 'uuid'
 import { AddressView } from '../../../domain/Views/AddressView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'

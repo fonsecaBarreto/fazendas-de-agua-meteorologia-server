@@ -37,9 +37,9 @@ describe("Base Controller", () => {
                const req = MakeRequest({})
                const securityGuard = jest.spyOn(sut, 'securityGuard');
                const res = await sut._handler(req);
-               expect(securityGuard).toHaveBeenCalledWith(undefined)
+               expect(securityGuard).toHaveBeenCalledWith(req.user)
                expect(securityGuard).toHaveReturnedWith(true)
-               expect(res).toEqual(Ok())
+               expect(res).toEqual(Ok(null))
           })
 
           test("Shoudl return 401 if not a user", async ( ) => {

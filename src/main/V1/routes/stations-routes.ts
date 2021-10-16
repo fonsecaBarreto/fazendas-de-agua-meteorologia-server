@@ -1,11 +1,9 @@
 import { Router, Express } from 'express'
 
 import { controllers } from '../factories/stations-factories'
+import { controllers as MeasurementsController } from '../factories/measurements-factories'
 const { create, update, find, remove } = controllers
 
-
-import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/Admin/Measurements.Controller'
-const createMeasure = new CreateMultiplesMeasurementsController()
 
 import { FormDataMidleware } from '../middlewares/FileParse'
 const formDataMidleware = FormDataMidleware({
@@ -31,7 +29,7 @@ export default async function (app: Router){
           .put(update.execute())
           .delete(remove.execute())
 
-     router.post("/test", formDataMidleware, createMeasure.execute())
+     router.post("/:station_id/measurements", formDataMidleware, MeasurementsController.createMultiples.execute())
 
 }
 
