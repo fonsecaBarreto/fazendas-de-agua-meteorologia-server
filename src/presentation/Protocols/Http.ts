@@ -7,7 +7,7 @@ export type Request = {
     headers: any
     body?:any,
     user?: UserView,
-    files?: any
+    files?: Record<string, any>
 }
 
 export type Response = {

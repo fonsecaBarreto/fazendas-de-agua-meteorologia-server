@@ -6,6 +6,8 @@ export const MakeRequest = (req?: Partial<Request>):Request =>{
           query: {},
           headers: {},
           body:{},
+          user: null,
+          files: {},
           ...req
      }
 }

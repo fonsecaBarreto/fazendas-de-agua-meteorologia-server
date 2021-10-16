@@ -1,72 +1,57 @@
-import { IStationService } from "../../../../domain/Services/Stations/Station_Services";
 import { AccessType, BaseController, Ok, NotFound, Request, Response, BadRequest, Unprocessable  } from "../../../Protocols/BaseController";
-import { SchemaValidator } from "../../../../libs/ApplicatonSchema/SchemaValidator";
+import AppSchemaValidator, { SchemaValidator } from "../../../../libs/ApplicatonSchema/SchemaValidator";
 import { CsvReader, Errors } from "../../../../libs/CsvReader";
 import { Measurement } from "../../../../domain/Entities/Measurements";
-
 import { Measurement_CreateBodySchema } from '../../../Models/Schemas/MeaserumentsSchemas'
+import { IMeasurementsService } from "../../../../domain/Services/Stations/Measurements_Services";
 
-/* 
-     temperature: number
-     airHumidity: number,
-     rainVolume: number,
-     windSpeed: number,
-     windDirection: number,
-     station_id: string,
-     created_at: Date
- */
-
-/* export interface CsvConflicts {
-     linha: number,
-     params: AppSchemaTools.ErrorsParams
-} */
+export type CsvConflict = Record<string, SchemaValidator.Errors>
 
 export class CreateMultiplesMeasurementsController extends BaseController {
      constructor(
+          private readonly csvReader: CsvReader,
           private readonly validator: SchemaValidator,
-          private readonly csvReader: CsvReader
+          private readonly measurementsServices: Pick<IMeasurementsService,'create'>
          
      ){ super( AccessType.ADMIN, { })}
 
-     async entyValidator(list:any[]): Promise<any[]> {
-
-          const lines: any = {}
+     async entryValidator(list:any[]): Promise<CsvConflict> {
+          const conflits: CsvConflict = {}
           await Promise.all(list.map(async (entry, index) =>{
-
-               const errors = await this.validator.validate(Measurement_CreateBodySchema, entry)
-               lines[index] =({
-                    line: index,
-                    params: errors
-               })
+               const errors = await this.validator.validate(Measurement_CreateBodySchema, entry);
+               if(errors){
+                    conflits[index] = errors
+               }
           }))
-
-          return lines
+          return conflits
      }
 
      async handler(request: Request): Promise<Response> {
 
+          if(!request?.files?.csv_entry) return NotFound("Arquivo .Csv não encontrado.")
           const { csv_entry } = request.files
-          if(!csv_entry) return NotFound(csv_entry)
 
          try{
                const measurementsList = await this.csvReader.read(csv_entry)
+
+               const errors = await this.entryValidator(measurementsList)
+
+               if(Object.keys(errors).length > 0)
+                    return Unprocessable(errors, "O Arquivo .Csv Contem dados insatisfatórios");
+
+               await Promise.all(measurementsList.map( async ( createParams: IMeasurementsService.Params.Create)=>{
+                    await this.measurementsServices.create(createParams)
+               }))
+
+               return Ok();
                
-               const errors = await this.entyValidator(measurementsList)
-               if(errors){
-                    return Unprocessable(errors, "Aprensete adadasda")
-               }
-               
-          }catch(err){
+          } catch (err) {
                if(err instanceof Errors.InvalidCsvFile){
                     return BadRequest(err.message)
                }
                throw err
           }
-
-          
-          //validator linha por linha
-
-          return Ok() 
      }
 }
 
+``
