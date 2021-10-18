@@ -36,7 +36,6 @@
     "express-openapi-validator": "^4.13.2",
     "fast-csv": "^4.3.6",
     "formidable": "^1.2.2",
-    "i": "^0.3.7",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.11",
     "npm": "^8.1.0",

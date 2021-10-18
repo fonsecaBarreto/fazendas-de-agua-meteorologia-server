@@ -15,8 +15,8 @@ export default {
      }
      },
      externalDocs: {
-     description: 'Teste',
-     url: 'https://www.udemy.com/course/tdd-com-mango/?referralCode=B53CE5CA2B9AFA5A6FA1'
+     description: 'Metereologia',
+     url: ''
      },
      servers: [{
      url: '/api/v1',
