@@ -9,17 +9,16 @@
   },
   "servers": [
     {
-      "url": "localhost:3000"
+        "url": "localhost:9000/api/v1",
+        "description": "Servidor Principal"
     }
   ],
   "paths": {
     "/user": {
       "get": {
-        "summary": "Details about a user test",
+        "summary": "Lista todos os usuarios cadastrados",
         "operationId": "listUser",
-        "tags": [
-          "user"
-        ],
+        "tags": [ "user" ],
         "parameters": [
           {
             "name": "id",
@@ -34,7 +33,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Details about a user",
+            "description": "Informações sobre usuarios",
             "headers": {
               "x-next": {
                 "description": "A link to the next page of responses",
