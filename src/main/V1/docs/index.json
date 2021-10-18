@@ -74,9 +74,7 @@
                 ],
                 "properties": {
 
-                    "number": "Cassa 1",
-                    "uf": "RJ",
-                    "postalCode": "00000000",
+        
                     "city": "Rio das Ostras",
                     "details": "Detalhe teste",
                     "created_at": "2021-10-13T12:34:32.030Z",
@@ -91,11 +89,27 @@
                     },
                     "region": {
                         "type": "string",
-                        "description": "Rua"
+                        "description": "Bairro"
                     },
-                    "tag": {
-                        "type": "string"
+                    "number": {
+                        "type": "string",
+                        "description": "Numero"
+                    },
+                    "uf": {
+                        "type": "string",
+                        "description": "Estado"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "description": "cep"
+                    },
+                     "city": {
+                        "type": "string",
+                        "description": "Rio das Ostras"
                     }
+                    
+                    
+                  
                 }
             },
             "Error": {
