@@ -68,7 +68,7 @@
     },
     "components": {
         "schemas": {
-            "User": {
+            "Address": {
                 "type": "object",
                 "required": [
                     "id",
