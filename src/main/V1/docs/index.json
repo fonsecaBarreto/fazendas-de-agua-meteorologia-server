@@ -70,17 +70,28 @@
         "schemas": {
             "Address": {
                 "type": "object",
-                "required": [
-                    "id",
-                    "name"
+                "required": [ "id", "street", "region", "number", "uf", "postalCode", "city", "details"
                 ],
                 "properties": {
+
+                    "number": "Cassa 1",
+                    "uf": "RJ",
+                    "postalCode": "00000000",
+                    "city": "Rio das Ostras",
+                    "details": "Detalhe teste",
+                    "created_at": "2021-10-13T12:34:32.030Z",
+                    "updated_at": "2021-10-13T12:34:32.030Z"
                     "id": {
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string",
+                        "format": "uuid"
                     },
-                    "name": {
-                        "type": "string"
+                    "street": {
+                        "type": "string",
+                        "description": "Rua"
+                    },
+                    "region": {
+                        "type": "string",
+                        "description": "Rua"
                     },
                     "tag": {
                         "type": "string"
