@@ -14,57 +14,7 @@
         }
     ],
     "paths": {
-        "/user": {
-            "get": {
-                "summary": "Lista todos os usuarios cadastrados",
-                "operationId": "listUser",
-                "tags": [
-                    "user"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "description": "ID of the user",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Informações sobre usuarios",
-                        "headers": {
-                            "x-next": {
-                                "description": "A link to the next page of responses",
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "unexpected error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
     },
     "components": {
         "schemas": {
@@ -106,38 +56,8 @@
                     "details": {
                         "type": "string",
                         "description": "Detalhes"
-                    },
-                    "created_at": {
-                        "type": "date",
-                        "description": "Data de criação"
-                    },
-                    "updated_at": {
-                        "type": "date",
-                        "description": "Data da ultima atualização"
                     }
                 }
-            },
-            "Error": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "message"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "securitySchemes": {
-            "BasicAuth": {
-                "type": "http",
-                "scheme": "basic"
             }
         }
     },
