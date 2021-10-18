@@ -2,7 +2,7 @@ module.exports = {
     "openapi": "3.0.0",
     "info": {
         "version": "1",
-        "title": "Fazenda de Agua Metereologia",
+        "title": "Fazenda de Agua Metereologia [TEST]",
         "license": {
             "name": "MIT"
         }
