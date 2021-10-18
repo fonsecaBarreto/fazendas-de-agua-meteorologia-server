@@ -47,16 +47,16 @@ ser também instalados em propriedades que se interessem por estas tecnologias.
 
 </br>
 
-<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagrama%20de%20TecnologiasServi%C3%A7os.jpg" width="65%">
+<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20TecnologiasServi%C3%A7os.jpg" width="65%">
 
 </br>
 
 ## Diagrama de Entidades
 
-<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagrama%20de%20Entidades-v2.jpg" width="65%">
+<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20Entidades-v2.jpg" width="65%">
 
 </br>
 
 ## Niveis de Acesso
 
-![Diagrama de Usuarios](https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagrama%20de%20Usuarios-v1.jpg)
+![Diagrama de Usuarios](https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20Usuarios-v1.jpg)
