@@ -7,7 +7,7 @@ const { v4 } = require("uuid");
 const createAddress = () =>({
   id: v4(),
   street:"Rua teste",
-  region:"Bairro Liberdade",
+  region:"Bairro Qualquer",
   uf: "RJ",
   number:'Cassa 1',
   city: "Rio das Ostras",
