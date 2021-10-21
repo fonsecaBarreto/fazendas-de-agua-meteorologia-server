@@ -15,7 +15,6 @@ export const Station_UpdateBodySchema: SchemaBuilder.Schema = SchemaBd.create( (
      s.number("altitude").description("UF")
 });
    
-   
 export const Station_RequiredIdParams = SchemaBd.create( (s: SchemaBuilder)=> {
      s.uuid("id").description("Identificação")
 });

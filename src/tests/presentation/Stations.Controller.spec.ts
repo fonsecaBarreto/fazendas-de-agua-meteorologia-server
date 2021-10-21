@@ -12,12 +12,17 @@ import { UserView } from '../../domain/Views/UserView'
 import { MakeFakeUser } from '../mocks/entities/MakeUser'
 import { MakeFakeStation } from '../mocks/entities/MakeStation'
 import { AddressNotFoundError } from '../../domain/Errors/AddressesErrors'
+import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
+import { AddressView } from '../../domain/Views/AddressView'
 
 
 
 const makeSut = () =>{
+     const faked_addresses = [
+          MakeFakeAddress()
+     ]
      const faked_stations = [ 
-          MakeFakeStation(),
+          MakeFakeStation({ address_id: faked_addresses[0].id }),
           MakeFakeStation(),
      ]
      class StationServicesStub implements IStationService {
@@ -28,7 +33,7 @@ const makeSut = () =>{
                return new StationView(MakeFakeStation())
           }
           async find(id: string): Promise<StationView> {
-               return new StationView(faked_stations[0])
+               return new StationView(faked_stations[0],faked_addresses[0])
           }
           async list(): Promise<Station[]> {
                return faked_stations;
@@ -48,7 +53,7 @@ const makeSut = () =>{
      const remove = new RemoveStationController(stationsServices)
      const update = new UpdateStationController(stationsServices)
 
-     return { create, update, find, remove, stationsServices, faked_stations}
+     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses }
 }
 
 describe("CreateUserController", () =>{
@@ -169,15 +174,14 @@ describe("FindStationController", () =>{
      })
 
      test("Should return 200", async () =>{
-          const { find, faked_stations  } = makeSut()
+          const { find, faked_stations, faked_addresses  } = makeSut()
           const req = MakeRequest({ params: { id: 'any_id' } })
           const res = await find.handler(req)
           expect(res.status).toBe(200)
-          expect(res.body).toMatchObject(faked_stations[0])
+          expect(res.body).toEqual({ ...faked_stations[0], measurements:[], address: new AddressView(faked_addresses[0]).getLabelView()})
      })
 
-
-     test("Should return a list with 200 statyus ", async () =>{
+     test("Should return a list with 200 status ", async () =>{
           const { find, faked_stations } = makeSut()
           const req = MakeRequest();
           const res = await find.handler(req);

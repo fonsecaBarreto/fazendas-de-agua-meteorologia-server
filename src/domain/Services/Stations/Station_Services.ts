@@ -1,3 +1,4 @@
+import { address } from "faker";
 import { Station } from "../../Entities/Station";
 import { AddressNotFoundError } from "../../Errors/AddressesErrors";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
@@ -7,7 +8,6 @@ import { IStationRepository } from "../../Interfaces/repositories/IStationReposi
 import { StationView } from "../../Views/StationView";
 
 export namespace IStationService {
-
      export namespace Params {
 
           export type Create ={
@@ -16,9 +16,7 @@ export namespace IStationService {
                address_id:string,
           }
           export interface Update extends Omit<Create,'address_id'>{}
-
      }
-     
 }
 
 export interface IStationService {
@@ -28,7 +26,6 @@ export interface IStationService {
      list(): Promise<Station[]>
      remove(id:string): Promise<void>
 }
-
 
 export class StationsServices implements IStationService{
      constructor(
@@ -48,7 +45,7 @@ export class StationsServices implements IStationService{
 
           await this._stationsRepository.upsert(station)
 
-          return new StationView(station)
+          return new StationView(station, addressExists )
 
      }
 
@@ -69,8 +66,8 @@ export class StationsServices implements IStationService{
      }
 
      async find(id: string): Promise<StationView> {
-          const station = await this._stationsRepository.find(id)
-          return station ? new StationView(station) : null;
+          const station: StationView = await this._stationsRepository.findStation(id)
+          return station;
      }
 
      async list(): Promise<Station[]> {

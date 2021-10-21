@@ -2,6 +2,12 @@
 import { Address } from "../Entities/Address";
 import { Station } from "../Entities/Station";
 
+
+export interface AddressLabelView {
+  label: string,
+  value: string
+}
+
 export class AddressView implements Address{
 
   id: string;
@@ -26,5 +32,13 @@ export class AddressView implements Address{
   setAddress(stas: Station[]){
     this.stations = stas
   }
+
+  getLabelView(): AddressLabelView{
+    return (
+      { 
+        value: this.id,
+        label: `${this.street}, ${this.number}; ${this.region}, ${this.city} - ${this.uf} (${this.postalCode})`
+      })
+  } 
 }
 

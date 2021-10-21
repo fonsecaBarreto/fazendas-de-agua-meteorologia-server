@@ -17,6 +17,9 @@ const makeSut = () =>{
           MakeFakeStation()
      ]
      class StationsRepositoryStub implements IStationRepository{
+          findStation(id: String): Promise<StationView> {
+               return Promise.resolve(new StationView( fake_stations[0]))
+          }
           async list(): Promise<Station[]> {
                return fake_stations
           }
@@ -138,7 +141,7 @@ describe("Station Services", () =>{
      describe("Find", () =>{
           test("Should return null if invalid_id", async () =>{
                const { sut, stationsRepository } = makeSut()
-               jest.spyOn(stationsRepository, 'find').mockImplementationOnce(()=>{
+               jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
                     return Promise.resolve(null);
                })
                const resp = await sut.find('any_id')

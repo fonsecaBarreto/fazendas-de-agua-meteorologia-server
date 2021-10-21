@@ -10,10 +10,9 @@ import { AddressView } from '../../domain/Views/AddressView'
 
 const makeSut = () =>{
 
-     const fake_addresses = [
-          MakeFakeAddress()
-     ]
-    class AddressesServicesStub implements IAddressesServices{
+     const fake_addresses = [  MakeFakeAddress()  ]
+
+     class AddressesServicesStub implements IAddressesServices{
 
          async create(params: IAddressesServices.Params.Create): Promise<AddressView> {
               return new AddressView(MakeFakeAddress())
@@ -179,39 +178,99 @@ describe("RemoveAddresController", () =>{
 
 })
 
-
 describe("FindAddresController", () =>{
 
+     describe("Default", () =>{
 
-     test("Should return 204 if no address were found", async () =>{
-          const { find, addressesServices } = makeSut()
-   
-          jest.spyOn(addressesServices,'find').mockImplementationOnce(async ()=>{
-               return null
+          test("Should return 204 if no address were found", async () =>{
+               const { find, addressesServices } = makeSut()
+               
+               jest.spyOn(addressesServices,'find').mockImplementationOnce(async ()=>{
+                    return null
+               }) 
+               const req = MakeRequest({params: {id: "any_id"}});
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok(null)) 
           }) 
-          const req = MakeRequest({params: {id: "any_id"}});
-          const res = await find.handler(req)
-          expect(res).toEqual(Ok(null)) 
-     }) 
+          
+          
+          test("Should return 200 if address were found", async () =>{
+               const { find, fake_addresses } = makeSut()
+               const req = MakeRequest({params: {id: "any_id"}});
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok(new AddressView(fake_addresses[0]))) 
+          }) 
+          
+          
+          test("Should return 200 list if no parameter were provided", async () =>{
+               const { find, fake_addresses } = makeSut()
+               
+               const req = MakeRequest();
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok(fake_addresses)) 
+          }) 
+          
+          
+     })
+
+     describe("With Query v='labelview' ", () =>{
+
+          test("Should return 204 if no address were found", async () =>{
+               const { find, addressesServices } = makeSut()
+               jest.spyOn(addressesServices,'find').mockImplementationOnce(async ()=> null) 
+               const req = MakeRequest({params: {id: "any_id"}, query:{v:"labelview"}});
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok(null)) 
+          }) 
+          
+          test("Should return 200 if a address were found", async () =>{
+               const { find, fake_addresses } = makeSut()
+               const req = MakeRequest({params: {id: "any_id"}, query:{v:"labelview"}});
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok(new AddressView(fake_addresses[0]).getLabelView())) 
+          }) 
+          
+          test("Should return a empty list if no address were found", async () =>{
+               const { find, addressesServices } = makeSut()
+               jest.spyOn(addressesServices,'list').mockImplementationOnce(async ()=> [] ) 
+               const req = MakeRequest({ query:{v:"labelview" }});
+               const res = await find.handler(req)
+               expect(res).toEqual(Ok([])) 
+          }) 
+
+          test("Should return LabelView list", async () =>{
+               const { find,  addressesServices } = makeSut()
+               jest.spyOn(addressesServices,'list').mockImplementationOnce(async ()=> [
+                    MakeFakeAddress({
+                         id:"id_test_1",
+                         street: "Ciadade Teste 1",  number: "123",  region: "Bairro Teste", details: "Casa 2",
+                         city: "Cidade Teste", uf:"RJ", postalCode: "00000000",
+                    }),
+                    MakeFakeAddress({
+                         id:"id_test_2",
+                         street: "Ciadade Teste 2",  number: "123",  region: "Bairro Teste", details: "Casa 1",
+                         city: "Cidade Teste", uf:"RJ", postalCode: "00000000",
+                    })
+               ]) 
+
+               const req = MakeRequest({ query:{v:"labelview" }});
+               const res = await find.handler(req)
+
+               expect(res).toEqual(Ok([
+                    { 
+                         value: 'id_test_1',
+                         label: `Ciadade Teste 1, 123; Bairro Teste, Cidade Teste - RJ (00000000)`
+                    },
+                    { 
+                         value: 'id_test_2',
+                         label: `Ciadade Teste 2, 123; Bairro Teste, Cidade Teste - RJ (00000000)`
+                    }
+               ])) 
+          }) 
+     })
 
 
-     test("Should return 200 if address were found", async () =>{
-          const { find, fake_addresses } = makeSut()
-          const req = MakeRequest({params: {id: "any_id"}});
-          const res = await find.handler(req)
-          expect(res).toEqual(Ok(new AddressView(fake_addresses[0]))) 
-     }) 
-
-
-     test("Should return 200 list if no parameter were provided", async () =>{
-          const { find, fake_addresses } = makeSut()
-
-          const req = MakeRequest();
-          const res = await find.handler(req)
-          expect(res).toEqual(Ok(fake_addresses)) 
-     }) 
 
 
 })
-
-
+     

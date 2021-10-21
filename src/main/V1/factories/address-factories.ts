@@ -15,5 +15,5 @@ export const controllers = {
      create: new CreateAddressController(services),
      update: new UpdateAddressController(services),
      find: new FindAddresController(services),
-     remove: new RemoveAddresController(services)
+     remove: new RemoveAddresController(services),
 }

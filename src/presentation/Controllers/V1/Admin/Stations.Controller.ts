@@ -3,6 +3,7 @@ import { AccessType, BaseController, Ok, NotFound, Request, Response  } from "..
 import { Station_CreateBodySchema, Station_OptionalIdParams, Station_RequiredIdParams, Station_UpdateBodySchema } from '../../../Models/Schemas/StationsSchemas'
 import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
+import { AddressView } from "../../../../domain/Views/AddressView";
 
 export class CreateStationController extends BaseController {
      constructor(
@@ -64,7 +65,8 @@ export class FindStationController extends BaseController {
 
           if(id){
                const station= await this.stationsServices.find(id)
-               return Ok(station)
+               if(!station) return Ok(null)
+               return Ok({ ...station, address: station.address ? new AddressView(station.address).getLabelView() : null })
           }
 
           const stations = await this.stationsServices.list();

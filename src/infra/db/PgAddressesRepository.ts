@@ -3,8 +3,6 @@ import { IAddressRepository } from "../../domain/Interfaces/repositories/IAddres
 import { PgBaseRepository } from "./PgBaseRepository";
 import KnexAdapter from './KnexAdapter'
 import { AddressView } from "../../domain/Views/AddressView";
-import { UserView } from "../../domain/Views/UserView";
-
 
 export class PgAddressesRepository extends PgBaseRepository<Address> implements IAddressRepository{
      constructor() { super("addresses") }

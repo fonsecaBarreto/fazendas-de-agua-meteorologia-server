@@ -1,4 +1,6 @@
 
+import { threadId } from "worker_threads";
+import { Address } from "../Entities/Address";
 import { Measurement, Coordinates } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
 
@@ -16,10 +18,12 @@ export class StationView implements Station {
   address_id: string;
 
   //Relactions
+  address?: Address
   measurements?: Measurement[] 
 
-  constructor(station:Station, ms: Measurement[] = []){
+  constructor(station:Station, address: Address= null,  ms: Measurement[] = []){
     Object.assign(this,station)
+    this.address = address;
     this.measurements = ms;
   }
 
@@ -27,6 +31,7 @@ export class StationView implements Station {
     const { latitude, altitude, longitude  } = this
     return ({ latitude, altitude, longitude })
   }
+
   
 }
 

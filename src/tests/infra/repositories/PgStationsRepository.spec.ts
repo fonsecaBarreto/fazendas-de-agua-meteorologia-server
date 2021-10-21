@@ -1,3 +1,5 @@
+import { v4 } from 'uuid'
+import { StationView } from '../../../domain/Views/StationView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'
 import { PgStationsRepository } from '../../../infra/db/PgStationsRepository'
 import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
@@ -26,6 +28,21 @@ describe("Stations Pg Repository", () =>{
 
      afterAll(async ()=> { await KnexAdapter.close() })
 
+
+     describe("Find Station ( as StationView )", () => {
+
+          test("should return null if no station were found", async () =>{
+               const sut = makeSut();
+               const result = await sut.findStation(v4())
+               expect(result).toBeFalsy()
+          })
+
+          test("should find station with address related", async () =>{
+               const sut = makeSut();
+               const result = await sut.findStation(fakeStations[0].id)
+               expect(result).toMatchObject( new StationView(fakeStations[0], fakeAddresses[0]))
+          })
+     })
      test('Should find station By id', async () =>{
           const sut = makeSut();
           const result = await sut.find(fakeStations[0].id)

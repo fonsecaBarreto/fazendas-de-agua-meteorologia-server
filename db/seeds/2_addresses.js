@@ -1,8 +1,5 @@
 const { hashSync } = require("bcrypt");
-const { Knex } = require("knex");
 const { v4 } = require("uuid");
-
-
 
 const createAddress = () =>({
   id: v4(),
@@ -15,15 +12,13 @@ const createAddress = () =>({
   postalCode: "00000000"
 })
 
-
-const createUser = (role, username) =>({
+const createUser = (role, username, name) =>({
   id: v4(),
-  name: "Usuario Basico",
   password: hashSync("123456",12), 
   username,
-  role
+  role,
+  name
 })
-
 
 const createStation = (address_id) =>({
   id: v4(),
@@ -40,7 +35,7 @@ const relateUserToAddress  = (user_id, address_id) =>({
 })
 
 const testAddresses = [createAddress()]
-const testUsers = [ createUser(0, 'usuario_test'), createUser(1, "admin") ]
+const testUsers = [ createUser(0, 'usuario_test', "Usuario teste") ]
 const testStations = [ createStation(testAddresses[0].id) ]
 
 exports.seed = async function(knex) {
@@ -48,7 +43,6 @@ exports.seed = async function(knex) {
   await knex('addresses').del()
   await knex('addresses').insert(testAddresses);
 
-  await knex('users').del()
   await knex('users').insert(testUsers);
 
   await knex('users_addresses').del()

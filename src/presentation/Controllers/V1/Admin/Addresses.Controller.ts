@@ -3,6 +3,10 @@ import { AccessType, BadRequest, BaseController, Ok } from "../../../Protocols/B
 import { NotFound, Request, Response } from "../../../Protocols/Http";
 import { Address_BodySchema, Address_ParamsSchema, Address_RemoveParamsSchema } from '../../../Models/Schemas/AddressSchemas'
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../../domain/Errors/AddressesErrors";
+import { address } from "faker";
+import { AddressView } from "../../../../domain/Views/AddressView";
+import { serialize } from "v8";
+import { Address } from "../../../../domain/Entities/Address";
 
 export class CreateAddressController extends BaseController {
      constructor(
@@ -63,19 +67,26 @@ export class FindAddresController extends BaseController {
 
      async handler(request: Request): Promise<Response> {
 
+          const viewMode = request.query.v
+
           const id = request.params.id;
 
           if(id){
-               const user= await this.addressesServices.find(id)
-               return Ok(user)
+               const address: AddressView = await this.addressesServices.find(id)
+               if(!address) return Ok(null);
+               if(viewMode === "labelview") return Ok((address.getLabelView()))
+               return Ok(address)
           }
 
-          const users = await this.addressesServices.list();
-          return Ok(users)
-
+          const addresses: Address[] = await this.addressesServices.list();
+          if(viewMode === "labelview"){ 
+               const serialized = await Promise.all( addresses.map(a=>(new AddressView(a).getLabelView())) )
+               return Ok(serialized)
+          }
+          return Ok(addresses)
+          
      }
 }
-
 
 export class RemoveAddresController extends BaseController {
      constructor(
