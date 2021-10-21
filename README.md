@@ -1,7 +1,7 @@
 # Fazendas de água - Projeto de Meteorologia ⛅ 
-#### _Estratégias de formação, capacitação e criação de redes de sustentabilidade com a adoção de pacotes tecnológicos._
+### _Estratégias de formação, capacitação e criação de redes de sustentabilidade com a adoção de pacotes tecnológicos._
 
-## Resumo
+## Projeto
 > A formação de ambientes ou instituições constituídas por uma rede colaborativa com
 foco na sustentabilidade faz parte dos objetivos de desenvolvimento sustentável (ODS).
 Desde 2017 o projeto Fazendas de água tem realizado ações junto a produtores rurais,
@@ -24,6 +24,51 @@ ser também instalados em propriedades que se interessem por estas tecnologias.
 
 </br>
 
+## Resumo
+
+Esse Servidor terá como responsabilidade a implementação da regra de negócio do projeto de <b>Meteorologia - Fazendas de água </b>;
+Utilizando-se de Node.js ( ambiente de execução Javascript multiplataforma ), e empregando ferramentas como: TypeScript,  jest,  entre outras.
+
+Forne como interface principal de uso, uma API (Interface de programação de aplicações ) via protocolo HTTP.  Destinado à integração com quais quer aplicação desejada.
+
+Arquitetura desacoplada, utilizando DDD (Domain-driven design), tentando ao máximo fazer a distribuição de responsabilidades em camadas, sempre seguindo os princípios do SOLID prevendo maior escalabilidade ao projeto.
+ 
+
+</br>
+
+## Esquema de Tecnologias e Serviços previstos
+- Hospedagem incial será fetia via Plataforma [Heroku](https://dashboard.heroku.com/)
+
+<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20TecnologiasServi%C3%A7os.jpg" width="65%">
+
+</br>
+
+#### Ferramentas e bibliotecas empregadas até o momento:
+
+- node.js [Typescript]- 
+- Express 
+- NPM
+- Git
+- Jest
+- Bcrypt
+- JsonWebToken
+- Deploy no Heroku
+- Testes Unitários
+
+</br>
+
+## Diagrama de Entidades
+
+<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Entidades.jpg" width="65%">
+
+</br>
+
+## Niveis de Acesso
+
+![Diagrama de Usuarios](https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Usuarios.jpg)
+
+</br>
+
 ## Equipe envolvida
 
 > **Pesquisa e tutoria** : 
@@ -37,26 +82,3 @@ ser também instalados em propriedades que se interessem por estas tecnologias.
   >> Lucas Eduardo Pinheiro de Souza Toledo 
  
 </br>
-  
-
-## Esquema de Tecnologias e Serviços previstos
-- A Principio Será Utilzado a plataforma Heroku para hospedagem do projeto. 
-- [node.js] [Typescript]- evented I/O for the backend
-- [Express] - fast node.js network app framework
-- [ReactJS] - HTML enhanced for web apps!
-
-</br>
-
-<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20TecnologiasServi%C3%A7os.jpg" width="65%">
-
-</br>
-
-## Diagrama de Entidades
-
-<img src="https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20Entidades-v2.jpg" width="65%">
-
-</br>
-
-## Niveis de Acesso
-
-![Diagrama de Usuarios](https://github.com/fonsecaBarreto/fazendas-de-agua-meteorologia-server/blob/master/Requerimentos/Diagramas/Diagrama%20de%20Usuarios-v1.jpg)
