@@ -165,6 +165,21 @@ describe("UpdateStationController", () =>{
 
 describe("FindStationController", () =>{
 
+
+     test("Should call service with correct values", async () =>{
+          const { find, stationsServices } = makeSut()
+          const serviceSpy = jest.spyOn(stationsServices,'find');
+
+          var req = MakeRequest({ params: { id: 'any_id' }, query:{p:"42"} }) 
+          await find.handler(req)
+          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',42)
+
+          req = MakeRequest({ params: { id: 'any_id' }, query:{p:"NaN"} }) 
+          await find.handler(req)
+          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',0)
+    
+     })
+
      test("Should return status 204 if no station were found", async () =>{
           const { find, stationsServices } = makeSut()
           jest.spyOn(stationsServices,'find').mockImplementationOnce( async()=>null)

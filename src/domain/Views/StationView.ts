@@ -27,6 +27,10 @@ export class StationView implements Station {
     this.measurements = ms;
   }
 
+  setMeasurements(m: Measurement[]){
+    this.measurements = m
+  }
+
   getCoordinates():Coordinates{
     const { latitude, altitude, longitude  } = this
     return ({ latitude, altitude, longitude })

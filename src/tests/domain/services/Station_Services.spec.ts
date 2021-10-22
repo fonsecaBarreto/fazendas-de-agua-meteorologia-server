@@ -10,13 +10,31 @@ import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
 import { fake } from "faker";
 import { StationView } from "../../../domain/Views/StationView";
+import { Measurement } from "../../../domain/Entities/Measurements";
+import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
+
+
+
+const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
+     const ms = []
+     for(let i =0 ; i < n; i ++){
+          ms.push( MakeFakeMeasurement({station_id}));
+     }
+     return ms;
+}
 
 const makeSut = () =>{
      const fake_stations = [
           MakeFakeStation(),
           MakeFakeStation()
      ]
+
+     const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
+
      class StationsRepositoryStub implements IStationRepository{
+          findMeasurements(id: string, offset: number, limit: number): Promise<Measurement[]> {
+               return Promise.resolve(fake_measurements)
+          }
           findStation(id: String): Promise<StationView> {
                return Promise.resolve(new StationView( fake_stations[0]))
           }
@@ -45,7 +63,7 @@ const makeSut = () =>{
      const AddressRepository = new AddressRepositoryStub()
      const sut = new StationsServices(idGenerator, stationsRepository, AddressRepository)
 
-     return { sut, idGenerator, stationsRepository, AddressRepository, fake_stations}
+     return { sut, idGenerator, stationsRepository, AddressRepository, fake_stations, fake_measurements}
 }
 
 const makeFakeCreateParams = (params?:Partial<IStationService.Params.Create>): IStationService.Params.Create =>{
@@ -139,6 +157,24 @@ describe("Station Services", () =>{
      })
 
      describe("Find", () =>{
+
+          test("Should call repository.find with correct value", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               const spy = jest.spyOn(stationsRepository, 'findStation')
+               await sut.find('any_id', 0)
+               expect(spy).toHaveBeenLastCalledWith('any_id')
+          })
+
+          test("Should call repository.findMeasurements with correct values", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               const spy = jest.spyOn(stationsRepository, 'findMeasurements')
+
+               await sut.find('any_id', 0)
+               expect(spy).toHaveBeenLastCalledWith('any_id',0, 25)
+
+               await sut.find('any_id', 2)
+               expect(spy).toHaveBeenLastCalledWith('any_id',50, 25)
+          })
           test("Should return null if invalid_id", async () =>{
                const { sut, stationsRepository } = makeSut()
                jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
@@ -148,9 +184,9 @@ describe("Station Services", () =>{
                expect(resp).toBe(null)
           })
           test("Should return StationView", async () =>{
-               const { sut, fake_stations } = makeSut()
+               const { sut, fake_stations, fake_measurements } = makeSut()
                const resp = await sut.find('any_id')
-               expect(resp).toMatchObject(new StationView(fake_stations[0]))
+               expect(resp).toEqual(new StationView(fake_stations[0], null, fake_measurements))
           })
      })
 

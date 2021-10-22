@@ -3,11 +3,21 @@ import { StationView } from '../../../domain/Views/StationView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'
 import { PgStationsRepository } from '../../../infra/db/PgStationsRepository'
 import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
+import { MakeFakeMeasurement } from '../../mocks/entities/MakeMeasurement'
 import { MakeFakeStation } from '../../mocks/entities/MakeStation'
 
 const makeSut = () =>{
      return new PgStationsRepository()
 }
+
+const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
+     const ms = []
+     for(let i =0 ; i < n; i ++){
+          ms.push( MakeFakeMeasurement({station_id}));
+     }
+     return ms;
+}
+
 
 const fakeAddresses = [
      MakeFakeAddress({ city: "Campos dos Goytacazes"}),
@@ -17,6 +27,7 @@ const fakeAddresses = [
 const fakeStations = [
      MakeFakeStation({ address_id: fakeAddresses[0].id }),
 ]
+const fakeMeasurements = MakeMultiplesMeasurements(50, fakeStations[0].id);
 describe("Stations Pg Repository", () =>{
 
      beforeAll(async ()=>{
@@ -24,11 +35,32 @@ describe("Stations Pg Repository", () =>{
           await KnexAdapter.resetMigrations()
           await KnexAdapter.connection('addresses').insert(fakeAddresses)
           await KnexAdapter.connection('stations').insert(fakeStations)
+          await KnexAdapter.connection('measurements').insert(fakeMeasurements)
      })
 
      afterAll(async ()=> { await KnexAdapter.close() })
 
+     describe("Find Measurements", () => {
 
+          test("should return empty if no measurement or offset out of range", async () =>{
+               const sut = makeSut();
+               const result = await sut.findMeasurements(v4(), 0, 50)
+               expect(result).toEqual([])
+          })
+
+          test("should find 3/5", async () =>{
+               const sut = makeSut();
+               const result = await sut.findMeasurements(fakeStations[0].id, 30, 50)
+               expect(result).toHaveLength(20)
+          })
+
+          test("should find measurements", async () =>{
+               const sut = makeSut();
+               const result = await sut.findMeasurements(fakeStations[0].id, 0, 10)
+               expect(result[0].created_at).toEqual(fakeMeasurements[0].created_at)
+               expect(result).toHaveLength(10)
+          })
+     })
      describe("Find Station ( as StationView )", () => {
 
           test("should return null if no station were found", async () =>{

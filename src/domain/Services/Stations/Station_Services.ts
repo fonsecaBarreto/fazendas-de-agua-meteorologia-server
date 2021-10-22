@@ -22,7 +22,7 @@ export namespace IStationService {
 export interface IStationService {
      create(params: IStationService.Params.Create): Promise<StationView>
      update(id:string, params:  IStationService.Params.Update): Promise<StationView> 
-     find(id:string): Promise<StationView>
+     find(id:string, mpage: number): Promise<StationView>
      list(): Promise<Station[]>
      remove(id:string): Promise<void>
 }
@@ -65,8 +65,16 @@ export class StationsServices implements IStationService{
           return new StationView(station)
      }
 
-     async find(id: string): Promise<StationView> {
+     async find(id: string, mpage = 0): Promise<StationView> {
+          const limit = 25;
+          const offset = limit * mpage;
+
           const station: StationView = await this._stationsRepository.findStation(id)
+          if(!station) return null;
+
+          const measurements = await this._stationsRepository.findMeasurements(id, offset, limit)
+          station.setMeasurements(measurements)
+
           return station;
      }
 

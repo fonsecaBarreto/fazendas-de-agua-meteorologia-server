@@ -18,7 +18,7 @@ export function MakeFakeMeasurement(params?: Partial<Measurement>): Measurement 
           airHumidity: Math.floor(Math.random() * (2 - 0) + 0),
           rainVolume: Math.floor(Math.random() * (10 - 0) + 0),
           windSpeed: Math.floor(Math.random() * (40 - 26) + 26),
-          windDirection: 22,
+          windDirection: Math.floor(Math.random() * (2 - 3) + 2),
           coordinates: MakeFakeCoordinates(),
           station_id: 'any_staion_id',
           created_at: new Date(),
