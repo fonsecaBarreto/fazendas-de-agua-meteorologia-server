@@ -1,4 +1,4 @@
-import { Router, Express } from 'express'
+import { Router } from 'express'
 import { ENV_VARIABLES } from '../../config/keys'
 import AddressControllers from '../factories/address-factories'
 
