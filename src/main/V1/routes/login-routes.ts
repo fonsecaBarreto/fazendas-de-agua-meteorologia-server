@@ -1,16 +1,19 @@
-import { Router, Express } from 'express'
-import { controllers } from '../factories/login-factories'
+import { Router } from 'express'
+import { ENV_VARIABLES } from '../../config/keys'
 
-const { signIn, auth } = controllers
+import LoginControllers from '../factories/login-factories'
 
-export default function (app: Router){
+export default function (router: Router, keys: ENV_VARIABLES){
+     
+     const { signIn, auth } = LoginControllers(keys);
 
-     const router = Router()
-     app.use('/login',router)
+     const r = Router();
+     
+     router.use('/login',r)
 
-     router.post('/signin',signIn.execute())
+     r.post('/signin',signIn.execute())
 
-     router.post('/auth',auth.execute())
+     r.post('/auth',auth.execute())
 
 }
 

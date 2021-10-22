@@ -1,17 +1,18 @@
 import { Router, Express } from 'express'
-import { controllers } from '../factories/address-factories'
+import { ENV_VARIABLES } from '../../config/keys'
+import AddressControllers from '../factories/address-factories'
 
-const { create, update, find, remove } = controllers
-export default function (app: Router){
+export default function (router: Router, keys: ENV_VARIABLES){
+     const { create, update, find, remove } = AddressControllers(keys)
 
-     const router = Router()
-     app.use('/addresses',router)
+     const r = Router()
+     router.use('/addresses',r)
      
-     router.route("/")
+     r.route("/")
           .get(find.execute())
           .post(create.execute())
 
-     router.route("/:id")
+     r.route("/:id")
           .get(find.execute())
           .put(update.execute())
           .delete(remove.execute())

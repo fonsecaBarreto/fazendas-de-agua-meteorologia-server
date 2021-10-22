@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 /* services */
-import { authenticationServices } from '../factories/login-factories'
+import getKeys from '../../config/keys'
+import LoginFactory from '../factories/login-factories'
 
+const { authenticationServices } = LoginFactory(getKeys())
 
 export async function AuthenticateUserMiddleware (request:Request, response: Response, next: NextFunction) {
 

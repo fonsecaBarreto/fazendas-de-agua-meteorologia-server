@@ -1,5 +1,4 @@
 import knex, { Knex } from 'knex'
-import { OperationCanceledException } from 'typescript';
 const knexfile = require("../../../knexfile")
 
 export default class KnexAdapter {
@@ -13,6 +12,7 @@ export default class KnexAdapter {
     }
 
     static async open(env: string): Promise<void> {
+        console.log("Abrindo Nova conexão para: ", env)
         KnexAdapter.env = env
         KnexAdapter.connection = knex(knexfile[KnexAdapter.env]) 
     }

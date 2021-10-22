@@ -1,19 +1,20 @@
-import { Router, Express } from 'express'
+import { ENV_VARIABLES } from '../../config/keys'
+import { Router } from 'express'
 
-import { controllers } from '../factories/users-factories'
+import UsersControllers from '../factories/users-factories'
 
-const { create, update, find, remove } = controllers
+export default async function (router: Router, keys: ENV_VARIABLES){
 
-export default async function (app: Router){
+     const { create, update, find, remove } = UsersControllers(keys)
 
-     const router = Router()
-     app.use('/users',router)
+     const r = Router()
+     router.use('/users',r)
 
-     router.route("/")
+     r.route("/")
           .get(find.execute())
           .post(create.execute())
 
-     router.route("/:id")
+     r.route("/:id")
           .get(find.execute())
           .put(update.execute())
           .delete(remove.execute())

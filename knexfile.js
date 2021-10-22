@@ -34,20 +34,6 @@ module.exports = {
     },
   },
 
- /*  stage: {
-    client: "pg",
-    connection: {
-      connectionString: process.env.STAGE_DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    },
-    migrations: {
-      directory: __dirname + "/db/migrations",
-    },
-    seeds: {
-      directory: __dirname + "/db/seeds",
-    },
-  },
-
   production: {
     client: "pg",
     connection: {
@@ -60,6 +46,22 @@ module.exports = {
     seeds: {
       directory: __dirname + "/db/seeds",
     },
+  }, 
+
+ /* stage: {
+    client: "pg",
+    connection: {
+      connectionString: process.env.STAGE_DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    },
+    migrations: {
+      directory: __dirname + "/db/migrations",
+    },
+    seeds: {
+      directory: __dirname + "/db/seeds",
+    },
   }, */
+
+  
 
 };

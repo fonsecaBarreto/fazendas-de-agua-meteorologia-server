@@ -1,3 +1,4 @@
+import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
 import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/Admin/Measurements.Controller'
 /* services */
@@ -8,15 +9,17 @@ import { UuidAdapter } from '../../../infra'
 import Validator from '../../../libs/ApplicatonSchema/SchemaValidator'
 import CsvReader from '../../../libs/CsvReader'
 
-const stationRepository = new PgStationsRepository()
-const measurementsRepository = new PgMeasurementsRepository()
+export default (keys: ENV_VARIABLES)=>{
 
-const idGenerator = new UuidAdapter()
-const validator = new Validator()
-const csvReader = new CsvReader()
+     const stationRepository = new PgStationsRepository()
+     const measurementsRepository = new PgMeasurementsRepository()
+     const idGenerator = new UuidAdapter()
+     const validator = new Validator()
+     const csvReader = new CsvReader()
+     const measurementsServices = new MeasurementsService(idGenerator, measurementsRepository, stationRepository)
 
-export const measurementsServices = new MeasurementsService(idGenerator, measurementsRepository, stationRepository)
-
-export const controllers = {
-     createMultiples: new CreateMultiplesMeasurementsController(csvReader, validator, measurementsServices, stationRepository)
+     return {
+          createMultiples: new CreateMultiplesMeasurementsController(csvReader, validator, measurementsServices, stationRepository)
+     }
+     
 }
