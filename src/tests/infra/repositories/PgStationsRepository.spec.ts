@@ -1,3 +1,4 @@
+import { exec } from 'child_process'
 import { v4 } from 'uuid'
 import { StationView } from '../../../domain/Views/StationView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'
@@ -42,23 +43,29 @@ describe("Stations Pg Repository", () =>{
 
      describe("Find Measurements", () => {
 
-          test("should return empty if no measurement or offset out of range", async () =>{
+          test("should return null if no measurement or offset out of range", async () =>{
                const sut = makeSut();
-               const result = await sut.findMeasurements(v4(), 0, 50)
-               expect(result).toEqual([])
+               var result = await sut.findMeasurements(v4(), 0, 50)
+               expect(result).toEqual(null)
+
+               result = await sut.findMeasurements(fakeStations[0].id, 50, 50)
+               expect(result).toEqual(null)
           })
 
           test("should find 3/5", async () =>{
                const sut = makeSut();
                const result = await sut.findMeasurements(fakeStations[0].id, 30, 50)
-               expect(result).toHaveLength(20)
+               expect(result.data).toHaveLength(20)
           })
 
           test("should find measurements", async () =>{
                const sut = makeSut();
-               const result = await sut.findMeasurements(fakeStations[0].id, 0, 10)
-               expect(result[0].created_at).toEqual(fakeMeasurements[0].created_at)
-               expect(result).toHaveLength(10)
+               const result = await sut.findMeasurements(fakeStations[0].id, 1, 10)
+               expect(result.total).toBe(50)
+               expect(result.page_index).toBe(1)
+               expect(result.page_limit).toBe(10)
+               expect(result.data).toHaveLength(10)
+              /*  expect(result.data[0].created_at).toEqual(fakeMeasurements[0].created_at)  */
           })
      })
      describe("Find Station ( as StationView )", () => {

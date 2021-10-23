@@ -5,6 +5,13 @@ import { Measurement, Coordinates } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
 
 
+export interface StationMeasurementsFeed {
+  total: number, // Total de Medições Existentes para essa Estação
+  page_index: number // Indice da pagina 
+  page_limit: number // Length de um uma pagina (limit)
+  data: Measurement[] // Medições 
+}
+
 export class StationView implements Station {
 
   id: string;
@@ -19,16 +26,16 @@ export class StationView implements Station {
 
   //Relactions
   address?: Address
-  measurements?: Measurement[] 
+  measurements?: StationMeasurementsFeed
 
-  constructor(station:Station, address: Address= null,  ms: Measurement[] = []){
+  constructor(station:Station, address: Address= null){
     Object.assign(this,station)
     this.address = address;
-    this.measurements = ms;
+    this.measurements = null;
   }
 
-  setMeasurements(m: Measurement[]){
-    this.measurements = m
+  setMeasurements(mm: StationMeasurementsFeed){
+    this.measurements = mm
   }
 
   getCoordinates():Coordinates{
@@ -38,6 +45,3 @@ export class StationView implements Station {
 
   
 }
-
-
-

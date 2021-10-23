@@ -22,7 +22,6 @@ export function MakeFakeMeasurement(params?: Partial<Measurement>): Measurement 
           coordinates: MakeFakeCoordinates(),
           station_id: 'any_staion_id',
           created_at: new Date(),
-          updated_at: new Date(),
           ...params
      })
 }

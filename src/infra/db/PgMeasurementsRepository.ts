@@ -11,8 +11,7 @@ export class PgMeasurementsRepository implements IMeasurementsRepository{
      }
      async add(entity: Measurement): Promise<void> {
           const created_at = entity.created_at || new Date();
-          const updated_at = created_at
-          await KnexAdapter.connection(this.table).insert({ ...entity, created_at, updated_at})
+          await KnexAdapter.connection(this.table).insert({ ...entity, created_at})
           return
      }
      async remove(id: string): Promise<boolean> {

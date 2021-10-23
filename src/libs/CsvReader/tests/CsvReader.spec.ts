@@ -1,13 +1,12 @@
 import CsvReader from '../CsvReader'
 import fs from 'fs'
+import path from 'path'
 
 const MakeBuffer = () =>{
-     const buffer = fs.readFileSync(__dirname+"/deniro.csv");
-     const brokenBuffer = fs.readFileSync(__dirname+"/deniro-missing.csv");
-
+     const buffer = fs.readFileSync(path.resolve(__dirname,"deniro.csv"));
+     const brokenBuffer = fs.readFileSync(path.resolve(__dirname,"deniro-missing.csv"));
      return { buffer, brokenBuffer }
 }
-
 
 describe("CsvReader", () =>{
      describe("read", () =>{

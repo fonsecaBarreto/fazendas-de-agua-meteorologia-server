@@ -72,8 +72,8 @@ export class StationsServices implements IStationService{
           const station: StationView = await this._stationsRepository.findStation(id)
           if(!station) return null;
 
-          const measurements = await this._stationsRepository.findMeasurements(id, offset, limit)
-          station.setMeasurements(measurements)
+          const mm = await this._stationsRepository.findMeasurements(id, offset, limit)
+          if(mm != null) station.setMeasurements(mm);
 
           return station;
      }

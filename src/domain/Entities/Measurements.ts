@@ -17,7 +17,7 @@ export type Coordinates = {
      Northwest = "NW", 
 }
  */
-export interface Measurement extends BaseEntity{
+export interface Measurement extends Omit<BaseEntity, 'updated_at'>{
      temperature: number
      airHumidity: number,
      rainVolume: number,

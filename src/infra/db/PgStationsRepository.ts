@@ -1,7 +1,7 @@
 import { Measurement } from "../../domain/Entities/Measurements";
 import { Station } from "../../domain/Entities/Station";
 import { IStationRepository } from "../../domain/Interfaces/repositories/IStationRepository";
-import { StationView } from "../../domain/Views/StationView";
+import { StationMeasurementsFeed, StationView } from "../../domain/Views/StationView";
 import KnexAdapter from "./KnexAdapter";
 
 import { PgBaseRepository } from "./PgBaseRepository";
@@ -10,14 +10,21 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
      constructor(){
           super('stations')
      }
-     async findMeasurements(station_id: string, offset: number, limit: number): Promise<Measurement[]> {
+     async findMeasurements(station_id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
+        
+          const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();
         
           const measurements: any = await KnexAdapter.connection('measurements').where({station_id})
-               .orderBy('created_at','asc')
-               .limit(limit)
-               .offset(offset)
+               .orderBy('created_at','asc').limit(limit).offset(offset)
+
+          if(!measurements || measurements.length == 0) return null
      
-          return measurements
+          return ({
+               total: Number(count),
+               page_index: Math.ceil(offset / limit),
+               page_limit: limit,
+               data: measurements
+          })
      }
 
      async findStation(id:string): Promise<StationView>{

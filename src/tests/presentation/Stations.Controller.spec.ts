@@ -193,7 +193,7 @@ describe("FindStationController", () =>{
           const req = MakeRequest({ params: { id: 'any_id' } })
           const res = await find.handler(req)
           expect(res.status).toBe(200)
-          expect(res.body).toEqual({ ...faked_stations[0], measurements:[], address: new AddressView(faked_addresses[0]).getLabelView()})
+          expect(res.body).toEqual({ ...faked_stations[0], measurements: null, address: new AddressView(faked_addresses[0]).getLabelView()})
      })
 
      test("Should return a list with 200 status ", async () =>{

@@ -51,7 +51,6 @@ exports.up = function(knex) {
           t.json("coordinates").notNull()
           t.uuid("station_id").references('stations.id').onDelete('CASCADE');
           t.timestamp('created_at').notNull()
-          t.timestamp('updated_at').notNull()
           /*           t.specificType('windDirection', 'char(3)').notNull() */
      }) 
   

@@ -9,7 +9,7 @@ import { MakeFakeStation } from "../../mocks/entities/MakeStation";
 import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
 import { fake } from "faker";
-import { StationView } from "../../../domain/Views/StationView";
+import { StationMeasurementsFeed, StationView } from "../../../domain/Views/StationView";
 import { Measurement } from "../../../domain/Entities/Measurements";
 import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
 
@@ -32,8 +32,16 @@ const makeSut = () =>{
      const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
 
      class StationsRepositoryStub implements IStationRepository{
-          findMeasurements(id: string, offset: number, limit: number): Promise<Measurement[]> {
-               return Promise.resolve(fake_measurements)
+          findMeasurements(id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
+               
+               const mm: StationMeasurementsFeed = {
+                    total: fake_measurements.length, 
+                    page_index: Math.ceil(offset / limit),
+                    page_limit: limit,
+                    data: fake_measurements
+               };
+              
+               return Promise.resolve(mm)
           }
           findStation(id: String): Promise<StationView> {
                return Promise.resolve(new StationView( fake_stations[0]))
@@ -175,6 +183,7 @@ describe("Station Services", () =>{
                await sut.find('any_id', 2)
                expect(spy).toHaveBeenLastCalledWith('any_id',50, 25)
           })
+
           test("Should return null if invalid_id", async () =>{
                const { sut, stationsRepository } = makeSut()
                jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
@@ -186,7 +195,14 @@ describe("Station Services", () =>{
           test("Should return StationView", async () =>{
                const { sut, fake_stations, fake_measurements } = makeSut()
                const resp = await sut.find('any_id')
-               expect(resp).toEqual(new StationView(fake_stations[0], null, fake_measurements))
+               const station = new StationView(fake_stations[0], null)
+               station.setMeasurements(  {
+                    page_index: 0,
+                    page_limit: 25,
+                    total: fake_measurements.length,
+                    data: fake_measurements
+               })
+               expect(resp).toEqual(station)
           })
      })
 
