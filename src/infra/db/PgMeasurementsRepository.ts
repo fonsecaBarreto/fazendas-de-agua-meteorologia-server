@@ -16,6 +16,14 @@ export class PgMeasurementsRepository implements IMeasurementsRepository{
      }
      async add(measurement: Measurement): Promise<void> {
           await KnexAdapter.connection(this.table).insert(measurement)
+          .onConflict(['created_at', 'station_id'])
+          .merge([
+               'measurements.temperature',
+               'measurements.airHumidity',
+               'measurements.rainVolume',
+               'measurements.windSpeed',
+               'measurements.windDirection'
+          ])
           return
      }
 
