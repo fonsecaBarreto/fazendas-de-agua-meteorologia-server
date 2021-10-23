@@ -7,12 +7,13 @@ import { MeasurementView } from '../../domain/Views/MeasurementView'
 import { MakeRequest } from './mocks/MakeRequest'
 import { BadRequest, NotFound, Ok, Unprocessable } from '../../presentation/Protocols/http-helper'
 import { Measurement_CreateBodySchema } from '../../presentation/Models/Schemas/MeaserumentsSchemas'
-import exp from 'constants'
-import { serialize } from 'v8'
-import { IStationRepository } from '../../domain/Interfaces'
+import { IMeasurementsRepository, IStationRepository } from '../../domain/Interfaces'
 import { Station } from '../../domain/Entities/Station'
 import { MakeFakeStation } from '../mocks/entities/MakeStation'
 import { StationNotFoundError } from '../../domain/Errors/StationsErrors'
+import { MeasurementsDuplicatedError } from '../../domain/Errors/MeasurementsErrors'
+import { CsvConflict, MultiplesMeasurementsValidator } from '../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
+import { Measurement } from '../../domain/Entities/Measurements'
 
 const makeSut  =  () =>{
 
@@ -39,18 +40,30 @@ const makeSut  =  () =>{
           }
      }
 
+
+
      class StationRepositoryStub implements Pick<IStationRepository,'find'>{
           find(id: string): Promise<Station> {
                return Promise.resolve(MakeFakeStation())
           }
      }
+
+     class MeasurementsRepositoryStub implements Pick<IMeasurementsRepository,'findByDate'> {
+          async findByDate(station_id: string, created_at: Date): Promise<Measurement> {
+               return null
+          }
+
+     }
      const reader = new CsvReaderStub();
      const validator = new Validatorstub();
      const services = new MeasurementServices()
      const stationRepository = new StationRepositoryStub()
-     const sut = new CreateMultiplesMeasurementsController(reader, validator, services, stationRepository)
+     const measurementsRepository = new MeasurementsRepositoryStub()
+     const mmValidatorStub = new MultiplesMeasurementsValidator(validator,measurementsRepository)
 
-     return { sut, validator, services, reader, fakeMeasurements, stationRepository }
+     const sut = new CreateMultiplesMeasurementsController(reader, mmValidatorStub, services, stationRepository)
+
+     return { sut, mmValidatorStub, validator, services, reader, fakeMeasurements, stationRepository }
 }
 
 const MakeRequestWitFiles= (station_id?:string) =>{
@@ -83,7 +96,6 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
           expect(respo).toEqual(NotFound("Arquivo .Csv não encontrado."))
 
      })
-
  
      test("Should throw 400 if Malformed csv File", async() =>{
           const { sut, reader } = makeSut();
@@ -113,45 +125,46 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
           expect(validatorSpy).toHaveBeenCalledWith( Buffer.alloc(200,"Qualquer coisa")) 
      })
 
-     test("Should call validator with correct values", async() =>{
-          const { sut, validator, fakeMeasurements } = makeSut();
-          const validatorSpy = jest.spyOn(validator, 'validate')
-          const respo = await sut.handler(MakeRequestWitFiles());
-          expect(validatorSpy).toHaveBeenCalledTimes(2);
-          expect(validatorSpy).toHaveBeenNthCalledWith(1, Measurement_CreateBodySchema, fakeMeasurements[0]) 
-          expect(validatorSpy).toHaveBeenNthCalledWith(2, Measurement_CreateBodySchema, fakeMeasurements[1]) 
+     test("Should call mmvalidator with correct values", async() =>{
+
+          const { sut, mmValidatorStub, fakeMeasurements } = makeSut();
+          const validatorSpy = jest.spyOn(mmValidatorStub, 'execute');
+
+          const req = MakeRequestWitFiles()
+          await sut.handler(req);
+
+          expect(validatorSpy).toHaveBeenCalledTimes(1);
+          expect(validatorSpy).toHaveBeenCalledWith(fakeMeasurements, req.params.station_id, false) 
+       
      })
 
+     test("Should return 400 in case mmvalidator return a list of conflicts", async() =>{
+          const { sut, mmValidatorStub, fakeMeasurements } = makeSut();
 
-
-     test("Should return 400 in case validator return a list of erros", async() =>{
-          const { sut, validator, fakeMeasurements } = makeSut();
-
-          jest.spyOn(validator, 'validate').mockImplementation( (): Promise<SchemaValidator.Errors> => {
+          jest.spyOn(mmValidatorStub, 'execute').mockImplementation( (): Promise<CsvConflict> => {
                return Promise.resolve(
                     {
-                         temperature: "Temperatura contem valor invalido",
-                         windSpeed: "Velocidade do vento é obrigatorio"
-                    }
-               )
+                         0: { temperature: "Temperatura contem valor invalido",
+                              windSpeed: "Velocidade do vento é obrigatorio" },
+                         1: 'Pode ser um estring tambem'
+                    }  )
           })  
 
           const respo = await sut.handler(MakeRequestWitFiles());
           expect(respo).toEqual(Unprocessable(
                {
                      0: {  temperature: "Temperatura contem valor invalido", windSpeed: "Velocidade do vento é obrigatorio" },
-                     1: {  temperature: "Temperatura contem valor invalido", windSpeed: "Velocidade do vento é obrigatorio" } 
-               },
-               "O Arquivo .Csv Contem dados insatisfatórios"))
+                     1: 'Pode ser um estring tambem' 
+               }, "O Arquivo .Csv Contem dados insatisfatórios"))
      })
 
 
      test("Should call measurements Services with correct values ", async() =>{
 
           const { sut, services, validator, fakeMeasurements } = makeSut()
-          
+          // In Validator could happen something like the 'sanitization os the atribute', so, its important to make sure that it has been called by reference'
           jest.spyOn(validator, 'validate').mockImplementationOnce( async (schema: AppSchema.Schema, params: SchemaValidator.Params): Promise<SchemaValidator.Errors> => {
-               params.temperature = 88; // modified through reference by the validator for example
+               params.temperature = 88; // modifing temperature for example
                return Promise.resolve(null)
           })
 
@@ -162,11 +175,25 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
      })
 
+
+     test("Should thorw error if duplicity error came from create service, ( if it is a validation problems, meas validator should be refactored ) ", async() =>{
+
+          const { sut, services } = makeSut()
+          
+          jest.spyOn(services, 'create').mockImplementationOnce(async()=>{
+               throw new MeasurementsDuplicatedError()
+          });
+          const result = sut.handler(MakeRequestWitFiles('any_station_id'));
+
+          await expect(result).rejects.toThrow(new MeasurementsDuplicatedError());
+     })
+
      test("Should return 200 ", async() =>{
           const { sut } = makeSut();
           const respo = await sut.handler(MakeRequestWitFiles());
-          expect(respo).toEqual( Ok())
-     })
-     
+          expect(respo.status).toBe(200)
+          expect(respo.body).toHaveLength(2)
+     }) 
+
      
 })
