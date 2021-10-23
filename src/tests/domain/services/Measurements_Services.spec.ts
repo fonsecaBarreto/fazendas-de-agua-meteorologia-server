@@ -1,7 +1,7 @@
 
 import { Measurement, Coordinates } from "../../../domain/Entities/Measurements"
 import { Station } from "../../../domain/Entities/Station";
-import { MeasurementNotFoundError } from "../../../domain/Errors/MeasurementsErrors";
+import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../../domain/Errors/MeasurementsErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
 import { IMeasurementsRepository, IStationRepository } from "../../../domain/Interfaces";
 import { IMeasurementsService, MeasurementsService } from "../../../domain/Services/Stations/Measurements_Services"
@@ -17,6 +17,9 @@ const makeSut = () =>{
      const mockedMeasurements = [ MakeFakeMeasurement({ station_id: mockedStations[0].id })]
 
      class MeasurementsRepositoryStub implements IMeasurementsRepository {
+          findByDate(station_id: string, created_at: Date): Promise<Measurement> {
+               return null
+          }
           add(entity: Measurement): Promise<void> {
                return Promise.resolve()
           }
@@ -71,6 +74,39 @@ describe("Measurement Services", () =>{
                const resp = sut.create(MakeCreateMeasurementParams());
                await expect(resp).rejects.toThrow(new StationNotFoundError())
           })
+
+
+          test("Should call measurementsRepository.findByDate always but when its 'forced'  ", async () =>{
+               const { sut, measurementsRepository } = makeSut()
+               const station_id = "test_station_id"
+               const created_at= new Date();
+               const findSpy = jest.spyOn(measurementsRepository, 'findByDate')
+               await sut.create(MakeCreateMeasurementParams({station_id, created_at}), false);
+               expect(findSpy).toHaveBeenCalledWith(station_id,created_at)
+              
+          })
+
+          test("Should not call measurementsRepository.findByDate when 'forced' == true  ", async () =>{
+               const { sut, measurementsRepository } = makeSut()
+               const station_id = "test_station_id"
+               const created_at= new Date();
+               const findSpy = jest.spyOn(measurementsRepository, 'findByDate')
+               await sut.create(MakeCreateMeasurementParams({station_id, created_at}), true);
+               expect(findSpy).toHaveBeenCalledTimes(0)
+              
+          })
+
+          test("Should thow error if  measurementsRepository.findByDate return data", async () =>{
+               const { sut, measurementsRepository } = makeSut()
+
+               jest.spyOn(measurementsRepository, 'findByDate').mockImplementationOnce( async ()=>{
+                    return MakeFakeMeasurement()
+               })
+               const resp = sut.create(MakeCreateMeasurementParams(), false);
+               await expect(resp).rejects.toThrow(new MeasurementsDuplicatedError())
+              
+          })
+
 
           test("Should call id Generator once", async () =>{
                const { sut, idGenerator } = makeSut()

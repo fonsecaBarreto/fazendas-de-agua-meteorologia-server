@@ -6,3 +6,11 @@ export class MeasurementNotFoundError extends Error {
 }
 
 
+export class MeasurementsDuplicatedError extends Error {
+     constructor(){
+          super("Já existe uma medição com mesma data para essa estação")
+          Object.setPrototypeOf(this, MeasurementsDuplicatedError.prototype);
+     }
+}
+
+

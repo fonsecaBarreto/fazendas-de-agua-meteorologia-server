@@ -4,7 +4,7 @@ import { IMeasurementsRepository, IStationRepository } from "../../Interfaces/re
 import { MeasurementView } from "../../Views/MeasurementView";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
 import { StationView } from "../../Views/StationView";
-import { MeasurementNotFoundError } from "../../Errors/MeasurementsErrors";
+import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Errors/MeasurementsErrors";
 
 export namespace IMeasurementsService {
      export namespace Params {
@@ -33,12 +33,20 @@ export class MeasurementsService implements IMeasurementsService{
           private readonly _stationsRepository: Pick<IStationRepository, 'find'>,
      ){}
 
-     async create(params: IMeasurementsService.Params.Create): Promise<MeasurementView> {
+     async create(params: IMeasurementsService.Params.Create, force: boolean = false): Promise<MeasurementView> {
 
           const { temperature, airHumidity, rainVolume,  windSpeed, windDirection, station_id, created_at } = params
 
           const stationExists = await this._stationsRepository.find(station_id);
           if(!stationExists) throw new StationNotFoundError()
+
+          // if not forced it will check and throw error duplicated date
+          // Otherwise repostory is always going to overwrite by date
+
+          if(force === false){
+               const isDuplicated = await this._measurementsRepository.findByDate(station_id, created_at) // 
+               if(isDuplicated) throw new MeasurementsDuplicatedError()
+          }
 
           const station = new StationView(stationExists)
 
@@ -51,11 +59,10 @@ export class MeasurementsService implements IMeasurementsService{
                station_id: station_id,
                created_at
            };
-
+          
           await this._measurementsRepository.add(measurements)
 
           return new MeasurementView(measurements)
-
      }
 
      async find(id: string): Promise<MeasurementView> {
