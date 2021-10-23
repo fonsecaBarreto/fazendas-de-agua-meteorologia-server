@@ -20,7 +20,7 @@ export class CreateMultiplesMeasurementsController extends BaseController {
 
      async handler(request: Request): Promise<Response> {
 
-          const f = request.query.f === "1" ? true : false
+          const f: boolean = request.query.f === "1" ? true : false
 
           const station_id = request.params.station_id;
 
@@ -34,17 +34,17 @@ export class CreateMultiplesMeasurementsController extends BaseController {
 
                const measurementsList = await this.csvReader.read(csv_entry[0].buffer)
 
-               const errors = await this.measurementsValidator.execute(measurementsList, station_id, f)
+               const errors = await this.measurementsValidator.execute({ list:measurementsList, station_id, skipDublicityCheck:f})
 
                if(Object.keys(errors).length > 0)
                     return Unprocessable(errors, "O Arquivo .Csv Contem dados insatisfatórios");
 
-               const stored = await Promise.all(measurementsList.map( async ( createParams: IMeasurementsService.Params.Create, i)=>{
-                    const result = await this.measurementsServices.create({ ...createParams, station_id })
+               await Promise.all(measurementsList.map( async ( createParams: IMeasurementsService.Params.Create, i)=>{
+                    const result = await this.measurementsServices.create( { ...createParams, station_id }, f )
                     return result
                }))
  
-               return Ok(stored);
+               return Ok();
                
           } catch (err) {
           

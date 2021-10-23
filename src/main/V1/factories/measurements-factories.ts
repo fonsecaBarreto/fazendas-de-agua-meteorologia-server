@@ -1,6 +1,7 @@
 import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
 import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/Admin/Measurements.Controller'
+import MultiplesMeasurementsValidator from '../../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
 /* services */
 import { MeasurementsService } from '../../../domain/Services/Stations/Measurements_Services'
 /* dependencies */
@@ -16,10 +17,11 @@ export default (keys: ENV_VARIABLES)=>{
      const idGenerator = new UuidAdapter()
      const validator = new Validator()
      const csvReader = new CsvReader()
+     const mmValidator = new MultiplesMeasurementsValidator(validator, measurementsRepository)
      const measurementsServices = new MeasurementsService(idGenerator, measurementsRepository, stationRepository)
 
      return {
-          createMultiples: new CreateMultiplesMeasurementsController(csvReader, validator, measurementsServices, stationRepository)
+          createMultiples: new CreateMultiplesMeasurementsController(csvReader, mmValidator, measurementsServices, stationRepository)
      }
      
 }

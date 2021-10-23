@@ -94,7 +94,6 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
           respo = await sut.handler(MakeRequest({files:{csv_entry:[]}}))
           expect(respo).toEqual(NotFound("Arquivo .Csv não encontrado."))
-
      })
  
      test("Should throw 400 if Malformed csv File", async() =>{
@@ -134,7 +133,7 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
           await sut.handler(req);
 
           expect(validatorSpy).toHaveBeenCalledTimes(1);
-          expect(validatorSpy).toHaveBeenCalledWith(fakeMeasurements, req.params.station_id, false) 
+          expect(validatorSpy).toHaveBeenCalledWith({list: fakeMeasurements,station_id: req.params.station_id, skipDublicityCheck: false}) 
        
      })
 
@@ -170,8 +169,8 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
           const createSpy = jest.spyOn(services, 'create');
           await sut.handler(MakeRequestWitFiles('station_id_provided'));
-          expect(createSpy).toHaveBeenNthCalledWith(1, { ...fakeMeasurements[0], temperature: 88, station_id: 'station_id_provided' }) 
-          expect(createSpy).toHaveBeenNthCalledWith(2, { ...fakeMeasurements[1], station_id: 'station_id_provided' }) 
+          expect(createSpy).toHaveBeenNthCalledWith(1, { ...fakeMeasurements[0], temperature: 88, station_id: 'station_id_provided' },false) 
+          expect(createSpy).toHaveBeenNthCalledWith(2, { ...fakeMeasurements[1], station_id: 'station_id_provided' }, false) 
 
      })
 
@@ -191,8 +190,8 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
      test("Should return 200 ", async() =>{
           const { sut } = makeSut();
           const respo = await sut.handler(MakeRequestWitFiles());
-          expect(respo.status).toBe(200)
-          expect(respo.body).toHaveLength(2)
+          expect(respo.status).toBe(204)
+       /*    expect(respo.body).toHaveLength(2) */
      }) 
 
      

@@ -21,7 +21,7 @@ export namespace IMeasurementsService {
 }
 
 export interface IMeasurementsService {
-     create(params: IMeasurementsService.Params.Create): Promise<MeasurementView>
+     create(params: IMeasurementsService.Params.Create, f:boolean): Promise<MeasurementView>
      find(id:string): Promise<MeasurementView>
      remove(id:string): Promise<void>
 }
