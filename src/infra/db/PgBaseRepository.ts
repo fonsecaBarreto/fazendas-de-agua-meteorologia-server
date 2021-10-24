@@ -13,8 +13,8 @@ export class PgBaseRepository<T> implements IBaseRepository<T> {
 
      async find(id: string): Promise<T> {
           const query = KnexAdapter.connection(this.table).where({id}).first()
-          const address = await query
-          return address;
+          const entity = await query
+          return entity;
      }
 
      async remove(id: string): Promise<boolean> {

@@ -1,6 +1,6 @@
 import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
-import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/Admin/Measurements.Controller'
+import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/User/Measurements.Controller'
 import MultiplesMeasurementsValidator from '../../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
 /* services */
 import { MeasurementsService } from '../../../domain/Services/Stations/Measurements_Services'

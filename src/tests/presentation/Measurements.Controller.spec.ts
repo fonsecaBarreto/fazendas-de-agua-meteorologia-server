@@ -1,12 +1,11 @@
-import { CreateMultiplesMeasurementsController } from '../../presentation/Controllers/V1/Admin/Measurements.Controller'
+import { CreateMultiplesMeasurementsController } from '../../presentation/Controllers/V1/User/Measurements.Controller'
 import {AppSchema, SchemaValidator } from '../../libs/ApplicatonSchema/SchemaValidator'
 import { CsvReader, Errors as CsvReaderErros, Errors } from '../../libs/CsvReader/'
 import { MakeFakeMeasurement } from '../mocks/entities/MakeMeasurement'
 import { IMeasurementsService } from '../../domain/Services/Stations/Measurements_Services'
 import { MeasurementView } from '../../domain/Views/MeasurementView'
 import { MakeRequest } from './mocks/MakeRequest'
-import { BadRequest, NotFound, Ok, Unprocessable } from '../../presentation/Protocols/http-helper'
-import { Measurement_CreateBodySchema } from '../../presentation/Models/Schemas/MeaserumentsSchemas'
+import { BadRequest, Forbidden, NotFound, Ok, Unauthorized, Unprocessable } from '../../presentation/Protocols/http-helper'
 import { IMeasurementsRepository, IStationRepository } from '../../domain/Interfaces'
 import { Station } from '../../domain/Entities/Station'
 import { MakeFakeStation } from '../mocks/entities/MakeStation'
@@ -14,6 +13,10 @@ import { StationNotFoundError } from '../../domain/Errors/StationsErrors'
 import { MeasurementsDuplicatedError } from '../../domain/Errors/MeasurementsErrors'
 import { CsvConflict, MultiplesMeasurementsValidator } from '../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
 import { Measurement } from '../../domain/Entities/Measurements'
+import { MakeFakeUser } from '../mocks/entities/MakeUser'
+import { UsersRole } from '../../domain/Entities/User'
+import { UserView } from '../../domain/Views/UserView'
+import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 
 const makeSut  =  () =>{
 
@@ -40,9 +43,10 @@ const makeSut  =  () =>{
           }
      }
 
-
-
-     class StationRepositoryStub implements Pick<IStationRepository,'find'>{
+     class StationRepositoryStub implements Pick<IStationRepository,'find' | 'findWithAddress_id'>{
+          findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
+               return Promise.resolve(MakeFakeStation())
+          }
           find(id: string): Promise<Station> {
                return Promise.resolve(MakeFakeStation())
           }
@@ -52,8 +56,8 @@ const makeSut  =  () =>{
           async findByDate(station_id: string, created_at: Date): Promise<Measurement> {
                return null
           }
-
      }
+
      const reader = new CsvReaderStub();
      const validator = new Validatorstub();
      const services = new MeasurementServices()
@@ -66,33 +70,64 @@ const makeSut  =  () =>{
      return { sut, mmValidatorStub, validator, services, reader, fakeMeasurements, stationRepository }
 }
 
-const MakeRequestWitFiles= (station_id?:string) =>{
+const MakeRequestWitFiles= (fields ?: Partial<{ params: Record<string,string>, files: any, user: UserView }>) =>{
      return MakeRequest({
           files:{ csv_entry: [{ buffer: Buffer.alloc(200,"Qualquer coisa") }]},
-          params: { station_id: station_id || "any_station_id"}
+          params: { station_id: "any_station_id" },
+          user: new UserView(MakeFakeUser({role: UsersRole.Admin})),
+          ...fields
      })
 }
 describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
-     test("Should return 404 if invalid station_id", async() =>{
-          const { sut, stationRepository } = makeSut();
 
-          jest.spyOn(stationRepository, 'find').mockImplementationOnce( ()=>{
-               return Promise.resolve(null)
+
+     describe("Admins User", () =>{
+          test("Should return 404 if invalid station_id", async() =>{
+               const { sut, stationRepository } = makeSut();
+
+               jest.spyOn(stationRepository, 'find').mockImplementationOnce( ()=>{
+                    return Promise.resolve(null)
+               })
+               const respo = await sut.handler(MakeRequestWitFiles({params: { station_id: "Invalid_station_id"}}))
+               expect(respo).toEqual(NotFound(new StationNotFoundError()))
           })
-          const respo = await sut.handler(MakeRequest())
-          expect(respo).toEqual(NotFound(new StationNotFoundError()))
+     })
+
+     describe("Basic User", () =>{
+
+          test("Should return 401 if no address are related to the user ( for reasons i dont know )", async() =>{
+               const { sut, stationRepository } = makeSut();
+               
+               jest.spyOn(stationRepository, 'findWithAddress_id').mockImplementationOnce( ()=>{
+                    return Promise.resolve(null)
+               })
+               const respo = await sut.handler(MakeRequestWitFiles({ user: new UserView(MakeFakeUser({role: UsersRole.Basic})), params: { station_id: "foregin_station"}}))
+               expect(respo).toEqual(Unauthorized())
+          })
+
+          test("Should return 403 if invalid station_id or doest belongs to user address domain", async() =>{
+               const { sut, stationRepository } = makeSut();
+               
+               jest.spyOn(stationRepository, 'findWithAddress_id').mockImplementationOnce( ()=>{
+                    return Promise.resolve(null)
+               })
+               const respo = await sut.handler(MakeRequestWitFiles({ 
+                    user: new UserView(MakeFakeUser({role: UsersRole.Basic},), MakeFakeAddress()),
+                    params: { station_id: "foregin_station"}}))
+               expect(respo).toEqual(Forbidden('Usuário inelegível para realizar essa interação'))
+          })
      })
 
      test("Should return 404 if no files were provided", async() =>{
           const { sut } = makeSut();
-          var respo = await sut.handler(MakeRequest({files:null}))
+          var respo = await sut.handler(MakeRequestWitFiles({files:null}))
           expect(respo).toEqual(NotFound("Arquivo .Csv não encontrado."))
 
-          respo = await sut.handler(MakeRequest({files:{}}))
+          respo = await sut.handler(MakeRequestWitFiles({files:{}}))
           expect(respo).toEqual(NotFound("Arquivo .Csv não encontrado."))
 
-          respo = await sut.handler(MakeRequest({files:{csv_entry:[]}}))
+          respo = await sut.handler(MakeRequestWitFiles({files:{csv_entry:[]}}))
           expect(respo).toEqual(NotFound("Arquivo .Csv não encontrado."))
      })
  
@@ -168,7 +203,7 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
           })
 
           const createSpy = jest.spyOn(services, 'create');
-          await sut.handler(MakeRequestWitFiles('station_id_provided'));
+          await sut.handler(MakeRequestWitFiles({params:{ station_id: 'station_id_provided'}}));
           expect(createSpy).toHaveBeenNthCalledWith(1, { ...fakeMeasurements[0], temperature: 88, station_id: 'station_id_provided' },false) 
           expect(createSpy).toHaveBeenNthCalledWith(2, { ...fakeMeasurements[1], station_id: 'station_id_provided' }, false) 
 
@@ -182,7 +217,7 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
           jest.spyOn(services, 'create').mockImplementationOnce(async()=>{
                throw new MeasurementsDuplicatedError()
           });
-          const result = sut.handler(MakeRequestWitFiles('any_station_id'));
+          const result = sut.handler(MakeRequestWitFiles({params:{ station_id: 'any_station_id'}}));
 
           await expect(result).rejects.toThrow(new MeasurementsDuplicatedError());
      })

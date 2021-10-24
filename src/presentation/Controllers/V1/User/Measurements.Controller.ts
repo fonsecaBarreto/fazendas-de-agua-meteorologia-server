@@ -1,10 +1,11 @@
-import { AccessType, BaseController, Ok, NotFound, Request, Response, BadRequest, Unprocessable  } from "../../../Protocols/BaseController";
+import { AccessType, BaseController, Ok, NotFound, Request, Response, BadRequest, Unprocessable, Unauthorized, Forbidden  } from "../../../Protocols/BaseController";
 import { CsvReader, Errors } from "../../../../libs/CsvReader";
 import { MutiplesMeasurements_CreateParamsSchema } from '../../../Models/Schemas/MeaserumentsSchemas'
 import { IMeasurementsService } from "../../../../domain/Services/Stations/Measurements_Services";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { IStationRepository } from "../../../../domain/Interfaces";
 import { MultiplesMeasurementsValidator } from "../Helpers/MultiplesMeasurementsValidator";
+import { UsersRole } from "../../../../domain/Entities/User";
 
 
 export class CreateMultiplesMeasurementsController extends BaseController {
@@ -12,21 +13,34 @@ export class CreateMultiplesMeasurementsController extends BaseController {
           private readonly csvReader: CsvReader,
           private readonly measurementsValidator: MultiplesMeasurementsValidator,
           private readonly measurementsServices: Pick<IMeasurementsService,'create'>,
-          private readonly stationRepository: Pick<IStationRepository,'find'>,
+          private readonly stationRepository: Pick<IStationRepository,'find' | 'findWithAddress_id'>,
          
-     ){ super( AccessType.ADMIN, {
+     ){ super( AccessType.ANY_USER, {
           params: MutiplesMeasurements_CreateParamsSchema
      })}
 
      async handler(request: Request): Promise<Response> {
 
+          const { user, params } = request
+          const station_id = params.station_id;
+
+          switch(user.role){
+
+               case UsersRole.Admin :
+                    let exists = await this.stationRepository.find(station_id)
+                    if(!exists) return NotFound(new StationNotFoundError())
+                    break;
+               case UsersRole.Basic :
+                    if(request.user.address){
+                         let belongs = await this.stationRepository.findWithAddress_id(station_id, request.user.address.id)
+                         if(!belongs) return Forbidden("Usuário inelegível para realizar essa interação");
+                         break;
+                    }
+               default: return Unauthorized()
+          }
+ 
           const f: boolean = request.query.f === "1" ? true : false
-
-          const station_id = request.params.station_id;
-
-          const stationExists = await this.stationRepository.find(station_id)
-          if(!stationExists) return NotFound(new StationNotFoundError())
-
+          
           if(!request.files || !request.files.csv_entry || request.files.csv_entry?.length == 0 ) return NotFound("Arquivo .Csv não encontrado.")
           const { csv_entry } = request.files
 
@@ -47,7 +61,6 @@ export class CreateMultiplesMeasurementsController extends BaseController {
                return Ok();
                
           } catch (err) {
-          
                if(err instanceof Errors.InvalidCsvFile )
                     return BadRequest(err.message);
                throw err

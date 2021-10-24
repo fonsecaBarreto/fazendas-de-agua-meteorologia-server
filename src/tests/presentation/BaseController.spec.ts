@@ -99,7 +99,7 @@ describe("Base Controller", () => {
                
           })
 
-          describe("Station Access", () =>{
+         /*  describe("Station Access", () =>{
 
                const sut = makeSut(AccessType.STATION)
                test("Should return 401 if any user were provided", async ( ) => {
@@ -125,7 +125,7 @@ describe("Base Controller", () => {
                     expect(res).toEqual(Ok(usuario))
                })
                
-          })
+          }) */
      })
 
 

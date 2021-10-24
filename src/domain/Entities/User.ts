@@ -2,8 +2,8 @@ import { BaseEntity } from "./BaseEntity"
 import { Station } from "./Station"
 
 export enum UsersRole{
-     Basic, 
-     Admin
+     Basic = 0,
+     Admin = 1
 }
 
 export interface User extends BaseEntity{

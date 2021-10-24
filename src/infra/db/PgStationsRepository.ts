@@ -10,6 +10,12 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
      constructor(){
           super('stations')
      }
+
+     async findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
+          const query = KnexAdapter.connection('stations').where({id: station_id, address_id}).first()
+          const address = await query
+          return address;
+     }
      async findMeasurements(station_id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
         
           const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();

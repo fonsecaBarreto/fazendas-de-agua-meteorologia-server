@@ -1,4 +1,5 @@
 
+import { Console } from 'console'
 import Express from 'express'
 import { User, UsersRole } from '../../domain/Entities/User'
 import { UserView } from '../../domain/Views/UserView'
@@ -11,7 +12,6 @@ export enum AccessType {
      PUBLIC,
      BASIC,
      ADMIN,
-     STATION,
      ANY_USER
 }
 
@@ -44,10 +44,6 @@ export abstract class BaseController {
 
                case AccessType.ADMIN:
                     if(user.role != UsersRole.Admin) return false;
-               break;
-
-               case AccessType.STATION:
-                    if( user.role != UsersRole.Admin || !user.address) return false;
                break;
 
                default: return true // Any user

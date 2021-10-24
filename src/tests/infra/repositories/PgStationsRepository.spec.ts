@@ -11,14 +11,6 @@ const makeSut = () =>{
      return new PgStationsRepository()
 }
 
-const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
-     const ms = []
-     for(let i =0 ; i < n; i ++){
-          ms.push( MakeFakeMeasurement({station_id}));
-     }
-     return ms;
-}
-
 
 const fakeAddresses = [
      MakeFakeAddress({ city: "Campos dos Goytacazes"}),
@@ -28,7 +20,7 @@ const fakeAddresses = [
 const fakeStations = [
      MakeFakeStation({ address_id: fakeAddresses[0].id }),
 ]
-const fakeMeasurements = MakeMultiplesMeasurements(50, fakeStations[0].id);
+const fakeMeasurements = [...Array(50)].map((s, i) => MakeFakeMeasurement({station_id: fakeStations[0].id, created_at: new Date(`20${i}-10-01`)}) )
 describe("Stations Pg Repository", () =>{
 
      beforeAll(async ()=>{
