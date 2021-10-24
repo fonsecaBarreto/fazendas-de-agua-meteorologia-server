@@ -64,7 +64,7 @@ export class FindStationController extends BaseController {
           const id = request.params.id;
           const mPage = !isNaN(request.query.p) ? Number(request.query.p) : 0;
 
-          if(id){
+          if (id) {
                const station= await this.stationsServices.find(id, mPage)
                if(!station) return Ok(null)
                return Ok({ ...station, address: station.address ? new AddressView(station.address).getLabelView() : null })

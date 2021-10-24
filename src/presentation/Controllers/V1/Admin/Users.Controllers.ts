@@ -6,6 +6,7 @@ import { CreateUser_BodySchema, UserId_ParamsSchema, UserIdOptional_ParamsSchema
 import { UserView } from "../../../../domain/Views/UserView";
 import { User } from "../../../../domain/Entities/User";
 import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors";
+import { AddressView } from "../../../../domain/Views/AddressView";
 
 export class CreateUserController extends BaseController {
 
@@ -70,13 +71,15 @@ export class FindUserController extends BaseController {
 
           if(id){
                const user: UserView = await this.usersServices.find(id)
-               return Ok(user)
+               if(!user) return Ok(null)
+               return Ok({...user, address: user.address ? new AddressView(user.address).getLabelView() : null })
           }
 
           const users: User[] = await this.usersServices.list();
           return Ok(users);
      }
 }
+
 
 export class RemoveUserController extends BaseController {
      constructor( 
