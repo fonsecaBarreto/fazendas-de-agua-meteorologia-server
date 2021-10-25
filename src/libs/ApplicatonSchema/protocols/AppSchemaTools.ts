@@ -13,7 +13,6 @@ export interface SchemaValidator {
      validate(schema: SchemaValidator.Schema, params: SchemaValidator.Params): Promise<SchemaValidator.Errors | null> 
 }
 
-
 /* Schema Builder */
 export namespace SchemaBuilder{
      export type Schema = AppSchema.Schema
@@ -30,6 +29,7 @@ export interface SchemaBuilder{
      number(key:string): SchemaBuilder.PropertiesHandler
      boolean(key:string): SchemaBuilder.PropertiesHandler
      date(key:string): SchemaBuilder.PropertiesHandler
+     hour(key:string): SchemaBuilder.PropertiesHandler
      array(key:string): SchemaBuilder.PropertiesHandler
      json(key:string): SchemaBuilder.PropertiesHandler
      cep(key:string): SchemaBuilder.PropertiesHandler

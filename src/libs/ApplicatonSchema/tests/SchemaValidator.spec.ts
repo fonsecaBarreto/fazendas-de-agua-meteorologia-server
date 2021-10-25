@@ -99,6 +99,28 @@ describe("Schema builder", () =>{
                     "user_id": makeMissingMessage('user_id'),
                })
           })
+
+          describe("hour", () =>{
+
+               const hour_schema = SchemaBd.create( (s: SchemaBuilder) => {
+                    s.hour("hora_test")
+               })  
+
+               test("should return error if wrong 'hour'", async () => {
+                    const body = { hora_test: "invalid_hour" }
+                    const errors = await sut.validate(hour_schema, body)
+                    expect(errors).toEqual({
+                         hora_test: makeInvalidMessage('hora_test')
+                    })
+               })
+
+               test("should return error null if valid 'hour'", async () => {
+
+                    const body = { hora_test: "23:30:20" }
+                    const errors = await sut.validate(hour_schema, body)
+                    expect(errors).toBe(null)
+               })
+          })
      
           test("should return error if wrong string", async () => {
                const body = { ...makeBody({}, false), name: 123 }

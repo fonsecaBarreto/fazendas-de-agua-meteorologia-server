@@ -56,7 +56,7 @@ export default class AppSchemaValidator implements SchemaValidator{
       switch(type){
         case "cep": final_value = (value+"").replace(/[^\d]+/g,''); break;
         case "number": { if(!isNaN(value)) final_value = Number(value); };break;
-        case "date": if(!isNaN(Date.parse(value))) final_value = new Date(value);break;
+        case "date": if(!isNaN(Date.parse(value))) final_value = new Date(value); break;
         case "boolean": try{ final_value = JSON.parse(value)} catch(err){final_value = value}; break;
       }
 
@@ -79,12 +79,18 @@ export default class AppSchemaValidator implements SchemaValidator{
       };break;
 
       case "cep" : {
-          const regex = /\b\d{8}\b/;
-          if(!regex.test(value)) return false
+        const regex = /\b\d{8}\b/;
+        if(!regex.test(value)) return false
       };break;
 
-      case "date" : if( !(value instanceof Date) ) return false;break;
+      case "date" : 
+        if( !(value instanceof Date) ) return false
+      ;break;
     
+      case "hour" : var regex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])(:[0-5][0-9])?$/;
+          if(!regex.test(value)) return false;
+      break;
+
       case "array": if( Array.isArray(value) === false ) return false; break;
 
       default: if(type !== typeof value) return false; break;
