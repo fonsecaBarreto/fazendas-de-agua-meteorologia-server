@@ -5,8 +5,7 @@ import { PgMeasurementsRepository } from '../../../infra/db'
 import { MakeFakeMeasurement } from '../../mocks/entities/MakeMeasurement'
 import { MakeFakeStation } from '../../mocks/entities/MakeStation'
 import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
-import { Knex } from 'knex'
-
+import { isJSDocAugmentsTag } from 'typescript'
 
 const fakedAddresses = [ MakeFakeAddress({}) ];
 const fakedStations = [ MakeFakeStation({ address_id: fakedAddresses[0].id}) ]
@@ -27,7 +26,7 @@ describe("Measurements Pg Repository", () =>{
           await KnexAdapter.resetMigrations()
           await KnexAdapter.connection("addresses").insert(fakedAddresses)
           await KnexAdapter.connection("stations").insert(fakedStations)
-          await KnexAdapter.connection("measurements").insert(fakedMeasurements)
+          await KnexAdapter.connection("measurements").insert([...fakedMeasurements.map(f=>({...f, coordinates: JSON.stringify(f.coordinates)}))])
      })
      afterAll(async ()=>{ await KnexAdapter.close()})
 
@@ -94,16 +93,16 @@ describe("Measurements Pg Repository", () =>{
 
      test('Should remove measurement by id', async () =>{
 
-          const measurementToBeRemoved = MakeFakeMeasurement({ station_id: fakedStations[0].id })
-          await KnexAdapter.connection('measurements').insert(measurementToBeRemoved)
+          const toBeRemoved = MakeFakeMeasurement({ station_id: fakedStations[0].id })
+          await KnexAdapter.connection('measurements').insert({ ...toBeRemoved, coordinates: JSON.stringify(toBeRemoved.coordinates)})
 
           const sut = makeSut();
           const count = await KnexAdapter.count('measurements')
     
-          var result = await sut.remove(measurementToBeRemoved.id)
+          var result = await sut.remove(toBeRemoved.id)
           expect(result).toBe(true)
 
-          result = await sut.remove(measurementToBeRemoved.id)
+          result = await sut.remove(toBeRemoved.id)
           expect(result).toBe(false)
 
           const recontagem = await KnexAdapter.count('measurements')

@@ -43,16 +43,16 @@ exports.up = function(knex) {
 
      .createTable('measurements', t =>{
           t.uuid('id').primary()
-          t.float('temperature')
-          t.float('airHumidity').notNull()
-          t.float('rainVolume').notNull()
-          t.float("windSpeed").notNull()
-          t.float('windDirection').notNull()
-          t.json("coordinates").notNull()
           t.uuid("station_id").references('stations.id').onDelete('CASCADE');
+          t.json("coordinates").notNull()
           t.timestamp('created_at').notNull()
+          t.float('temperature').notNull()
+          t.float('airHumidity').notNull()
+          t.float("windSpeed").notNull()
+          t.string('windDirection', 3).notNull()
+          t.float('rainVolume').notNull()
+          t.float('AccRainVolume').notNull()
           t.unique(['created_at', 'station_id'],{indexName:'measurement_station_composite_index'});
-          /*           t.specificType('windDirection', 'char(3)').notNull() */
      }) 
   
 };

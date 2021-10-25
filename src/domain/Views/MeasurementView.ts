@@ -1,20 +1,20 @@
 
-import { Measurement, Coordinates } from "../Entities/Measurements";
+import { Measurement, Coordinates, CardialPoints } from "../Entities/Measurements";
 
 export class MeasurementView implements Measurement{
 
+     id: string;
+     station_id: string;
+     coordinates: Coordinates;
+
+     created_at: Date;
      temperature: number;
      airHumidity: number;
-     rainVolume: number;
      windSpeed: number;
-     windDirection: number;
-     coordinates: Coordinates;
-     station_id: string;
+     windDirection: CardialPoints
 
-     id: string;
-     created_at?: Date;
-     updated_at?: Date;
-
+     rainVolume: number;
+     AccRainVolume: number
   
      constructor(params: Measurement){
           Object.assign(this,{ ...params })

@@ -1,5 +1,5 @@
 import { IdGeneratorStub } from "../../../tests/mocks/vendors";import { Station } from "../../Entities/Station";
-import { Measurement, Coordinates } from "../../Entities/Measurements";
+import { CardialPoints, Measurement } from "../../Entities/Measurements";
 import { IMeasurementsRepository, IStationRepository } from "../../Interfaces/repositories";
 import { MeasurementView } from "../../Views/MeasurementView";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
@@ -9,13 +9,14 @@ import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Err
 export namespace IMeasurementsService {
      export namespace Params {
           export type Create ={
+               station_id: string
+               created_at: Date,
                temperature: number
                airHumidity: number,
-               rainVolume: number,
                windSpeed: number,
-               windDirection: number,
-               created_at: Date,
-               station_id: string
+               windDirection: CardialPoints,
+               rainVolume: number,
+               AccRainVolume: number,
           }
      }
 }
@@ -35,7 +36,7 @@ export class MeasurementsService implements IMeasurementsService{
 
      async create(params: IMeasurementsService.Params.Create, force: boolean = false): Promise<MeasurementView> {
 
-          const { temperature, airHumidity, rainVolume,  windSpeed, windDirection, station_id, created_at } = params
+          const { temperature, airHumidity, rainVolume, AccRainVolume,  windSpeed, windDirection, station_id, created_at } = params
 
           const stationExists = await this._stationsRepository.find(station_id);
           if(!stationExists) throw new StationNotFoundError()
@@ -53,10 +54,9 @@ export class MeasurementsService implements IMeasurementsService{
           const id = this.idGenerator.gen()
 
           const measurements: Measurement = { 
-               id, 
-               temperature, airHumidity, rainVolume,  windSpeed, windDirection,
+               id, station_id,
+               temperature, airHumidity, rainVolume,  windSpeed, windDirection,AccRainVolume, 
                coordinates: station.getCoordinates(),
-               station_id: station_id,
                created_at
            };
           

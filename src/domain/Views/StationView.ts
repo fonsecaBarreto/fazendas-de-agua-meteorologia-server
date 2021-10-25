@@ -1,7 +1,6 @@
 
-import { threadId } from "worker_threads";
 import { Address } from "../Entities/Address";
-import { Measurement, Coordinates } from "../Entities/Measurements";
+import { Measurement } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
 
 
@@ -38,9 +37,9 @@ export class StationView implements Station {
     this.measurements = mm
   }
 
-  getCoordinates():Coordinates{
+  getCoordinates():number[]{
     const { latitude, altitude, longitude  } = this
-    return ({ latitude, altitude, longitude })
+    return ([latitude, altitude, longitude])
   }
 
   

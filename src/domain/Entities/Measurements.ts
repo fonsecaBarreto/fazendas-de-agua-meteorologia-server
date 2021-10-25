@@ -1,12 +1,4 @@
-import { BaseEntity } from "./BaseEntity";
-
-export type Coordinates = {
-     latitude: number,
-     longitude: number,
-     altitude: number,
-}
-
-/* export enum CardialPoints {
+export enum CardialPoints {
      North = "N",
      East = "E",
      South = "S",
@@ -15,14 +7,37 @@ export type Coordinates = {
      Southeast = "SE",
      Southwest = "SW",
      Northwest = "NW", 
-} */
+} 
 
-export interface Measurement extends Omit<BaseEntity, 'updated_at'>{
+export type Coordinates = number[];
+
+export interface Measurement{
+     id: string
+     station_id: string,
+     coordinates: Coordinates
+
+     created_at:Date
      temperature: number
      airHumidity: number,
-     rainVolume: number,
      windSpeed: number,
-     windDirection: number, //angle 0 - 360
-     coordinates: Coordinates
-     station_id: string,
+     windDirection: CardialPoints
+     rainVolume: number,
+     AccRainVolume: number
 }
+
+/* data,
+hora, 
+temperatura,
+umidade,
+velocidade_do_vento,
+direção_do_vento,
+chuva_minuto
+chuva_acumulada
+ */
+
+
+
+
+
+
+

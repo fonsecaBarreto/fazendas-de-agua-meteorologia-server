@@ -1,4 +1,5 @@
 import { exec } from 'child_process'
+import { parseJsonSourceFileConfigFileContent } from 'typescript'
 import { v4 } from 'uuid'
 import { StationView } from '../../../domain/Views/StationView'
 import KnexAdapter from '../../../infra/db/KnexAdapter'
@@ -11,10 +12,9 @@ const makeSut = () =>{
      return new PgStationsRepository()
 }
 
-
 const fakeAddresses = [
-     MakeFakeAddress({ city: "Campos dos Goytacazes"}),
-     MakeFakeAddress({ city: "Rio das Ostras"}),
+     MakeFakeAddress({ city: "Campos dos Goytacazes" }),
+     MakeFakeAddress({ city: "Rio das Ostras" }),
 ];
 
 const fakeStations = [
@@ -28,7 +28,7 @@ describe("Stations Pg Repository", () =>{
           await KnexAdapter.resetMigrations()
           await KnexAdapter.connection('addresses').insert(fakeAddresses)
           await KnexAdapter.connection('stations').insert(fakeStations)
-          await KnexAdapter.connection('measurements').insert(fakeMeasurements)
+          await KnexAdapter.connection('measurements').insert([...fakeMeasurements.map(f=>({...f, coordinates: JSON.stringify(f.coordinates)}))])
      })
 
      afterAll(async ()=> { await KnexAdapter.close() })

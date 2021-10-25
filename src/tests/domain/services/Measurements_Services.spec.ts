@@ -1,5 +1,5 @@
 
-import { Measurement, Coordinates } from "../../../domain/Entities/Measurements"
+import { CardialPoints, Measurement } from "../../../domain/Entities/Measurements"
 import { Station } from "../../../domain/Entities/Station";
 import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../../domain/Errors/MeasurementsErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
@@ -53,13 +53,14 @@ describe("Measurement Services", () =>{
      describe("MeasurementsService.create", () =>{
           const MakeCreateMeasurementParams = (fields?: Partial<IMeasurementsService.Params.Create>): IMeasurementsService.Params.Create =>{
                return ({
-                    temperature: 234,
-                    airHumidity: 23,
-                    rainVolume: 423,
-                    windSpeed: 234,
-                    windDirection: 234,
                     station_id: 'any_station_id',
                     created_at: new Date(),
+                    temperature: 234,
+                    airHumidity: 23,
+                    windSpeed: 234,
+                    windDirection: CardialPoints.North,
+                    rainVolume: 423,
+                    AccRainVolume: 123,
                     ...fields
                })
           }

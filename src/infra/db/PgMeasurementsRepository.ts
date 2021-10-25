@@ -6,23 +6,28 @@ import KnexAdapter from './KnexAdapter'
 export class PgMeasurementsRepository implements IMeasurementsRepository{
 
      private readonly table = 'measurements'
+
      async findByDate(station_id: string, created_at: Date): Promise<Measurement> {
-         const measurement = await KnexAdapter.connection(this.table).where({station_id, created_at}).first();
+          const measurement = await KnexAdapter.connection(this.table).where({station_id, created_at}).first();
           return measurement
      }
+
      async find(id: string): Promise<Measurement> {
           const measurement = await KnexAdapter.connection(this.table).where({id}).first();
           return measurement
      }
+
      async add(measurement: Measurement): Promise<void> {
-          await KnexAdapter.connection(this.table).insert(measurement)
+          const coordinates = JSON.stringify(measurement.coordinates)
+          await KnexAdapter.connection(this.table).insert({ ...measurement, coordinates })
           .onConflict(['created_at', 'station_id'])
           .merge([
                'measurements.temperature',
                'measurements.airHumidity',
-               'measurements.rainVolume',
                'measurements.windSpeed',
-               'measurements.windDirection'
+               'measurements.windDirection',
+               'measurements.rainVolume',
+               'measurements.AccRainVolume'
           ])
           return
      }
