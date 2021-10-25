@@ -26,7 +26,7 @@ export default class AppCsvReader implements CsvReader {
                readable
                .pipe(csv.parse({ 
                     headers: headers.length > 0 ? headers : true,
-                    skipLines: headers.length > 0 ? 1 : 0,
+                    skipLines: 0, //headers.length > 0 ? 1 : 0,
                     delimiter: separator, quote,
                     trim: true
                }))

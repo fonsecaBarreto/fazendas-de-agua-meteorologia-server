@@ -43,7 +43,7 @@ exports.up = function(knex) {
 
      .createTable('measurements', t =>{
           t.uuid('id').primary()
-          t.uuid("station_id").references('stations.id').onDelete('CASCADE');
+          t.uuid("station_id").references('stations.id').onDelete('CASCADE').notNull();
           t.json("coordinates").notNull()
           t.timestamp('created_at').notNull()
           t.float('temperature').notNull()
@@ -51,7 +51,7 @@ exports.up = function(knex) {
           t.float("windSpeed").notNull()
           t.string('windDirection', 3).notNull()
           t.float('rainVolume').notNull()
-          t.float('AccRainVolume').notNull()
+          t.float('accRainVolume').notNull()
           t.unique(['created_at', 'station_id'],{indexName:'measurement_station_composite_index'});
      }) 
   

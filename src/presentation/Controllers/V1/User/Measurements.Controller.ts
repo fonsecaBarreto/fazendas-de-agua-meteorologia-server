@@ -1,6 +1,6 @@
 import { AccessType, BaseController, Ok, NotFound, Request, Response, BadRequest, Unprocessable, Unauthorized, Forbidden  } from "../../../Protocols/BaseController";
 import { CsvReader, Errors } from "../../../../libs/CsvReader";
-import { MutiplesMeasurements_CreateParamsSchema } from '../../../Models/Schemas/MeaserumentsSchemas'
+import { Measurements_CreateParamsSchema } from '../../../Models/Schemas/MeaserumentsSchemas'
 import { IMeasurementsService } from "../../../../domain/Services/Stations/Measurements_Services";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { IStationRepository } from "../../../../domain/Interfaces";
@@ -16,7 +16,7 @@ export class CreateMultiplesMeasurementsController extends BaseController {
           private readonly stationRepository: Pick<IStationRepository,'find' | 'findWithAddress_id'>,
          
      ){ super( AccessType.ANY_USER, {
-          params: MutiplesMeasurements_CreateParamsSchema
+          params: Measurements_CreateParamsSchema
      })}
 
      async handler(request: Request): Promise<Response> {
@@ -46,8 +46,9 @@ export class CreateMultiplesMeasurementsController extends BaseController {
 
           try{
 
-               const measurementsList = await this.csvReader.read(csv_entry[0].buffer)
-
+               const jsonFromCsvReader = await this.csvReader.read(csv_entry[0].buffer)
+               const measurementsList = jsonFromCsvReader.map((m)=>({...m, created_at: `${m.date} ${m.hour}`}));
+               
                const errors = await this.measurementsValidator.execute({ list:measurementsList, station_id, skipDublicityCheck:f})
 
                if(Object.keys(errors).length > 0)

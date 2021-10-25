@@ -16,7 +16,7 @@ export namespace IMeasurementsService {
                windSpeed: number,
                windDirection: CardialPoints,
                rainVolume: number,
-               AccRainVolume: number,
+               accRainVolume: number,
           }
      }
 }
@@ -36,7 +36,7 @@ export class MeasurementsService implements IMeasurementsService{
 
      async create(params: IMeasurementsService.Params.Create, force: boolean = false): Promise<MeasurementView> {
 
-          const { temperature, airHumidity, rainVolume, AccRainVolume,  windSpeed, windDirection, station_id, created_at } = params
+          const { temperature, airHumidity, rainVolume, accRainVolume,  windSpeed, windDirection, station_id, created_at } = params
 
           const stationExists = await this._stationsRepository.find(station_id);
           if(!stationExists) throw new StationNotFoundError()
@@ -55,7 +55,7 @@ export class MeasurementsService implements IMeasurementsService{
 
           const measurements: Measurement = { 
                id, station_id,
-               temperature, airHumidity, rainVolume,  windSpeed, windDirection,AccRainVolume, 
+               temperature, airHumidity, rainVolume,  windSpeed, windDirection, accRainVolume, 
                coordinates: station.getCoordinates(),
                created_at
            };

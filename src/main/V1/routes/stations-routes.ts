@@ -9,7 +9,7 @@ const formDataMidleware = FormDataMidleware({
      csv_entry: {
           optional: false,
           types: ["text/csv"],
-          max_size: 8e+6,
+          max_size: 10e+6,
           multiples: 1 
      },
 });
@@ -17,7 +17,7 @@ const formDataMidleware = FormDataMidleware({
 export default async function (router: Router, keys: ENV_VARIABLES){
 
      const { create, update, find, remove } = StationControllers(keys)
-     const { createMultiples } = MeasurementsController(keys)
+     const { createMultiples, create: CreateMeasurement } = MeasurementsController(keys)
 
      const r = Router()  
      router.use('/stations',r)
@@ -31,7 +31,8 @@ export default async function (router: Router, keys: ENV_VARIABLES){
           .put(update.execute())
           .delete(remove.execute())
 
-     r.post("/:station_id/measurements", formDataMidleware, createMultiples.execute())
+     r.post("/:station_id/measurements/multiples", formDataMidleware, createMultiples.execute())
+     r.post("/:station_id/measurements", formDataMidleware, CreateMeasurement.execute())
 
 }
 

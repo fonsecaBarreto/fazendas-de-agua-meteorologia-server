@@ -19,7 +19,7 @@ export function MakeFakeMeasurement(params?: Partial<Measurement>): Measurement 
           windSpeed: Math.floor(Math.random() * (40 - 26) + 26),
           windDirection: CardialPoints.North,
           rainVolume: Math.floor(Math.random() * (10 - 0) + 0),
-          AccRainVolume: Math.floor(Math.random() * (10 - 0) + 0),
+          accRainVolume: Math.floor(Math.random() * (10 - 0) + 0),
           ...params
      })
 }

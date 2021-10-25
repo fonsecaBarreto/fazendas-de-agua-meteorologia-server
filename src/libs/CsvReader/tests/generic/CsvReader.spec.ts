@@ -1,4 +1,4 @@
-import CsvReader from '../CsvReader'
+import CsvReader from '../../CsvReader'
 import fs from 'fs'
 import path from 'path'
 
@@ -11,7 +11,7 @@ const MakeBuffer = () =>{
 describe("CsvReader", () =>{
      describe("read", () =>{
           test("should read a csv file", async () =>{
-               const {  buffer } = MakeBuffer()
+               const { buffer } = MakeBuffer()
                const sut = new CsvReader({headers:["Ano", "Pontuação", "Titulo"]})
                const result = await sut.read(buffer);
                expect(result).toBeTruthy()
@@ -29,7 +29,7 @@ describe("CsvReader", () =>{
                await expect(result).toBeTruthy()
           })
 
-          test("should fill object even without header", async () =>{
+          test("should take the first line as header if no header were provided", async () =>{
                const { buffer } = MakeBuffer() 
                const sut = new CsvReader({})
                const result  = await sut.read(buffer);
@@ -38,3 +38,5 @@ describe("CsvReader", () =>{
 
      })
 })
+
+

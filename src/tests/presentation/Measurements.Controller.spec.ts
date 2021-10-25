@@ -25,6 +25,11 @@ const makeSut  =  () =>{
           MakeFakeMeasurement()
      ]
 
+     const fake_csvEntries = [ 
+          { date: "01/01/2020",  hour: "00:00:00", temperature: "32", airHumidity: "1", windSpeed: "10", windDirection: "NW", rainVolume: "2", accRainVolume:"20" },
+          { date: "01/01/2021",  hour: "00:00:00", temperature: "32", airHumidity: "1", windSpeed: "10", windDirection: "NW", rainVolume: "2", accRainVolume:"20" }
+     ]
+
      class Validatorstub implements SchemaValidator {
           async validate(schema: AppSchema.Schema, params: SchemaValidator.Params): Promise<SchemaValidator.Errors> {
                return null
@@ -33,7 +38,7 @@ const makeSut  =  () =>{
 
      class CsvReaderStub implements CsvReader {
           read(file: Buffer): Promise<any[]> {
-               return Promise.resolve(fakeMeasurements)
+               return Promise.resolve(fake_csvEntries)
           }
      }
 
@@ -64,10 +69,8 @@ const makeSut  =  () =>{
      const stationRepository = new StationRepositoryStub()
      const measurementsRepository = new MeasurementsRepositoryStub()
      const mmValidatorStub = new MultiplesMeasurementsValidator(validator,measurementsRepository)
-
      const sut = new CreateMultiplesMeasurementsController(reader, mmValidatorStub, services, stationRepository)
-
-     return { sut, mmValidatorStub, validator, services, reader, fakeMeasurements, stationRepository }
+     return { sut, mmValidatorStub, validator, services, reader, fakeMeasurements, stationRepository, fake_csvEntries}
 }
 
 const MakeRequestWitFiles= (fields ?: Partial<{ params: Record<string,string>, files: any, user: UserView }>) =>{
@@ -161,19 +164,22 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
      test("Should call mmvalidator with correct values", async() =>{
 
-          const { sut, mmValidatorStub, fakeMeasurements } = makeSut();
+          const { sut, mmValidatorStub, fake_csvEntries } = makeSut();
           const validatorSpy = jest.spyOn(mmValidatorStub, 'execute');
 
           const req = MakeRequestWitFiles()
           await sut.handler(req);
 
           expect(validatorSpy).toHaveBeenCalledTimes(1);
-          expect(validatorSpy).toHaveBeenCalledWith({list: fakeMeasurements,station_id: req.params.station_id, skipDublicityCheck: false}) 
+          expect(validatorSpy).toHaveBeenCalledWith({
+               list: fake_csvEntries.map((m)=>({...m, created_at: `${m.date} ${m.hour}`})),
+               station_id: req.params.station_id, skipDublicityCheck: false}
+          ) 
        
      })
 
      test("Should return 400 in case mmvalidator return a list of conflicts", async() =>{
-          const { sut, mmValidatorStub, fakeMeasurements } = makeSut();
+          const { sut, mmValidatorStub } = makeSut();
 
           jest.spyOn(mmValidatorStub, 'execute').mockImplementation( (): Promise<CsvConflict> => {
                return Promise.resolve(
@@ -195,7 +201,7 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
      test("Should call measurements Services with correct values ", async() =>{
 
-          const { sut, services, validator, fakeMeasurements } = makeSut()
+          const { sut, services, validator, fake_csvEntries } = makeSut()
           // In Validator could happen something like the 'sanitization os the atribute', so, its important to make sure that it has been called by reference'
           jest.spyOn(validator, 'validate').mockImplementationOnce( async (schema: AppSchema.Schema, params: SchemaValidator.Params): Promise<SchemaValidator.Errors> => {
                params.temperature = 88; // modifing temperature for example
@@ -204,8 +210,8 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
 
           const createSpy = jest.spyOn(services, 'create');
           await sut.handler(MakeRequestWitFiles({params:{ station_id: 'station_id_provided'}}));
-          expect(createSpy).toHaveBeenNthCalledWith(1, { ...fakeMeasurements[0], temperature: 88, station_id: 'station_id_provided' },false) 
-          expect(createSpy).toHaveBeenNthCalledWith(2, { ...fakeMeasurements[1], station_id: 'station_id_provided' }, false) 
+          expect(createSpy).toHaveBeenNthCalledWith(1, { ...fake_csvEntries[0], created_at: `${fake_csvEntries[0].date} ${fake_csvEntries[0].hour}`, temperature: 88, station_id: 'station_id_provided' },false) 
+          expect(createSpy).toHaveBeenNthCalledWith(2, { ...fake_csvEntries[1], created_at: `${fake_csvEntries[1].date} ${fake_csvEntries[1].hour}`, station_id: 'station_id_provided' }, false) 
 
      })
 

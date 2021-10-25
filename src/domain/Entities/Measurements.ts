@@ -22,21 +22,8 @@ export interface Measurement{
      windSpeed: number,
      windDirection: CardialPoints
      rainVolume: number,
-     AccRainVolume: number
+     accRainVolume: number
 }
-
-/* data,
-hora, 
-temperatura,
-umidade,
-velocidade_do_vento,
-direção_do_vento,
-chuva_minuto
-chuva_acumulada
- */
-
-
-
 
 
 

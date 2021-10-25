@@ -60,7 +60,7 @@ describe("Measurement Services", () =>{
                     windSpeed: 234,
                     windDirection: CardialPoints.North,
                     rainVolume: 423,
-                    AccRainVolume: 123,
+                    accRainVolume: 123,
                     ...fields
                })
           }

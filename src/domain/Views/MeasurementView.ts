@@ -14,7 +14,7 @@ export class MeasurementView implements Measurement{
      windDirection: CardialPoints
 
      rainVolume: number;
-     AccRainVolume: number
+     accRainVolume: number
   
      constructor(params: Measurement){
           Object.assign(this,{ ...params })

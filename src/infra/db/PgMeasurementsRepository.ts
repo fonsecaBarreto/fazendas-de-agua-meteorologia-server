@@ -27,7 +27,7 @@ export class PgMeasurementsRepository implements IMeasurementsRepository{
                'measurements.windSpeed',
                'measurements.windDirection',
                'measurements.rainVolume',
-               'measurements.AccRainVolume'
+               'measurements.accRainVolume'
           ])
           return
      }

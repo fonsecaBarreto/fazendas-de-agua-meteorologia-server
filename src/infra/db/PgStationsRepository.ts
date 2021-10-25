@@ -21,7 +21,7 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
           const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();
         
           const measurements: any = await KnexAdapter.connection('measurements').where({station_id})
-               .orderBy('created_at','asc').limit(limit).offset(offset)
+               .orderBy('created_at','desc').limit(limit).offset(offset)
 
           if(!measurements || measurements.length == 0) return null
      
