@@ -62,7 +62,8 @@ export class FindStationController extends BaseController {
      async handler(request: Request): Promise<Response> {
 
           const id = request.params.id;
-          const mPage = !isNaN(request.query.p) ? Number(request.query.p) : 0;
+          var mPage = !isNaN(request.query.p) ? Number(request.query.p) : -1;
+          if(mPage < 0 ) mPage = -1
 
           if (id) {
                const station= await this.stationsServices.find(id, mPage)

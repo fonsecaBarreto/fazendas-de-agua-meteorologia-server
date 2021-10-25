@@ -65,15 +65,19 @@ export class StationsServices implements IStationService{
           return new StationView(station)
      }
 
-     async find(id: string, mpage = 0): Promise<StationView> {
-          const limit = 25;
-          const offset = limit * mpage;
+     async find(id: string, mpage = -1): Promise<StationView> {
+          const MEASUREMENTS_LIMIT = 25;
 
           const station: StationView = await this._stationsRepository.findStation(id)
           if(!station) return null;
 
-          const mm = await this._stationsRepository.findMeasurements(id, offset, limit)
-          if(mm != null) station.setMeasurements(mm);
+          if(mpage !== -1){
+               const offset = MEASUREMENTS_LIMIT * mpage;
+               const mm = await this._stationsRepository.findMeasurements(id, offset, MEASUREMENTS_LIMIT)
+               if(mm != null) station.setMeasurements(mm);
+          }
+
+          /* So deve ser Fornecido medições, caso o indice para a paginação tenha sido fornecido. */
 
           return station;
      }

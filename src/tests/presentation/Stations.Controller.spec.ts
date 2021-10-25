@@ -41,8 +41,6 @@ const makeSut = () =>{
           remove(id: string): Promise<void> {
                return Promise.resolve(null)
           }
-
-    
      }
 
      const stationsServices = new StationServicesStub()
@@ -176,7 +174,7 @@ describe("FindStationController", () =>{
 
           req = MakeRequest({ params: { id: 'any_id' }, query:{p:"NaN"} }) 
           await find.handler(req)
-          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',0)
+          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',-1)
     
      })
 

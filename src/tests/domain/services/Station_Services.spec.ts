@@ -32,6 +32,9 @@ const makeSut = () =>{
      const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
 
      class StationsRepositoryStub implements IStationRepository{
+          findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
+               throw new Error("Method not implemented.");
+          }
           findMeasurements(id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
                
                const mm: StationMeasurementsFeed = {
@@ -173,6 +176,17 @@ describe("Station Services", () =>{
                expect(spy).toHaveBeenLastCalledWith('any_id')
           })
 
+          test("Should not call repository.findMeasurements if mpage == -1", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               const spy = jest.spyOn(stationsRepository, 'findMeasurements')
+
+               await sut.find('any_id', -1)
+               expect(spy).toHaveBeenCalledTimes(0)
+
+               await sut.find('any_id')
+               expect(spy).toHaveBeenCalledTimes(0)
+          })
+
           test("Should call repository.findMeasurements with correct values", async () =>{
                const { sut, stationsRepository } = makeSut()
                const spy = jest.spyOn(stationsRepository, 'findMeasurements')
@@ -194,7 +208,7 @@ describe("Station Services", () =>{
           })
           test("Should return StationView", async () =>{
                const { sut, fake_stations, fake_measurements } = makeSut()
-               const resp = await sut.find('any_id')
+               const resp = await sut.find('any_id', 0)
                const station = new StationView(fake_stations[0], null)
                station.setMeasurements(  {
                     page_index: 0,
