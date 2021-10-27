@@ -15,10 +15,13 @@ const makeSut = () =>{
 const fakeAddresses = [
      MakeFakeAddress({ city: "Campos dos Goytacazes" }),
      MakeFakeAddress({ city: "Rio das Ostras" }),
+     MakeFakeAddress({ city: "Macaé" }),
 ];
 
 const fakeStations = [
      MakeFakeStation({ address_id: fakeAddresses[0].id }),
+     MakeFakeStation({ address_id: fakeAddresses[2].id }),
+
 ]
 const fakeMeasurements = [...Array(50)].map((s, i) => MakeFakeMeasurement({station_id: fakeStations[0].id, created_at: new Date(`20${i}-10-01`)}) )
 describe("Stations Pg Repository", () =>{
@@ -85,6 +88,7 @@ describe("Stations Pg Repository", () =>{
           const result = await sut.list()
           expect(result).toMatchObject(fakeStations)
      })
+
 
      test('Should remove station by id', async () =>{
 

@@ -17,13 +17,12 @@ const formDataMidleware = FormDataMidleware({
 export default async function (router: Router, keys: ENV_VARIABLES){
 
      const { create, update, find, remove } = StationControllers(keys)
-     const { createMultiples, create: CreateMeasurement } = MeasurementsController(keys)
+     const { createMultiples, create: CreateMeasurement, createByJson } = MeasurementsController(keys)
 
      const r = Router()  
      router.use('/stations',r)
 
      r.route("/")
-          .get(find.execute())
           .post(create.execute())
 
      r.route("/:id")
@@ -32,7 +31,8 @@ export default async function (router: Router, keys: ENV_VARIABLES){
           .delete(remove.execute())
 
      r.post("/:station_id/measurements/multiples", formDataMidleware, createMultiples.execute())
-     r.post("/:station_id/measurements", formDataMidleware, CreateMeasurement.execute())
+     r.post("/:station_id/measurements/json", createByJson.execute())
+/*      r.post("/:station_id/measurements", formDataMidleware, CreateMeasurement.execute()) */
 
 }
 

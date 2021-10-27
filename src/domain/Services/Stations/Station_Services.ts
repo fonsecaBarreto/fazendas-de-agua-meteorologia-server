@@ -1,4 +1,3 @@
-import { address } from "faker";
 import { Station } from "../../Entities/Station";
 import { AddressNotFoundError } from "../../Errors/AddressesErrors";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
@@ -23,7 +22,6 @@ export interface IStationService {
      create(params: IStationService.Params.Create): Promise<StationView>
      update(id:string, params:  IStationService.Params.Update): Promise<StationView> 
      find(id:string, mpage: number): Promise<StationView>
-     list(): Promise<Station[]>
      remove(id:string): Promise<void>
 }
 
@@ -76,15 +74,9 @@ export class StationsServices implements IStationService{
                const mm = await this._stationsRepository.findMeasurements(id, offset, MEASUREMENTS_LIMIT)
                if(mm != null) station.setMeasurements(mm);
           }
-
           /* So deve ser Fornecido medições, caso o indice para a paginação tenha sido fornecido. */
 
           return station;
-     }
-
-     async list(): Promise<Station[]> {
-          const stations: Station[] = await this._stationsRepository.list()
-          return stations;
      }
 
      async remove(id: string): Promise<void> {

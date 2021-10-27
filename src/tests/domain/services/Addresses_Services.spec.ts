@@ -17,7 +17,7 @@ const makeSut = () =>{
      const fakeAddresses =[ MakeFakeAddress()]
      const fakeStations = [ MakeFakeStation() ]
 
-     class AddressRepositoryStub implements IAddressRepository {
+     class AddressRepositoryStub implements Omit<IAddressRepository,'isUserRelated'> {
           async findAddress(id: string): Promise<AddressView> {
                return new AddressView(fakeAddresses[0], fakeStations)
           }

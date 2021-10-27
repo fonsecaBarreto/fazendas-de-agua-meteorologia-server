@@ -1,12 +1,16 @@
 import { IAddressesServices } from "../../../../domain/Services/Addresses/Addresses_Services";
 import { AccessType, BadRequest, BaseController, Ok } from "../../../Protocols/BaseController";
-import { NotFound, Request, Response } from "../../../Protocols/Http";
+import { NotFound, Request, Response, Unauthorized } from "../../../Protocols/Http";
 import { Address_BodySchema, Address_ParamsSchema, Address_RemoveParamsSchema } from '../../../Models/Schemas/AddressSchemas'
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../../domain/Errors/AddressesErrors";
 import { address } from "faker";
 import { AddressView } from "../../../../domain/Views/AddressView";
 import { serialize } from "v8";
 import { Address } from "../../../../domain/Entities/Address";
+import { UsersRole } from "../../../../domain/Entities/User";
+import { UserView } from "../../../../domain/Views/UserView";
+import { hostname } from "os";
+import { IAddressRepository } from "../../../../domain/Interfaces";
 
 export class CreateAddressController extends BaseController {
      constructor(
@@ -57,34 +61,54 @@ export class UpdateAddressController extends BaseController {
      }
 }
 
-export class FindAddresController extends BaseController {
+export class ListAddressController extends BaseController {
      constructor(
-          private readonly addressesServices: Pick<IAddressesServices, 'find' | 'list'>
-
-     ){ super(AccessType.ADMIN, { 
-          params: Address_ParamsSchema
-     })}
+          private readonly addressesServices: Pick<IAddressesServices, 'list'>
+     ){ super(AccessType.ADMIN)}
 
      async handler(request: Request): Promise<Response> {
 
           const viewMode = request.query.v
 
-          const id = request.params.id;
-
-          if(id){
-               const address: AddressView = await this.addressesServices.find(id)
-               if(!address) return Ok(null);
-               if(viewMode === "labelview") return Ok((address.getLabelView()))
-               return Ok(address)
-          }
-
           const addresses: Address[] = await this.addressesServices.list();
+
           if(viewMode === "labelview"){ 
                const serialized = await Promise.all( addresses.map(a=>(new AddressView(a).getLabelView())) )
                return Ok(serialized)
           }
+
           return Ok(addresses)
-          
+     }
+}
+
+export class FindAddresController extends BaseController {
+     constructor(
+          private readonly addressesServices: Pick<IAddressesServices, 'find' >,
+          private readonly addressRepository: Pick<IAddressRepository, 'isUserRelated'>
+
+     ){ super(AccessType.ANY_USER, { 
+          params: Address_ParamsSchema
+     })}
+
+     async handler(request: Request): Promise<Response> {
+
+          const { user,query, params } = request;
+
+          const viewMode = query.v;
+          const id = params.id;
+
+          if(user.role !== UsersRole.Admin){
+               if( !user.address || ! user.address.id) return Unauthorized();
+               const isRelated =await this.addressRepository.isUserRelated(user.id, id)
+               if(isRelated === false) return Unauthorized()
+          }
+
+          const address: AddressView = await this.addressesServices.find(id)
+          if(!address) return Ok(null);
+
+          if(viewMode === "labelview") return Ok((address.getLabelView()))
+          return Ok(address)
+       
      }
 }
 

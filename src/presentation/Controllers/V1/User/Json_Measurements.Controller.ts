@@ -9,9 +9,8 @@ import { InvalidWindDirectionError, MeasurementsDuplicatedError } from "../../..
 import { CardialPointsList } from '../Helpers/MultiplesMeasurementsValidator'
 
 
-export class CreateMeasurementsController extends BaseController {
+export class Json_CreateMeasurementsController extends BaseController {
      constructor(
-          private readonly csvReader: CsvReader,
           private readonly _validator: SchemaValidator,
           private readonly _measurementsServices: Pick<IMeasurementsService,'create'>,
           private readonly _stationRepository: Pick<IStationRepository, 'findWithAddress_id'>,
@@ -20,37 +19,31 @@ export class CreateMeasurementsController extends BaseController {
 
      async handler(request: Request): Promise<Response> {
 
-          const { user, params } = request;
+          const { user, params, body } = request;
           const station_id = params.station_id;
 
           if(!user.address) return Unauthorized();
 
-          let belongs = await this._stationRepository.findWithAddress_id(station_id, user.address.id)
-          if(!belongs) return Forbidden("Usuário inelegível para realizar essa interação");
-          
-          if(!request.files || !request.files.csv_entry || request.files.csv_entry?.length == 0 ) return NotFound("Arquivo .Csv não encontrado.")
-          const { csv_entry } = request.files
-
           try{
+          
+               let belongs = await this._stationRepository.findWithAddress_id(station_id, user.address.id)
+               if(!belongs) return Forbidden("Usuário inelegível para realizar essa interação");
+               
+               var errors = await this._validator.validate(Measurement_CreateBodySchema, body);
 
-               const me = await this.csvReader.read(csv_entry[0].buffer);
-               const measurenment_entry = { ...me[0], created_at: `${me[0].date} ${me[0].hour}`}
-               
-               var errors = await this._validator.validate(Measurement_CreateBodySchema, measurenment_entry);
-               
-               if(!CardialPointsList.includes(measurenment_entry.windDirection)){
+               if(!CardialPointsList.includes(body.windDirection)){
                     const errorMessage = new InvalidWindDirectionError(CardialPointsList).message;
                     errors = errors ? { ...errors, 'windDirection': errorMessage } : { 'windDirection': errorMessage }
                }
 
                if(errors) return Unprocessable(errors, "O Arquivo .Csv Contem dados insatisfatórios");
 
-               await this._measurementsServices.create( { ...measurenment_entry, station_id }, true )
+               const returned = await this._measurementsServices.create( { ...body, station_id }, true )
       
-               return Ok();
+               return Ok(returned);
                
           } catch (err) {
-               if(err instanceof Errors.InvalidCsvFile || err instanceof MeasurementsDuplicatedError )
+               if(err instanceof MeasurementsDuplicatedError )
                     return BadRequest(err.message);
             
                if( err instanceof StationNotFoundError){
@@ -61,5 +54,3 @@ export class CreateMeasurementsController extends BaseController {
           }
      }
 }
-
-``

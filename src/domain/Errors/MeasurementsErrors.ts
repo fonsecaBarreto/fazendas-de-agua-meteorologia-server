@@ -14,3 +14,9 @@ export class MeasurementsDuplicatedError extends Error {
 }
 
 
+export class InvalidWindDirectionError extends Error {
+     constructor(cardialPoints: string[] =[]){
+          super(`Direção do vento deve ser um valor entre ( ${cardialPoints.map((v,i)=>`${v} `)} )`)
+          Object.setPrototypeOf(this, InvalidWindDirectionError.prototype);
+     }
+}

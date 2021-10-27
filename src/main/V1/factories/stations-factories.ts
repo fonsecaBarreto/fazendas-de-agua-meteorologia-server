@@ -18,7 +18,7 @@ export default (keys: ENV_VARIABLES)=>{
      return ({
           create: new CreateStationController(stationsServices),   
           update: new UpdateStationController(stationsServices),
-          find: new FindStationController(stationsServices),
+          find: new FindStationController(stationsServices, stationRepository),
           remove: new RemoveStationController(stationsServices)    
      })
 }

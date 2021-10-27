@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { isConstructorTypeNode } from 'typescript'
 /* services */
 import { FileError, FormDataParser, IContentTypeHandler, InvalidContentTypeError } from '../../../libs/ContentTypeParser/FormDataParser'
 
@@ -6,10 +7,13 @@ export function FormDataMidleware( schema: IContentTypeHandler.Schema) {
 
      const formDataParser = new FormDataParser(schema)
      return async (request:Request, response: Response, next: NextFunction) => {
+
+     
           try{
                await formDataParser.execute(request);
                return next()
           }catch(err){
+
                if(err instanceof InvalidContentTypeError)
                     return response.status(404).json({ error: err.message });
 
@@ -19,6 +23,7 @@ export function FormDataMidleware( schema: IContentTypeHandler.Schema) {
                          params: err.params
                     } });
                }
+               console.log(err)
                return response.status(500).json({error: "Server Error."})
           }  
      }

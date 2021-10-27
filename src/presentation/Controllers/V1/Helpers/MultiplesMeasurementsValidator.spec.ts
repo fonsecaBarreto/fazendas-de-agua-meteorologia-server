@@ -1,10 +1,10 @@
 import { Measurement } from '../../../../domain/Entities/Measurements';
+import { InvalidWindDirectionError, MeasurementsDuplicatedError } from '../../../../domain/Errors/MeasurementsErrors';
 import { IMeasurementsRepository } from '../../../../domain/Interfaces';
 import { AppSchema, SchemaValidator } from '../../../../libs/ApplicatonSchema/SchemaValidator';
-import { MakeFakeAddress } from '../../../../tests/mocks/entities/MakeAddress';
 import { MakeFakeMeasurement } from '../../../../tests/mocks/entities/MakeMeasurement';
 import { Measurement_CreateBodySchema } from '../../../Models/Schemas/MeaserumentsSchemas';
-import { DUPLICITY_ERROR, MultiplesMeasurementsValidator } from './MultiplesMeasurementsValidator'
+import { CardialPointsList, MultiplesMeasurementsValidator } from './MultiplesMeasurementsValidator'
 
 const fakeMeasurements = [...Array(3)].map(m=>MakeFakeMeasurement())
 const makeSut = () =>{
@@ -77,16 +77,28 @@ describe("MultiplesMeasurementsValidator", () =>{
                })
      })
 
+     test("Shoudl return conflict if invalid cardialpoint were provided", async() =>{
+          const { sut } = makeSut();
+          const fakeList = [...Array(2)].map(m=>({...MakeFakeMeasurement(), windDirection: "invalid_wind_direaction"}))
+          const respo = await sut.execute(makeFakeParams({list: fakeList}));
 
-     test("Should not call measurements repository if skipcheck where required", async() =>{
+          expect(respo).toEqual(
+               {
+                    0: new InvalidWindDirectionError(CardialPointsList).message,
+                    1:  new InvalidWindDirectionError(CardialPointsList).message
+               })
+     })
+     
+
+    test("Should not call measurements repository if skipcheck where required", async() =>{
           const { sut, measurementsRepository } = makeSut();
           const params = makeFakeParams({skipDublicityCheck:true});
           const findSpy = jest.spyOn(measurementsRepository, 'findByDate')
           await sut.execute(params);
           expect(findSpy).toHaveBeenCalledTimes(0);
-     })
+     }) 
 
-      test("Should call measurements repository with correct values", async() =>{
+     test("Should call measurements repository with correct values", async() =>{
           const { sut, measurementsRepository } = makeSut();
           const params = makeFakeParams();
           const validatorSpy = jest.spyOn(measurementsRepository, 'findByDate')
@@ -108,7 +120,7 @@ describe("MultiplesMeasurementsValidator", () =>{
           const respo = await sut.execute(makeFakeParams());
           expect(respo).toEqual(
                {
-                    0: DUPLICITY_ERROR 
+                    0: new MeasurementsDuplicatedError().message 
                })
      })
 
@@ -134,15 +146,15 @@ describe("MultiplesMeasurementsValidator", () =>{
                          temperature: "Temperatura contem valor invalido",
                          windDir: "Velocidade do vento é obrigatorio",
                     },
-                    1: DUPLICITY_ERROR ,
-                    2: DUPLICITY_ERROR ,
+                    1: new MeasurementsDuplicatedError().message,
+                    2: new MeasurementsDuplicatedError().message
                })
      })
      test("Should return a empty struct ", async() =>{
           const { sut } = makeSut();
           const respo = await sut.execute(makeFakeParams());
           expect(respo).toEqual( {})
-     })
+     }) 
 })
 
 

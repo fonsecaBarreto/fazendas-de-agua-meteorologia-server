@@ -40,6 +40,8 @@ export class UsersServices implements IUsersServices{
           private readonly _hasher: IHasher
      ){}
 
+
+
      async isUserAvailable(username: string, id?:string): Promise<boolean> {
 
           const userNameInUse = await this._usersRepository.findByUsername(username);
@@ -48,7 +50,6 @@ export class UsersServices implements IUsersServices{
                throw new UserNameInUseError()
 
           return true;
-          
      }
 
 

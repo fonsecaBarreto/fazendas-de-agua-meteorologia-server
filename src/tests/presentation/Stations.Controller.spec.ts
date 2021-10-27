@@ -2,18 +2,21 @@ import { CreateStationController, FindStationController, RemoveStationController
 
 import { IStationService } from '../../domain/Services/Stations/Station_Services'
 
-import { Forbidden, Ok, NotFound } from '../../presentation/Protocols/Http'
+import { Ok, NotFound, Request, Unauthorized, Forbidden } from '../../presentation/Protocols/Http'
 import { StationNotFoundError } from '../../domain/Errors/StationsErrors'
 
 import { MakeRequest } from './mocks/MakeRequest'
-import { Station } from '../../domain/Entities/Station'
 import { StationView } from '../../domain/Views/StationView'
-import { UserView } from '../../domain/Views/UserView'
-import { MakeFakeUser } from '../mocks/entities/MakeUser'
 import { MakeFakeStation } from '../mocks/entities/MakeStation'
 import { AddressNotFoundError } from '../../domain/Errors/AddressesErrors'
 import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 import { AddressView } from '../../domain/Views/AddressView'
+import { IStationRepository } from '../../domain/Interfaces'
+import { Station } from '../../domain/Entities/Station'
+import { UserView } from '../../domain/Views/UserView'
+import { MakeFakeUser } from '../mocks/entities/MakeUser'
+import { UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'
+import { UsersRole } from '../../domain/Entities/User'
 
 
 
@@ -35,23 +38,28 @@ const makeSut = () =>{
           async find(id: string): Promise<StationView> {
                return new StationView(faked_stations[0],faked_addresses[0])
           }
-          async list(): Promise<Station[]> {
-               return faked_stations;
-          }
           remove(id: string): Promise<void> {
                return Promise.resolve(null)
           }
      }
 
-     const stationsServices = new StationServicesStub()
+     class StationRepositorySubt implements  Pick<IStationRepository, 'findWithAddress_id'> {
 
+          findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
+               return Promise.resolve(MakeFakeStation())
+          }
+          
+     }
+
+     const stationsServices = new StationServicesStub()
+     const stationRepository = new StationRepositorySubt()
 
      const create = new CreateStationController(stationsServices)
-     const find = new FindStationController(stationsServices)
+     const find = new FindStationController(stationsServices, stationRepository)
      const remove = new RemoveStationController(stationsServices)
      const update = new UpdateStationController(stationsServices)
 
-     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses }
+     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses, stationRepository }
 }
 
 describe("CreateUserController", () =>{
@@ -161,51 +169,6 @@ describe("UpdateStationController", () =>{
 })
 
 
-describe("FindStationController", () =>{
-
-
-     test("Should call service with correct values", async () =>{
-          const { find, stationsServices } = makeSut()
-          const serviceSpy = jest.spyOn(stationsServices,'find');
-
-          var req = MakeRequest({ params: { id: 'any_id' }, query:{p:"42"} }) 
-          await find.handler(req)
-          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',42)
-
-          req = MakeRequest({ params: { id: 'any_id' }, query:{p:"NaN"} }) 
-          await find.handler(req)
-          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',-1)
-    
-     })
-
-     test("Should return status 204 if no station were found", async () =>{
-          const { find, stationsServices } = makeSut()
-          jest.spyOn(stationsServices,'find').mockImplementationOnce( async()=>null)
-          const req = MakeRequest({ params: { id: 'invalid_id' } })
-          const res = await find.handler(req)
-          expect(res).toEqual(Ok(null))
-     })
-
-     test("Should return 200", async () =>{
-          const { find, faked_stations, faked_addresses  } = makeSut()
-          const req = MakeRequest({ params: { id: 'any_id' } })
-          const res = await find.handler(req)
-          expect(res.status).toBe(200)
-          expect(res.body).toEqual({ ...faked_stations[0], measurements: null, address: new AddressView(faked_addresses[0]).getLabelView()})
-     })
-
-     test("Should return a list with 200 status ", async () =>{
-          const { find, faked_stations } = makeSut()
-          const req = MakeRequest();
-          const res = await find.handler(req);
-          expect(res).toMatchObject(Ok(faked_stations))
-
-     }) 
-
-})
-
-
-
 describe("RemoveStationController", () =>{
 
      test("Should return status 404 if service throws StationNotFoundError", async () =>{
@@ -238,3 +201,64 @@ describe("RemoveStationController", () =>{
 
 })
  
+
+describe("FindStationController", () =>{
+     const makeFindRequest  =(fields?:Partial<Request>): Request =>{
+          return MakeRequest({ 
+               params: { id: 'any_id' },
+               user: new UserView(MakeFakeUser({role: UsersRole.Admin})),
+               ...fields
+          }) 
+     }
+
+     test("Should return  401 if non-admin with no address related", async () =>{
+          const { find, stationRepository } = makeSut()
+          const repoSpy = jest.spyOn(stationRepository,'findWithAddress_id')
+          const req = makeFindRequest({user: new UserView(MakeFakeUser({role: UsersRole.Basic}))});
+          const res = await find.handler(req);
+          expect(repoSpy).toHaveBeenCalledTimes(0)
+          expect(res).toEqual(Unauthorized())
+     }) 
+
+     test("Should call station Repository if a basic user with address were provided, also return 403 if it returns null ", async () =>{
+          const { find, stationRepository } = makeSut()
+          const repoSpy = jest.spyOn(stationRepository,'findWithAddress_id').mockImplementationOnce( ()=>Promise.resolve(null)  )
+          const req = makeFindRequest({params: {id: "station_id)Test"}, user: new UserView(MakeFakeUser({role: UsersRole.Basic}), MakeFakeAddress())});
+          const res = await find.handler(req);
+          expect(repoSpy).toHaveBeenCalledWith('station_id)Test', req.user.address.id)
+          expect(res).toEqual(Forbidden("Usuário inelegível para realizar essa interação"));
+     })  
+
+
+     test("Should call service with correct values", async () =>{
+          const { find, stationsServices } = makeSut()
+          const serviceSpy = jest.spyOn(stationsServices,'find');
+
+          var req = makeFindRequest({ query:{ p:"42" } }) 
+          await find.handler(req)
+          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',42)
+
+          req = makeFindRequest({ params: { id: 'any_id' }, query:{p:"NaN"} }) 
+          await find.handler(req)
+          expect(serviceSpy).toHaveBeenLastCalledWith('any_id',-1)
+     })
+ 
+     test("Should return status 204 if no station were found", async () =>{
+          const { find, stationsServices } = makeSut()
+          jest.spyOn(stationsServices,'find').mockImplementationOnce( async()=>null)
+          const req = makeFindRequest({ params: { id: 'invalid_id' } })
+          const res = await find.handler(req)
+          expect(res).toEqual(Ok(null))
+     })
+
+     test("Should return 200", async () =>{
+          const { find, faked_stations, faked_addresses  } = makeSut()
+          const req = makeFindRequest({ params: { id: 'any_id' } })
+          const res = await find.handler(req)
+          expect(res.status).toBe(200)
+          expect(res.body).toEqual({ ...faked_stations[0], measurements: null, address: new AddressView(faked_addresses[0]).getLabelView()})
+     })
+
+})
+
+

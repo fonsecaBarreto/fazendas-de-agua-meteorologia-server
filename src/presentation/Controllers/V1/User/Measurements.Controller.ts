@@ -47,9 +47,10 @@ export class CreateMultiplesMeasurementsController extends BaseController {
           try{
 
                const jsonFromCsvReader = await this.csvReader.read(csv_entry[0].buffer)
+
                const measurementsList = jsonFromCsvReader.map((m)=>({...m, created_at: `${m.date} ${m.hour}`}));
                
-               const errors = await this.measurementsValidator.execute({ list:measurementsList, station_id, skipDublicityCheck:f})
+               const errors = await this.measurementsValidator.execute({ list:measurementsList, station_id, skipDublicityCheck:f })
 
                if(Object.keys(errors).length > 0)
                     return Unprocessable(errors, "O Arquivo .Csv Contem dados insatisfatórios");

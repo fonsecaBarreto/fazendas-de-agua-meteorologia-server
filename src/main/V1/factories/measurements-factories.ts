@@ -2,6 +2,7 @@ import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
 import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/User/Measurements.Controller'
 import { CreateMeasurementsController } from '../../../presentation/Controllers/V1/User/Basic_Measurements.Controller'
+import { Json_CreateMeasurementsController } from '../../../presentation/Controllers/V1/User/Json_Measurements.Controller'
 import MultiplesMeasurementsValidator from '../../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
 /* services */
 import { MeasurementsService } from '../../../domain/Services/Stations/Measurements_Services'
@@ -23,7 +24,8 @@ export default (keys: ENV_VARIABLES)=>{
 
      return {
           createMultiples: new CreateMultiplesMeasurementsController(csvReader, mmValidator, measurementsServices, stationRepository),
-          create: new CreateMeasurementsController(csvReader,validator,measurementsServices,stationRepository)
+          create: new CreateMeasurementsController(csvReader,validator,measurementsServices,stationRepository),
+          createByJson: new Json_CreateMeasurementsController(validator,measurementsServices,stationRepository)
      }
      
 }

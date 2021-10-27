@@ -4,7 +4,7 @@ import { IMeasurementsRepository, IStationRepository } from "../../Interfaces/re
 import { MeasurementView } from "../../Views/MeasurementView";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
 import { StationView } from "../../Views/StationView";
-import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Errors/MeasurementsErrors";
+import { InvalidWindDirectionError, MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Errors/MeasurementsErrors";
 
 export namespace IMeasurementsService {
      export namespace Params {

@@ -14,11 +14,15 @@ const makeSut = () =>{
 
 const initial_fake_addresses = [
      MakeFakeAddress({ city: "Campos dos Goytacazes"}),
-     MakeFakeAddress({})
+     MakeFakeAddress({}),
+     MakeFakeAddress({ city: "Estação a ser relacionada"})
+
 ];
 
 const initial_fake_user = [
-     MakeFakeUser({})
+     MakeFakeUser({}),
+     MakeFakeUser({name: 'user_to_be_related',username:'User_to_be_related'}),
+
 ];
 
 const initial_fake_stations = [
@@ -34,8 +38,29 @@ describe("Adresses Pg Repository", () =>{
           await KnexAdapter.connection('addresses').insert(initial_fake_addresses)
           await KnexAdapter.connection('users').insert(initial_fake_user)
           await KnexAdapter.connection('stations').insert(initial_fake_stations)
+          await KnexAdapter.connection('users_addresses').insert({user_id: initial_fake_user[1].id, address_id: initial_fake_addresses[2].id})
      })
      afterAll(async ()=>{ await KnexAdapter.close()  })
+
+
+     describe("Is User Related", () =>{
+
+          test('Should false if both are unknown', async () =>{
+               const sut = makeSut();
+               const result = await sut.isUserRelated(v4(), v4())
+               expect(result).toBe(false)
+          })
+          test('Should false if no user', async () =>{
+               const sut = makeSut();
+               const result = await sut.isUserRelated(v4(), initial_fake_addresses[0].id)
+               expect(result).toBe(false)
+          })
+          test('Should true', async () =>{
+               const sut = makeSut();
+               const result = await sut.isUserRelated(initial_fake_user[1].id, initial_fake_addresses[2].id)
+               expect(result).toBe(true)
+          }) 
+     })
 
      describe("Find Address", () => {
 

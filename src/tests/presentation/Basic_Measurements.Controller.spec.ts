@@ -16,7 +16,8 @@ import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 
 import { Measurement_CreateBodySchema } from '../../presentation/Models/Schemas/MeaserumentsSchemas'
 import { StationNotFoundError } from '../../domain/Errors/StationsErrors'
-import { MeasurementsDuplicatedError } from '../../domain/Errors/MeasurementsErrors'
+import { InvalidWindDirectionError, MeasurementsDuplicatedError } from '../../domain/Errors/MeasurementsErrors'
+import { CardialPointsList } from '../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
 
 const makeSut  =  () =>{
 
@@ -161,6 +162,20 @@ describe("Admin's CreateMultiplesMeasurementsController", () =>{
                {
                     temperature: "Temperatura contem valor invalido", 
                     windSpeed: "Velocidade do vento é obrigatorio" 
+               }, "O Arquivo .Csv Contem dados insatisfatórios"))
+     })
+
+     test("Should return 400 in of invalid windDirection value", async() =>{
+          const { sut, reader, fake_csvEntries } = makeSut();
+
+          jest.spyOn(reader, 'read').mockImplementationOnce(()=>{
+               return Promise.resolve(fake_csvEntries.map((m)=>({...m, windDirection: "invalid_wind_direction"})))
+          })
+
+          const respo = await sut.handler(MakeRequestWitFiles());
+          expect(respo).toEqual(Unprocessable(
+               {
+                    windDirection: new InvalidWindDirectionError(CardialPointsList).message
                }, "O Arquivo .Csv Contem dados insatisfatórios"))
      })
 

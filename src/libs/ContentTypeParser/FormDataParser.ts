@@ -3,6 +3,7 @@ export * from './protocols'
 
 import { Request as ExpressRequest, Response as ExpressResponse, response } from 'express'
 import Formidable from 'formidable'
+import { convertTypeAcquisitionFromJson } from "typescript";
 
 export const MakeInvalidFileMessage = ( types:string[], limit: number ) => {
      const list = types.map(t=>(` .${t.substring(t.lastIndexOf("/")+1, t.length )}`)) 
@@ -51,6 +52,7 @@ export class FormDataParser implements IContentTypeHandler {
                var partCount: any = {}
 
                formidable.onPart = (part:any) => {
+
                     if (!part.filename || !part.mime ) { formidable.handlePart(part); } // all non-files will pass
 
                     if (part.mime && fieldNames.includes(part.name)) { // Handle files

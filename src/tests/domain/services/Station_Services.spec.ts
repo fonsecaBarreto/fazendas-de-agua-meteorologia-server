@@ -8,12 +8,8 @@ import { MakeFakeAddress } from "../../mocks/entities/MakeAddress";
 import { MakeFakeStation } from "../../mocks/entities/MakeStation";
 import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
-import { fake } from "faker";
 import { StationMeasurementsFeed, StationView } from "../../../domain/Views/StationView";
-import { Measurement } from "../../../domain/Entities/Measurements";
 import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
-
-
 
 const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
      const ms = []
@@ -32,6 +28,9 @@ const makeSut = () =>{
      const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
 
      class StationsRepositoryStub implements IStationRepository{
+          listStationsByAddress(address_id: String): Promise<Station[]> {
+               return Promise.resolve(fake_stations)
+          }
           findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
                throw new Error("Method not implemented.");
           }
@@ -219,25 +218,6 @@ describe("Station Services", () =>{
                expect(resp).toEqual(station)
           })
      })
-
-     describe("List", () =>{
-
-          test("Should return a empty list", async () =>{
-               const { sut, stationsRepository } = makeSut()
-               jest.spyOn(stationsRepository, "list").mockImplementationOnce(()=>{
-                    return Promise.resolve([])
-               })
-               const resp = await sut.list()
-               await expect(resp).toEqual([])
-          })
-
-          test("Should return StationView", async () =>{
-               const { sut, stationsRepository, fake_stations } = makeSut()
-               const resp = await sut.list()
-               await expect(resp).toEqual(fake_stations)
-          })
-     })
-
 
      describe("remove", () =>{
 

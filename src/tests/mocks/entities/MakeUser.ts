@@ -11,7 +11,7 @@ export const MakeFakeUser = ( params?: Partial<User>): User =>{
           name: "Nome Teste",
           password: hashSync("123456",12),
           role: UsersRole.Basic,
-          username: "username teste",
+          username: faker.name.firstName()+"_"+Date.now(),
           ...params
      }
   

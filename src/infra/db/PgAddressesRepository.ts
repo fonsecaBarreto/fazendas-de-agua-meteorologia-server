@@ -24,6 +24,12 @@ export class PgAddressesRepository extends PgBaseRepository<Address> implements 
           return new AddressView(resultado, stations);
      }
 
+     async isUserRelated(user_id: string, address_id: string): Promise<boolean> {
+          const exists = await KnexAdapter.connection('users_addresses').where({user_id, address_id}).first()
+          if(exists) return true
+          return false
+     }
+
      async relateUser(user_id: string, address_id: string): Promise<boolean> {
           const exists = await KnexAdapter.connection('users_addresses').where({user_id, address_id}).first()
           if(exists) return false

@@ -1,10 +1,10 @@
-import { Measurement } from "../../../../domain/Entities/Measurements";
+import { CardialPoints, Measurement } from "../../../../domain/Entities/Measurements";
+import { InvalidWindDirectionError, MeasurementsDuplicatedError } from "../../../../domain/Errors/MeasurementsErrors";
 import { IMeasurementsRepository } from "../../../../domain/Interfaces";
 import { SchemaValidator } from "../../../../libs/ApplicatonSchema/SchemaValidator"
 import { Measurement_CreateBodySchema } from '../../../Models/Schemas/MeaserumentsSchemas'
 
 export type CsvConflict = Record<string, SchemaValidator.Errors | string>
-export const DUPLICITY_ERROR = "Já existe uma medição com mesma data para a mesma estação."
 
 export namespace MultiplesMeasurementsValidator {
      export type Params = {
@@ -13,6 +13,9 @@ export namespace MultiplesMeasurementsValidator {
           skipDublicityCheck:boolean
      }
 }
+
+export const CardialPointsList = [ "N","E", "S","W","NE","SE","SW","NW" ];
+
 export class MultiplesMeasurementsValidator {
      constructor(
           private readonly _validator: SchemaValidator,
@@ -27,12 +30,17 @@ export class MultiplesMeasurementsValidator {
 
           await Promise.all(list.map(async (entry, index) =>{
 
+           
                const errors = await this._validator.validate(Measurement_CreateBodySchema, entry);
                if(errors) return conflits[index] = errors; // se houver erro no conteudo, sera retornado 
 
-               if(skipDublicityCheck === false){ // caso force seja adotado, nao sera verificado.
+               if(!CardialPointsList.includes(entry.windDirection)){
+                    return conflits[index]= new InvalidWindDirectionError(CardialPointsList).message
+               }
+
+               if(skipDublicityCheck === false){ // caso force seja adotado, nao sera verificado a duplicidade no banco de dados.
                     const isDuplicated = await this._measurementsRepository.findByDate(station_id, entry.created_at) // 
-                    if(isDuplicated) return conflits[index] = DUPLICITY_ERROR
+                    if(isDuplicated) return conflits[index] = new MeasurementsDuplicatedError().message
                }
 
           }))

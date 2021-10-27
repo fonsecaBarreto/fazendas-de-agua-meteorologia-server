@@ -30,7 +30,7 @@ export interface IAddressesServices {
 
 export class AddressesServices implements IAddressesServices {
      constructor(
-          private readonly _addressRepository: IAddressRepository,
+          private readonly _addressRepository: Omit<IAddressRepository,'isUserRelated'>,
           private readonly _idGenerator: IIdGenerator
      ){}
 
@@ -72,6 +72,7 @@ export class AddressesServices implements IAddressesServices {
           const addresses: Address[] = await this._addressRepository.list()
           return addresses.length > 0 ? addresses : [];
      }
+
      public async remove(id:string): Promise<void>{
           const wasDeleted = await this._addressRepository.remove(id)
           if(!wasDeleted) throw new AddressNotFoundError()
