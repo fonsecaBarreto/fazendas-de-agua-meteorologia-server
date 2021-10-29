@@ -30,9 +30,9 @@ const createStation = (address_id) =>({
      address_id,
 })
 
-const addresses = [ createAddress(), ...([...Array(12)].map(()=>createAddress()))];
+const addresses = [ createAddress(), ...([...Array(2)].map(()=>createAddress()))];
 const stations=  [ createStation(addresses[0].id) ];
 const admins = [ createUser(1, "admin", "Administrador Super") ];
-const users= [ createUser(0, 'user_basic', "Usuario Basico"), ...([...Array(12)].map((j,i)=>createUser(0, `user_basic_0${i}`, `Usuario Basico ${i}`)))]
+const users= [ createUser(0, 'user_basic', "Usuario Basico"), ...([...Array(2)].map((j,i)=>createUser(0, `user_basic_0${i}`, `Usuario Basico ${i}`)))]
 
 module.exports = { addresses, stations, admins, users }

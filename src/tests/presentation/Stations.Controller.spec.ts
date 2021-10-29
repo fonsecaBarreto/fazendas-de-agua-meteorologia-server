@@ -15,10 +15,9 @@ import { IStationRepository } from '../../domain/Interfaces'
 import { Station } from '../../domain/Entities/Station'
 import { UserView } from '../../domain/Views/UserView'
 import { MakeFakeUser } from '../mocks/entities/MakeUser'
-import { UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'
 import { UsersRole } from '../../domain/Entities/User'
-
-
+import { IPermissionsServices, PermissionsServices } from '../../domain/Services/Users/Permision_Services'
+import { UserNotAllowedError } from '../../domain/Errors/UsersErrors'
 
 const makeSut = () =>{
      const faked_addresses = [
@@ -29,6 +28,9 @@ const makeSut = () =>{
           MakeFakeStation(),
      ]
      class StationServicesStub implements IStationService {
+          findWithMeasumentsByInterval(id: string, start_date: Date, end_date: Date): Promise<StationView> {
+               throw new Error('Method not implemented.')
+          }
           async create(params: IStationService.Params.Create): Promise<StationView> {
                return new StationView(MakeFakeStation())
           }
@@ -43,7 +45,7 @@ const makeSut = () =>{
           }
      }
 
-     class StationRepositorySubt implements  Pick<IStationRepository, 'findWithAddress_id'> {
+     class StationRepositoryStub implements  Pick<IStationRepository, 'findWithAddress_id'> {
 
           findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
                return Promise.resolve(MakeFakeStation())
@@ -51,15 +53,26 @@ const makeSut = () =>{
           
      }
 
-     const stationsServices = new StationServicesStub()
-     const stationRepository = new StationRepositorySubt()
+     class PermissionServiceStub implements  IPermissionsServices{
+          isUserRelatedToAddress(params: PermissionsServices.Params.isUserRelatedToAddress): Promise<boolean> {
+               return Promise.resolve(true);
+          }
+          isUserAllowedToStation(params: PermissionsServices.Params.isUserAllowedToStation): Promise<boolean> {
+               return Promise.resolve(true);
+          }
+          
+     }
 
+     const stationsServices = new StationServicesStub()
+
+     const permissionServices = new PermissionServiceStub
      const create = new CreateStationController(stationsServices)
-     const find = new FindStationController(stationsServices, stationRepository)
+
+     const find = new FindStationController(permissionServices, stationsServices)
      const remove = new RemoveStationController(stationsServices)
      const update = new UpdateStationController(stationsServices)
 
-     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses, stationRepository }
+     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses, permissionServices }
 }
 
 describe("CreateUserController", () =>{
@@ -211,25 +224,28 @@ describe("FindStationController", () =>{
           }) 
      }
 
-     test("Should return  401 if non-admin with no address related", async () =>{
-          const { find, stationRepository } = makeSut()
-          const repoSpy = jest.spyOn(stationRepository,'findWithAddress_id')
-          const req = makeFindRequest({user: new UserView(MakeFakeUser({role: UsersRole.Basic}))});
-          const res = await find.handler(req);
-          expect(repoSpy).toHaveBeenCalledTimes(0)
-          expect(res).toEqual(Unauthorized())
-     }) 
+     test("Should call permisison service with correct values", async () =>{
+          const { find, permissionServices } = makeSut()
+          const permissionSpy = jest.spyOn(permissionServices,'isUserAllowedToStation');
+          const usuario =  new UserView(MakeFakeUser({role: UsersRole.Basic }), MakeFakeAddress());
 
-     test("Should call station Repository if a basic user with address were provided, also return 403 if it returns null ", async () =>{
-          const { find, stationRepository } = makeSut()
-          const repoSpy = jest.spyOn(stationRepository,'findWithAddress_id').mockImplementationOnce( ()=>Promise.resolve(null)  )
-          const req = makeFindRequest({params: {id: "station_id)Test"}, user: new UserView(MakeFakeUser({role: UsersRole.Basic}), MakeFakeAddress())});
-          const res = await find.handler(req);
-          expect(repoSpy).toHaveBeenCalledWith('station_id)Test', req.user.address.id)
-          expect(res).toEqual(Forbidden("Usuário inelegível para realizar essa interação"));
+          const req = makeFindRequest({params: {id: "station_id_test"}, user: usuario});
+          await find.handler(req);
+          expect(permissionSpy).toHaveBeenCalledWith({ user: usuario, station_id: "station_id_test" })
      })  
 
 
+     test("Should return 403 if permission service return false", async () =>{
+          const { find, permissionServices } = makeSut()
+          jest.spyOn(permissionServices,'isUserAllowedToStation').mockImplementationOnce( () => {
+               return Promise.resolve(false)
+          });
+          const usuario =  new UserView(MakeFakeUser({role: UsersRole.Basic }), MakeFakeAddress());
+          const req = makeFindRequest({params: {id: "station_id_test"}, user: usuario});
+          const res  =await find.handler(req);
+          expect(res).toEqual(Forbidden(new UserNotAllowedError()))
+     }) 
+     
      test("Should call service with correct values", async () =>{
           const { find, stationsServices } = makeSut()
           const serviceSpy = jest.spyOn(stationsServices,'find');
@@ -257,7 +273,7 @@ describe("FindStationController", () =>{
           const res = await find.handler(req)
           expect(res.status).toBe(200)
           expect(res.body).toEqual({ ...faked_stations[0], measurements: null, address: new AddressView(faked_addresses[0]).getLabelView()})
-     })
+     }) 
 
 })
 

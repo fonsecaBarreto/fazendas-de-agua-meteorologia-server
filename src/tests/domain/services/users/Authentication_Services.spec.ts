@@ -1,11 +1,11 @@
 
-import { User } from "../../../domain/Entities/User"
-import { IHasher, IEncrypter, IUserRepository } from "../../../domain/Interfaces"
-import { AuthenticationServices } from '../../../domain/Services/Users/Authentication_Services'
-import { MakeFakeUser } from "../../mocks/entities/MakeUser"
-import { HasherStub } from '../../mocks/vendors/HasherStub'
-import { EncrypterStub } from '../../mocks/vendors/EncrypterStub'
-import { UserView } from "../../../domain/Views/UserView"
+import { User } from "../../../../domain/Entities/User"
+import { IUserRepository } from "../../../../domain/Interfaces"
+import { AuthenticationServices } from '../../../../domain/Services/Users/Authentication_Services'
+import { MakeFakeUser } from "../../../mocks/entities/MakeUser"
+import { HasherStub } from '../../../mocks/vendors/HasherStub'
+import { EncrypterStub } from '../../../mocks/vendors/EncrypterStub'
+import { UserView } from "../../../../domain/Views/UserView"
 
 const makeSut = () =>{
 

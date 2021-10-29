@@ -1,3 +1,4 @@
+import { start } from "repl";
 import { Station } from "../../Entities/Station";
 import { AddressNotFoundError } from "../../Errors/AddressesErrors";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
@@ -14,7 +15,9 @@ export namespace IStationService {
                description?: string,
                address_id:string,
           }
+
           export interface Update extends Omit<Create,'address_id'>{}
+
      }
 }
 
@@ -22,6 +25,7 @@ export interface IStationService {
      create(params: IStationService.Params.Create): Promise<StationView>
      update(id:string, params:  IStationService.Params.Update): Promise<StationView> 
      find(id:string, mpage: number): Promise<StationView>
+     findWithMeasumentsByInterval(id:string, start_date :Date, end_date: Date): Promise<StationView>
      remove(id:string): Promise<void>
 }
 
@@ -76,6 +80,17 @@ export class StationsServices implements IStationService{
           }
           /* So deve ser Fornecido medições, caso o indice para a paginação tenha sido fornecido. */
 
+          return station;
+     }
+
+     async findWithMeasumentsByInterval(id: string, start_date: Date, end_date: Date = new Date()): Promise<StationView> {
+
+          const station: StationView = await this._stationsRepository.findStation(id)
+          if(!station) return null;
+
+          const mm = await this._stationsRepository.findMeasurementsByInterval(id, start_date, end_date);
+          if(mm != null) station.setMeasurements(mm);
+      
           return station;
      }
 

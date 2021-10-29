@@ -3,8 +3,14 @@ import { Address } from "../Entities/Address";
 import { Measurement } from "../Entities/Measurements";
 import { Station } from "../Entities/Station";
 
+export interface SMTimeIntervalFeed{
+  total: number,
+  start_date: Date,
+  end_date: Date,
+  data: Measurement[]
+}
 
-export interface StationMeasurementsFeed {
+export interface SMPageFeed {
   total: number, // Total de Medições Existentes para essa Estação
   page_index: number // Indice da pagina 
   page_limit: number // Length de um uma pagina (limit)
@@ -25,7 +31,7 @@ export class StationView implements Station {
 
   //Relactions
   address?: Address
-  measurements?: StationMeasurementsFeed
+  measurements?: SMPageFeed | SMTimeIntervalFeed
 
   constructor(station:Station, address: Address= null){
     Object.assign(this,station)
@@ -33,7 +39,7 @@ export class StationView implements Station {
     this.measurements = null;
   }
 
-  setMeasurements(mm: StationMeasurementsFeed){
+  setMeasurements(mm: SMPageFeed | SMTimeIntervalFeed){
     this.measurements = mm
   }
 

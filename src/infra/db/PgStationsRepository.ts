@@ -1,7 +1,7 @@
 import { Measurement } from "../../domain/Entities/Measurements";
 import { Station } from "../../domain/Entities/Station";
 import { IStationRepository } from "../../domain/Interfaces/repositories/IStationRepository";
-import { StationMeasurementsFeed, StationView } from "../../domain/Views/StationView";
+import { StationView, SMTimeIntervalFeed, SMPageFeed } from "../../domain/Views/StationView";
 import KnexAdapter from "./KnexAdapter";
 
 import { PgBaseRepository } from "./PgBaseRepository";
@@ -10,6 +10,7 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
      constructor(){
           super('stations')
      }
+  
 
      async findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
           const query = KnexAdapter.connection('stations').where({id: station_id, address_id}).first()
@@ -17,7 +18,7 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
           return address;
      }
      
-     async findMeasurements(station_id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
+     async findMeasurements(station_id: string, offset: number, limit: number): Promise<SMPageFeed> {
         
           const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();
         
@@ -30,6 +31,23 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
                total: Number(count),
                page_index: Math.ceil(offset / limit),
                page_limit: limit,
+               data: measurements
+          })
+     }
+
+     async findMeasurementsByInterval(station_id: string, start_date: Date, end_date: Date): Promise<SMTimeIntervalFeed> {
+          const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();
+        
+          const measurements: any = await KnexAdapter.connection('measurements')
+          .where({station_id})
+          .andWhereBetween('created_at', [start_date, end_date])
+          .orderBy('created_at','desc');
+
+          if(!measurements || measurements.length == 0) return null
+     
+          return ({
+               total: Number(count),
+               start_date, end_date,
                data: measurements
           })
      }
@@ -51,6 +69,7 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
 
           return new StationView(resultado, address);
      }
+     
      async upsert(model:Station): Promise<void> {
           await this._upsert( model, ['description','longitude','latitude','altitude'])
           return 

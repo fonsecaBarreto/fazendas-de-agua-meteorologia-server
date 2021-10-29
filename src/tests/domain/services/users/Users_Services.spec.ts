@@ -1,17 +1,15 @@
 
-import { Address } from "../../../domain/Entities/Address"
-import { User } from "../../../domain/Entities/User"
-import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors"
-import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../domain/Errors/UsersErrors"
-import { IAddressRepository } from "../../../domain/Interfaces/repositories/IAddressRepository"
-import { IUserRepository } from "../../../domain/Interfaces/repositories/IUserRepository"
-import { IUsersServices, UsersServices } from "../../../domain/Services/Users/Users_Services"
-import { AddressView } from "../../../domain/Views/AddressView"
-import { UserView } from "../../../domain/Views/UserView"
-import { MakeFakeAddress } from "../../mocks/entities/MakeAddress"
-import { MakeFakeUser } from "../../mocks/entities/MakeUser"
-
-import { HasherStub, IdGeneratorStub  } from '../../mocks/vendors/index'
+import { Address } from "../../../../domain/Entities/Address"
+import { User } from "../../../../domain/Entities/User"
+import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors"
+import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../../domain/Errors/UsersErrors"
+import { IAddressRepository } from "../../../../domain/Interfaces/repositories/IAddressRepository"
+import { IUserRepository } from "../../../../domain/Interfaces/repositories/IUserRepository"
+import { IUsersServices, UsersServices } from "../../../../domain/Services/Users/Users_Services"
+import { UserView } from "../../../../domain/Views/UserView"
+import { MakeFakeAddress } from "../../../mocks/entities/MakeAddress"
+import { MakeFakeUser } from "../../../mocks/entities/MakeUser"
+import { HasherStub, IdGeneratorStub  } from '../../../mocks/vendors/index'
 
 const makeSut = () =>{
      

@@ -22,7 +22,7 @@ export class UserNameInUseError extends Error {
 
 export class UserNotAllowedError extends Error {
      constructor(){
-          super("Operação negada.")
+          super("Usuário inelegível para realizar essa interação")
           Object.setPrototypeOf(this, UserNotAllowedError.prototype);
      }
 }

@@ -1,4 +1,3 @@
-import { Address } from "../../domain/Entities/Address";
 import { User } from "../../domain/Entities/User";
 import { IUserRepository } from "../../domain/Interfaces/repositories/IUserRepository";
 import { UserView } from "../../domain/Views/UserView";

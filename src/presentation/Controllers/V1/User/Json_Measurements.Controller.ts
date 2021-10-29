@@ -36,7 +36,7 @@ export class Json_CreateMeasurementsController extends BaseController {
                     errors = errors ? { ...errors, 'windDirection': errorMessage } : { 'windDirection': errorMessage }
                }
 
-               if(errors) return Unprocessable(errors, "O Arquivo .Csv Contem dados insatisfatórios");
+               if(errors) return Unprocessable(errors, "O JSON Contem dados insatisfatórios");
 
                const returned = await this._measurementsServices.create( { ...body, station_id }, true )
       

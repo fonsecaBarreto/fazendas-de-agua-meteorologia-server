@@ -6,6 +6,9 @@ import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { AddressView } from "../../../../domain/Views/AddressView";
 import { UsersRole } from "../../../../domain/Entities/User";
 import { IStationRepository } from "../../../../domain/Interfaces";
+import { IPermissionsServices } from "../../../../domain/Services/Users/Permision_Services";
+import { UserNotAllowedError } from "../../../../domain/Errors/UsersErrors";
+import { query } from "express";
 
 export class CreateStationController extends BaseController {
      constructor(
@@ -53,8 +56,6 @@ export class UpdateStationController extends BaseController {
      }
 }
 
-
-
 export class RemoveStationController extends BaseController {
      constructor(
           private readonly stationsServices: Pick<IStationService, 'remove'>
@@ -81,9 +82,8 @@ export class RemoveStationController extends BaseController {
 
 export class FindStationController extends BaseController {
      constructor(
-          private readonly stationsServices: Pick<IStationService, 'find'>,
-          private readonly stationRepository: Pick<IStationRepository, 'findWithAddress_id'>
-
+          private readonly _permissionService: IPermissionsServices, 
+          private readonly _stationsServices: Pick<IStationService, 'find'>,
      ){ super(AccessType.ANY_USER, { 
           params: Station_RequiredIdParams
      })}
@@ -93,22 +93,65 @@ export class FindStationController extends BaseController {
           const { user, params } = request
           const { id : station_id } = params;
 
-          if(user.role !== UsersRole.Admin){
-               if( !user.address || ! user.address.id) return Unauthorized();
-               let belongs = await this.stationRepository.findWithAddress_id(station_id, user.address.id)
-               if(!belongs) return Forbidden("Usuário inelegível para realizar essa interação");
-          }
-
           var mPage = !isNaN(request.query.p) ? Number(request.query.p) : -1;
           if(mPage < 0 ) mPage = -1
 
-          const station= await this.stationsServices.find(station_id, mPage)
-          if(!station) return Ok(null)
+          try{
+               
+               const isAllowed = await this._permissionService.isUserAllowedToStation({ user, station_id }) 
+               if(!isAllowed) return Forbidden(new UserNotAllowedError())
+         
+               const station= await this._stationsServices.find(station_id, mPage)
+               if(!station) return Ok(null)
 
-          return Ok({ 
-               ...station, 
-               address: station.address ? new AddressView(station.address).getLabelView() : null 
-          })
+               return Ok({ 
+                    ...station, 
+                    address: station.address ? new AddressView(station.address).getLabelView() : null 
+               })
 
+          }catch(err){
+               if(err instanceof StationNotFoundError){
+                    return NotFound(err)
+               }
+               throw err
+          }
      }
 }
+
+export class FindStationWithIntervalController extends BaseController {
+     constructor(
+          private readonly _permissionService: IPermissionsServices, 
+          private readonly stationsServices: Pick<IStationService, 'findWithMeasumentsByInterval'>,
+   
+     ){ super(AccessType.ANY_USER, {   params: Station_RequiredIdParams  })}
+
+     async handler(request: Request): Promise<Response> {
+
+          const { user, params } = request
+          const { id : station_id } = params;
+
+          var start_date = isNaN(request.query.s) ? new Date() : new Date(Number(request.query.s));
+          var end_date = isNaN(request.query.e) ? new Date() : new Date( Number(request.query.e));
+          
+          try{
+
+               const isAllowed = await this._permissionService.isUserAllowedToStation({ user, station_id }) 
+               if(!isAllowed) return Forbidden(new UserNotAllowedError())
+               
+               const station= await this.stationsServices.findWithMeasumentsByInterval(station_id, start_date, end_date)
+               if(!station) return Ok(null)
+               
+               return Ok({ 
+                    ...station, 
+                    address: station.address ? new AddressView(station.address).getLabelView() : null 
+               })
+               
+          }catch(err){
+               if(err instanceof StationNotFoundError){
+                    return NotFound(err)
+               }
+               throw err
+          } 
+     }
+}
+

@@ -8,7 +8,7 @@ import { MakeFakeAddress } from "../../mocks/entities/MakeAddress";
 import { MakeFakeStation } from "../../mocks/entities/MakeStation";
 import { AddressNotFoundError } from "../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../domain/Errors/StationsErrors";
-import { StationMeasurementsFeed, StationView } from "../../../domain/Views/StationView";
+import { SMTimeIntervalFeed, SMPageFeed, StationView } from "../../../domain/Views/StationView";
 import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
 
 const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
@@ -28,15 +28,26 @@ const makeSut = () =>{
      const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
 
      class StationsRepositoryStub implements IStationRepository{
+          findMeasurementsByInterval(id: string, start_date: Date, end_date: Date): Promise<SMTimeIntervalFeed> {
+
+               const mm: SMTimeIntervalFeed = {
+                    total: fake_measurements.length, 
+                    end_date,
+                    start_date,
+                    data: fake_measurements
+               };
+
+               return Promise.resolve(mm);
+          }
           listStationsByAddress(address_id: String): Promise<Station[]> {
                return Promise.resolve(fake_stations)
           }
           findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
                throw new Error("Method not implemented.");
           }
-          findMeasurements(id: string, offset: number, limit: number): Promise<StationMeasurementsFeed> {
+          findMeasurements(id: string, offset: number, limit: number): Promise<SMPageFeed> {
                
-               const mm: StationMeasurementsFeed = {
+               const mm: SMPageFeed = {
                     total: fake_measurements.length, 
                     page_index: Math.ceil(offset / limit),
                     page_limit: limit,
@@ -166,6 +177,29 @@ describe("Station Services", () =>{
           }) 
      })
 
+
+     describe("remove", () =>{
+
+          test("Should throw err if repository returns false", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               jest.spyOn(stationsRepository, "remove").mockImplementationOnce((id:string)=>{
+                    return Promise.resolve(false)
+               })
+               const resp = sut.remove('any_id')
+               await expect(resp).rejects.toThrow(new StationNotFoundError())
+          })
+
+
+          test("Should reurn voit if repostiory returns true", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               jest.spyOn(stationsRepository, "remove").mockImplementationOnce((id:string)=>{
+                    return Promise.resolve(true)
+               })
+               const resp = await sut.remove('any_id');
+               expect(resp).toBe(undefined)
+          })
+     })
+
      describe("Find", () =>{
 
           test("Should call repository.find with correct value", async () =>{
@@ -218,26 +252,46 @@ describe("Station Services", () =>{
                expect(resp).toEqual(station)
           })
      })
+      describe("findWithMeasumentsByInterval", () =>{
 
-     describe("remove", () =>{
-
-          test("Should throw err if repository returns false", async () =>{
+          test("Should call repository.findStation with correct value", async () =>{
                const { sut, stationsRepository } = makeSut()
-               jest.spyOn(stationsRepository, "remove").mockImplementationOnce((id:string)=>{
-                    return Promise.resolve(false)
+               const spy = jest.spyOn(stationsRepository, 'findStation')
+               await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
+               expect(spy).toHaveBeenLastCalledWith('any_id')
+          })
+
+          test("Should return null if invalid_id", async () =>{
+               const { sut, stationsRepository } = makeSut()
+               jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
+                    return Promise.resolve(null);
                })
-               const resp = sut.remove('any_id')
-               await expect(resp).rejects.toThrow(new StationNotFoundError())
+               const resp = await sut.findWithMeasumentsByInterval('any_id',  new Date("2021-10-01"), new Date("2022-02-01"))
+               expect(resp).toBe(null)
           })
 
 
-          test("Should reurn voit if repostiory returns true", async () =>{
+          test("Should call repository.findWithMeasumentsByInterval with correct value", async () =>{
                const { sut, stationsRepository } = makeSut()
-               jest.spyOn(stationsRepository, "remove").mockImplementationOnce((id:string)=>{
-                    return Promise.resolve(true)
-               })
-               const resp = await sut.remove('any_id');
-               expect(resp).toBe(undefined)
+               const spy = jest.spyOn(stationsRepository, 'findMeasurementsByInterval')
+               await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
+               expect(spy).toHaveBeenLastCalledWith('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
           })
-     })
+
+
+          test("Should return StationView", async () =>{
+               const { sut, fake_stations, fake_measurements } = makeSut()
+               const resp = await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01"))
+               const station = new StationView(fake_stations[0], null)
+
+               station.setMeasurements(  {
+                    total: fake_measurements.length,
+                    data: fake_measurements,
+                    start_date: new Date("2021-10-01"),
+                    end_date: new Date("2022-02-01")
+               })
+               expect(resp).toEqual(station)
+          }) 
+     }) 
+
 })
