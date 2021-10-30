@@ -1,7 +1,7 @@
 import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
 import { CreateAddressController, UpdateAddressController,  RemoveAddresController, 
-     ListAddressController, FindAddresController, } from '../../../presentation/Controllers/V1/Admin/Addresses.Controller'
+     ListAddressController, FindAddresController, } from '../../../presentation/Controllers/V1/General/Addresses.Controller'
 /* services */
 import { AddressesServices } from '../../../domain/Services/Addresses/Addresses_Services'
 /* dependencies */

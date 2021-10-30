@@ -1,4 +1,4 @@
-import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../presentation/Controllers/V1/Admin/Users.Controllers'
+import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../presentation/Controllers/V1/General/Users.Controllers'
 import { IUsersServices } from '../../domain/Services/Users/Users_Services'
 import { Forbidden, Ok, NotFound } from '../../presentation/Protocols/Http'
 import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError } from '../../domain/Errors/UsersErrors'

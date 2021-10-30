@@ -4,7 +4,7 @@ import { Measurements_CreateParamsSchema } from '../../../Models/Schemas/Measeru
 import { IMeasurementsService } from "../../../../domain/Services/Stations/Measurements_Services";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { IStationRepository } from "../../../../domain/Interfaces";
-import { MultiplesMeasurementsValidator } from "../Helpers/MultiplesMeasurementsValidator";
+import { MultiplesMeasurementsValidator } from "./Helpers/MultiplesMeasurementsValidator";
 import { UsersRole } from "../../../../domain/Entities/User";
 
 

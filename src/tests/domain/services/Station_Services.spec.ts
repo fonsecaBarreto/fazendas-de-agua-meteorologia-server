@@ -225,10 +225,10 @@ describe("Station Services", () =>{
                const spy = jest.spyOn(stationsRepository, 'findMeasurements')
 
                await sut.find('any_id', 0)
-               expect(spy).toHaveBeenLastCalledWith('any_id',0, 25)
+               expect(spy).toHaveBeenLastCalledWith('any_id',0, 60)
 
                await sut.find('any_id', 2)
-               expect(spy).toHaveBeenLastCalledWith('any_id',50, 25)
+               expect(spy).toHaveBeenLastCalledWith('any_id',120, 60)
           })
 
           test("Should return null if invalid_id", async () =>{
@@ -245,7 +245,7 @@ describe("Station Services", () =>{
                const station = new StationView(fake_stations[0], null)
                station.setMeasurements(  {
                     page_index: 0,
-                    page_limit: 25,
+                    page_limit: 60,
                     total: fake_measurements.length,
                     data: fake_measurements
                })

@@ -1,7 +1,7 @@
 import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
 import { CreateStationController, UpdateStationController, RemoveStationController, FindStationController, 
-FindStationWithIntervalController } from '../../../presentation/Controllers/V1/Admin/Stations.Controller'
+FindStationWithIntervalController } from '../../../presentation/Controllers/V1/General/Stations.Controller'
 /* services */
 import { StationsServices } from '../../../domain/Services/Stations/Station_Services'
 import { PermissionsServices } from '../../../domain/Services/Users/Permision_Services'

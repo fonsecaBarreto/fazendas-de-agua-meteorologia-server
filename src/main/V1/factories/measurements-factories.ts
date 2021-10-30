@@ -1,9 +1,9 @@
 import { ENV_VARIABLES } from '../../config/keys'
 /* controllers */
-import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/User/Measurements.Controller'
-import { CreateMeasurementsController } from '../../../presentation/Controllers/V1/User/Basic_Measurements.Controller'
-import { Json_CreateMeasurementsController } from '../../../presentation/Controllers/V1/User/Json_Measurements.Controller'
-import MultiplesMeasurementsValidator from '../../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
+import { CreateMultiplesMeasurementsController } from '../../../presentation/Controllers/V1/Measurement/Multiples_Measurements_Upload.Controller'
+import { CreateMeasurementsController } from '../../../presentation/Controllers/V1/Measurement/Single_Measurement_Upload.Controller'
+import { Json_CreateMeasurementsController } from '../../../presentation/Controllers/V1/Measurement/Single_Measurement_Upload.Controller'
+import MultiplesMeasurementsValidator from '../../../presentation/Controllers/V1/Measurement/Helpers/MultiplesMeasurementsValidator'
 /* services */
 import { MeasurementsService } from '../../../domain/Services/Stations/Measurements_Services'
 /* dependencies */

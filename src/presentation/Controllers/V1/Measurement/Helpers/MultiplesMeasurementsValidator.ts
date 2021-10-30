@@ -1,8 +1,8 @@
-import { CardialPoints, Measurement } from "../../../../domain/Entities/Measurements";
-import { InvalidWindDirectionError, MeasurementsDuplicatedError } from "../../../../domain/Errors/MeasurementsErrors";
-import { IMeasurementsRepository } from "../../../../domain/Interfaces";
-import { SchemaValidator } from "../../../../libs/ApplicatonSchema/SchemaValidator"
-import { Measurement_CreateBodySchema } from '../../../Models/Schemas/MeaserumentsSchemas'
+import { CardialPoints, Measurement } from "../../../../../domain/Entities/Measurements";
+import { InvalidWindDirectionError, MeasurementsDuplicatedError } from "../../../../../domain/Errors/MeasurementsErrors";
+import { IMeasurementsRepository } from "../../../../../domain/Interfaces";
+import { SchemaValidator } from "../../../../../libs/ApplicatonSchema/SchemaValidator"
+import { Measurement_CreateBodySchema } from '../../../../Models/Schemas/MeaserumentsSchemas'
 
 export type CsvConflict = Record<string, SchemaValidator.Errors | string>
 

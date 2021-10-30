@@ -1,4 +1,4 @@
-import { CreateMeasurementsController } from '../../presentation/Controllers/V1/User/Basic_Measurements.Controller'
+import { CreateMeasurementsController } from '../../presentation/Controllers/V1/Measurement/Single_Measurement_Upload.Controller'
 import {AppSchema, SchemaValidator } from '../../libs/ApplicatonSchema/SchemaValidator'
 import { CsvReader, Errors as CsvReaderErros, Errors } from '../../libs/CsvReader'
 import { MakeFakeMeasurement } from '../mocks/entities/MakeMeasurement'
@@ -17,7 +17,7 @@ import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
 import { Measurement_CreateBodySchema } from '../../presentation/Models/Schemas/MeaserumentsSchemas'
 import { StationNotFoundError } from '../../domain/Errors/StationsErrors'
 import { InvalidWindDirectionError, MeasurementsDuplicatedError } from '../../domain/Errors/MeasurementsErrors'
-import { CardialPointsList } from '../../presentation/Controllers/V1/Helpers/MultiplesMeasurementsValidator'
+import { CardialPointsList } from '../../presentation/Controllers/V1/Measurement/Helpers/MultiplesMeasurementsValidator'
 
 const makeSut  =  () =>{
 

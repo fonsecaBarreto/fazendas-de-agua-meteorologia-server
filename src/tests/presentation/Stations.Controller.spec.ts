@@ -1,4 +1,4 @@
-import { CreateStationController, FindStationController, FindStationWithIntervalController, RemoveStationController, UpdateStationController } from '../../presentation/Controllers/V1/Admin/Stations.Controller'
+import { CreateStationController, FindStationController, FindStationWithIntervalController, RemoveStationController, UpdateStationController } from '../../presentation/Controllers/V1/General/Stations.Controller'
 
 import { IStationService } from '../../domain/Services/Stations/Station_Services'
 

@@ -68,7 +68,7 @@ export class StationsServices implements IStationService{
      }
 
      async find(id: string, mpage = -1): Promise<StationView> {
-          const MEASUREMENTS_LIMIT = 25;
+          const MEASUREMENTS_LIMIT = 60;
 
           const station: StationView = await this._stationsRepository.findStation(id)
           if(!station) return null;

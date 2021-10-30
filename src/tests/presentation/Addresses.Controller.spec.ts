@@ -1,4 +1,4 @@
-import { CreateAddressController, FindAddresController, ListAddressController, RemoveAddresController, UpdateAddressController } from '../../presentation/Controllers/V1/Admin/Addresses.Controller'
+import { CreateAddressController, FindAddresController, ListAddressController, RemoveAddresController, UpdateAddressController } from '../../presentation/Controllers/V1/General/Addresses.Controller'
 import { IAddressesServices } from '../../domain/Services/Addresses/Addresses_Services'
 import { Address } from '../../domain/Entities/Address'
 import { Request } from '../../presentation/Protocols/Http'

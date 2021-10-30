@@ -1,9 +1,9 @@
-import { Measurement } from '../../../../domain/Entities/Measurements';
-import { InvalidWindDirectionError, MeasurementsDuplicatedError } from '../../../../domain/Errors/MeasurementsErrors';
-import { IMeasurementsRepository } from '../../../../domain/Interfaces';
-import { AppSchema, SchemaValidator } from '../../../../libs/ApplicatonSchema/SchemaValidator';
-import { MakeFakeMeasurement } from '../../../../tests/mocks/entities/MakeMeasurement';
-import { Measurement_CreateBodySchema } from '../../../Models/Schemas/MeaserumentsSchemas';
+import { Measurement } from '../../../../../domain/Entities/Measurements';
+import { InvalidWindDirectionError, MeasurementsDuplicatedError } from '../../../../../domain/Errors/MeasurementsErrors';
+import { IMeasurementsRepository } from '../../../../../domain/Interfaces';
+import { AppSchema, SchemaValidator } from '../../../../../libs/ApplicatonSchema/SchemaValidator';
+import { MakeFakeMeasurement } from '../../../../../tests/mocks/entities/MakeMeasurement';
+import { Measurement_CreateBodySchema } from '../../../../Models/Schemas/MeaserumentsSchemas';
 import { CardialPointsList, MultiplesMeasurementsValidator } from './MultiplesMeasurementsValidator'
 
 const fakeMeasurements = [...Array(3)].map(m=>MakeFakeMeasurement())
