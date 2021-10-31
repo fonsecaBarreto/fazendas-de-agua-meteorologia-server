@@ -1,8 +1,10 @@
+import { UserView } from '@/domain/Views'
+import  MakeTestEnv, { CloseEnv, MainTestEnv } from './env_setup'
+
 import request from 'supertest'
 import jwt from 'jsonwebtoken'
-import { UserView } from '../../src/domain/Views/UserView'
 import { v4 } from 'uuid'
-import  MakeTestEnv, { CloseEnv, MainTestEnv } from './env_setup'
+
 
 export var sut: MainTestEnv;
 

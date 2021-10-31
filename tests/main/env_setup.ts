@@ -1,17 +1,14 @@
 import { Express, response } from 'express'
+import { setupApp, closeApp } from '@/main/config/app'
+import getKeys, { ENV_VARIABLES } from '@/main/config/keys'
+import KnexAdapter from '@/infra/db/KnexAdapter'
+import { User, UsersRole, Address } from '@/domain/Entities'
 
-import { setupApp, closeApp } from '../../src/main/config/app'
-import getKeys, { ENV_VARIABLES } from '../../src/main/config/keys'
-
-import KnexAdapter from '../../src/infra/db/KnexAdapter'
-
-import { MakeFakeUser } from '../mocks/entities/MakeUser'
-import { User, UsersRole } from '../../src/domain/Entities/User'
 /* Libs */
 import { hashSync } from 'bcrypt'
-import { MakeFakeAddress } from '../mocks/entities/MakeAddress'
-import { Address } from '../../src/domain/Entities/Address'
 import jwt from 'jsonwebtoken'
+/* stubs */
+import { MakeFakeUser, MakeFakeAddress } from '@/tests/mocks/entities'
 
 export type MainTestEnv = {
      app: Express; keys: 
