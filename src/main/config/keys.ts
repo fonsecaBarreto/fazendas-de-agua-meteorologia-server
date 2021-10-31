@@ -4,7 +4,6 @@ export interface ENV_VARIABLES {
      PORT: string,
      NODE_ENV: string
      JWT_SECRET: string,
-     DATABASE_URL:string
 }
 
 export default (): ENV_VARIABLES =>{
@@ -12,7 +11,6 @@ export default (): ENV_VARIABLES =>{
      return {
           PORT: process.env.PORT || '9000',
           NODE_ENV: process.env.NODE_ENV || "development",
-          JWT_SECRET: process.env.JWT_SECRET || 'TEST_123',
-          DATABASE_URL: process.env.DATABASE_URL
+          JWT_SECRET: process.env.JWT_SECRET || 'TEST_123'
      }
 }

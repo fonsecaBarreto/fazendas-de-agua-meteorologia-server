@@ -12,7 +12,6 @@ export class JsonWebTokenAdapter implements IEncrypter {
 
     async sign(payload: any): Promise<string> {
         try{
-     /*        const exp = Math.floor( Date.parse(expiration.toString()) / 1000) */
             const token = await sign({ ...payload }, this.secret)
             return token
         } catch(err: any ){

@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
       "outDir":"./dist",
-      "rootDir": "./src", 
       "target": "ES5",
       "module": "commonjs",                           
       "lib": ["es6"],
@@ -13,13 +12,21 @@
       "removeComments": true,
       "skipLibCheck": true,
       "diagnostics": true,
-      "sourceMap": true,
       "experimentalDecorators": true,
-      "emitDecoratorMetadata": true
+      "emitDecoratorMetadata": true,
+      "sourceMap": true,
+      "rootDirs": ["src", "tests"],
+      "baseUrl": "src",
+      "paths": {
+        "@/*": ["*"],
+        "@/tests/*": ["../tests/*"]
+      }
     },
     "typeRoots": [
       "./@types",
       "./node_modules/@types"
     ],
-    "include": ["src/**/*"]
+
+    "include": ["src/**/*", "tests"]
+
 }

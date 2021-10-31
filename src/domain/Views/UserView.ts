@@ -14,8 +14,10 @@ export class UserView implements Omit<User, 'password'>{
   //Relation
   address: Address
 
-  constructor(params: User, add: Address = null){
-    Object.assign(this,{...params, password: undefined})
+  constructor(user: User, add: Address = null){
+    const params = { ...user }
+    if(params.password){  delete params.password  }
+    Object.assign(this,{...params})
     this.address = add
   }
 

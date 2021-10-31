@@ -2,6 +2,7 @@
 
 module.exports = {
  
+  roots: ['<rootDir>/tests'],
 
   testTimeout: 90000,
   
@@ -13,6 +14,13 @@ module.exports = {
 
   transform: {
     '.+\\.ts$': 'ts-jest'
+  },
+
+  testEnvironment: 'node',
+
+  moduleNameMapper: {
+    '@/tests/(.*)': '<rootDir>/tests/$1',
+    '@/(.*)': '<rootDir>/src/$1'
   }
 
 };

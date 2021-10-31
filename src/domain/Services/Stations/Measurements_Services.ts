@@ -1,10 +1,10 @@
-import { IdGeneratorStub } from "../../../tests/mocks/vendors";import { Station } from "../../Entities/Station";
 import { CardialPoints, Measurement } from "../../Entities/Measurements";
 import { IMeasurementsRepository, IStationRepository } from "../../Interfaces/repositories";
 import { MeasurementView } from "../../Views/MeasurementView";
 import { StationNotFoundError } from "../../Errors/StationsErrors";
 import { StationView } from "../../Views/StationView";
-import { InvalidWindDirectionError, MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Errors/MeasurementsErrors";
+import {  MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../Errors/MeasurementsErrors";
+import { IIdGenerator } from "../../Interfaces";
 
 export namespace IMeasurementsService {
      export namespace Params {
@@ -29,7 +29,7 @@ export interface IMeasurementsService {
 
 export class MeasurementsService implements IMeasurementsService{
      constructor(
-          private readonly idGenerator: IdGeneratorStub,
+          private readonly idGenerator: IIdGenerator,
           private readonly _measurementsRepository: IMeasurementsRepository,
           private readonly _stationsRepository: Pick<IStationRepository, 'find'>,
      ){}

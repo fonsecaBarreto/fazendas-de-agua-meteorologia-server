@@ -1,21 +1,17 @@
 import { IAddressesServices } from "../../../../domain/Services/Addresses/Addresses_Services";
 import { AccessType, BadRequest, BaseController, Ok } from "../../../Protocols/BaseController";
 import { NotFound, Request, Response, Unauthorized } from "../../../Protocols/Http";
-import { Address_BodySchema, Address_ParamsSchema, Address_RemoveParamsSchema } from '../../../Models/Schemas/AddressSchemas'
+import { Address_Http_Dtos } from '../../../Models/Schemas/AddressSchemas'
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../../domain/Errors/AddressesErrors";
-import { address } from "faker";
 import { AddressView } from "../../../../domain/Views/AddressView";
-import { serialize } from "v8";
 import { Address } from "../../../../domain/Entities/Address";
 import { UsersRole } from "../../../../domain/Entities/User";
-import { UserView } from "../../../../domain/Views/UserView";
-import { hostname } from "os";
 import { IAddressRepository } from "../../../../domain/Interfaces";
 
 export class CreateAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'create'>
-     ){ super( AccessType.ADMIN, { body: Address_BodySchema })}
+     ){ super( AccessType.ADMIN, { body: Address_Http_Dtos.Create_Address_Schema })}
 
      async handler(request: Request): Promise<Response> {
 
@@ -36,8 +32,8 @@ export class UpdateAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'update'>
      ){ super(AccessType.ADMIN, { 
-          body: Address_BodySchema,
-          params: Address_ParamsSchema
+          body: Address_Http_Dtos.Create_Address_Schema,
+          params: Address_Http_Dtos.Address_Params_Schema
      } )}
 
      async handler(request: Request): Promise<Response> {
@@ -87,7 +83,7 @@ export class FindAddresController extends BaseController {
           private readonly addressRepository: Pick<IAddressRepository, 'isUserRelated'>
 
      ){ super(AccessType.ANY_USER, { 
-          params: Address_ParamsSchema
+          params: Address_Http_Dtos.Address_Params_Schema
      })}
 
      async handler(request: Request): Promise<Response> {
@@ -117,7 +113,7 @@ export class RemoveAddresController extends BaseController {
           private readonly addressesServices: IAddressesServices
 
      ){ super(AccessType.ADMIN, { 
-          params: Address_RemoveParamsSchema
+          params: Address_Http_Dtos.Address_Params_Schema
      })}
 
      async handler(request: Request): Promise<Response> {
