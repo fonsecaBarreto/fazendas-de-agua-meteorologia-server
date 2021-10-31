@@ -1,4 +1,4 @@
-import { JsonWebTokenAdapter } from '../../src/infra/JsonWebTokenAdapter'
+import { JsonWebTokenAdapter } from '@/infra/JsonWebTokenAdapter'
 import jwt from 'jsonwebtoken'
 
 const makeSut = () =>{

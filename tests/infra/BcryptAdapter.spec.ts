@@ -1,4 +1,4 @@
-import { BcryptAdapter } from '../../src/infra/BcryptAdapter'
+import { BcryptAdapter } from '@/infra/BcryptAdapter'
 import { compareSync, hashSync } from 'bcrypt'
 
 const makeSut = () =>{

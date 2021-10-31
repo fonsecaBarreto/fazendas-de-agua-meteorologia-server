@@ -1,10 +1,11 @@
 import { v4 } from 'uuid'
-import { StationView } from '../../../src/domain/Views/StationView'
-import KnexAdapter from '../../../src/infra/db/KnexAdapter'
-import { PgStationsRepository } from '../../../src/infra/db/PgStationsRepository'
-import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
-import { MakeFakeMeasurement } from '../../mocks/entities/MakeMeasurement'
-import { MakeFakeStation } from '../../mocks/entities/MakeStation'
+import { StationView } from '@/domain/Views/StationView'
+
+import KnexAdapter from '@/infra/db/KnexAdapter'
+import { PgStationsRepository } from '@/infra/db/PgStationsRepository'
+
+/* stubs */
+import { MakeFakeAddress, MakeFakeMeasurement, MakeFakeStation } from '@/tests/mocks/entities'
 
 const makeSut = () =>{
      return new PgStationsRepository()

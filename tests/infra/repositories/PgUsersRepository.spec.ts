@@ -1,9 +1,9 @@
-import KnexAdapter from '../../../src/infra/db/KnexAdapter'
-import { PgUsersRepository } from '../../../src/infra/db/PgUsersRepository'
-import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
-import { MakeFakeUser } from '../../mocks/entities/MakeUser'
+import KnexAdapter from '@/infra/db/KnexAdapter'
+import { PgUsersRepository } from '@/infra/db/PgUsersRepository'
 import { NIL } from 'uuid'
 import { UserView } from '../../../src/domain/Views/UserView'
+/* stubs */
+import { MakeFakeAddress, MakeFakeUser } from '@/tests/mocks/entities'
 
 const makeSut = () =>{
      return new PgUsersRepository()

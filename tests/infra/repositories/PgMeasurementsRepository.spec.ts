@@ -1,10 +1,7 @@
 import { v4 } from 'uuid'
-import KnexAdapter from '../../../src/infra/db/KnexAdapter'
-
-import { PgMeasurementsRepository } from '../../../src/infra/db'
-import { MakeFakeMeasurement } from '../../mocks/entities/MakeMeasurement'
-import { MakeFakeStation } from '../../mocks/entities/MakeStation'
-import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
+import KnexAdapter from '@/infra/db/KnexAdapter'
+import { PgMeasurementsRepository } from '@/infra/db'
+import { MakeFakeStation, MakeFakeAddress, MakeFakeMeasurement } from '@/tests/mocks/entities'
 
 const fakedAddresses = [ MakeFakeAddress({}) ];
 const fakedStations = [ MakeFakeStation({ address_id: fakedAddresses[0].id}) ]

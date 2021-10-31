@@ -1,12 +1,9 @@
 import { v4 } from 'uuid'
-import { AddressView } from '../../../src/domain/Views/AddressView'
-import KnexAdapter from '../../../src/infra/db/KnexAdapter'
+import { AddressView } from '@/domain/Views/AddressView'
+import KnexAdapter from '@/infra/db/KnexAdapter'
 
-import { PgAddressesRepository } from '../../../src/infra/db/PgAddressesRepository'
-import { MakeFakeAddress } from '../../mocks/entities/MakeAddress'
-import { MakeFakeStation } from '../../mocks/entities/MakeStation'
-import { MakeFakeUser } from '../../mocks/entities/MakeUser'
-
+import { PgAddressesRepository } from '@/infra/db/PgAddressesRepository'
+import { MakeFakeAddress, MakeFakeStation, MakeFakeUser } from '@/tests/mocks/entities'
 
 const makeSut = () =>{
      return new PgAddressesRepository()
