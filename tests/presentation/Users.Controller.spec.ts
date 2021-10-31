@@ -1,14 +1,13 @@
-import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '../../src/presentation/Controllers/V1/General/Users.Controllers'
-import { IUsersServices } from '../../src/domain/Services/Users/Users_Services'
-import { Forbidden, Ok, NotFound } from '../../src/presentation/Protocols/Http'
-import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError } from '../../src/domain/Errors/UsersErrors'
-import { MakeFakeUser } from '../mocks/entities/MakeUser'
+import { CreateUserController, FindUserController, RemoveUserController, UpdateUserController } from '@/presentation/Controllers/V1/General/Users.Controllers'
+import { IUsersServices } from '@/domain/Services/Users/Users_Services'
+import { Forbidden, Ok, NotFound } from '@/presentation/Protocols/Http'
+import { UserNameInUseError, UserNotAllowedError, UserNotFoundError, UserRoleIsInvalidError, AddressNotFoundError } from '@/domain/Errors'
+import { User } from '@/domain/Entities'
+import { UserView } from '@/domain/Views'
+/* stubs */
+import { MakeFakeUser } from '@/tests/mocks/entities'
+import { MakeCreateUserBodyDto, MakeUpdateUserBodyDto } from "@/tests/mocks/dtos/MakeUsersDtos"
 import { MakeRequest } from './mocks/MakeRequest'
-import { User, UsersRole } from '../../src/domain/Entities/User'
-
-import { UserView } from '../../src/domain/Views/UserView'
-import { AddressNotFoundError } from '../../src/domain/Errors/AddressesErrors'
-
 
 const makeSut = () =>{
 
@@ -30,7 +29,6 @@ const makeSut = () =>{
           }
      }
 
-
      const usersServices = new UsersServicesStub()
      const create = new CreateUserController(usersServices)
      const find = new FindUserController(usersServices)
@@ -40,124 +38,103 @@ const makeSut = () =>{
      return { create, update, find, remove, usersServices }
 }
 
-describe("CreateUserController", () =>{
+describe("Users Controllers", () =>{
+     describe("Create Controller", () =>{
 
-     const CreateUserBody = () => {
-          return ({
-               name: "Mario",
-               username: "usuario",
-               role: 0,
-               password: "123456"
+          describe("conflicts", () =>{
+
+               test("Should return status 403 if invalid role", async () =>{
+                    const { create, usersServices } = makeSut()
+                    
+                    jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
+                         throw new UserRoleIsInvalidError()
+                    })
+                    
+                    const req = MakeRequest({ body: { ...MakeCreateUserBodyDto(),role:3 } })
+                    const res = await create.handler(req)
+                    expect(res).toEqual(Forbidden(new UserRoleIsInvalidError()))
+               })
+               
+               test("Should return 404 if address were provided and not found", async () =>{
+                    const { create, usersServices} = makeSut()
+                    
+                    jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
+                         throw new AddressNotFoundError()
+                    })
+                    
+                    const req = MakeRequest({ body: { ...MakeCreateUserBodyDto(), address_id: 'invalid_address' } })
+                    const res = await create.handler(req)
+                    expect(res).toEqual(NotFound(new AddressNotFoundError()))
+               })
+               
+               test("Should return status 403 if UserName in use", async () =>{
+                    const { create, usersServices } = makeSut()
+                    
+                    jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
+                         throw new UserNameInUseError()
+                    })
+                    
+                    const req = MakeRequest({ body: { ...MakeCreateUserBodyDto(),username:"inuse_username" } })
+                    const res = await create.handler(req)
+                    expect(res).toEqual(Forbidden(new UserNameInUseError()))
+               })
+               
+               test("Should throw error if unknown error", async () =>{
+                    const { create, usersServices } = makeSut()
+                    
+                    jest.spyOn(usersServices,'create').mockImplementationOnce(async()=>{
+                         throw new Error("Error qualquer")
+                    })
+                    const req = MakeRequest({body: MakeCreateUserBodyDto()})
+                    const res = create.handler(req)
+                    await expect(res).rejects.toThrow()
+               })
           })
-     }
-
-     describe("conflicts", () =>{
-
-          test("Should return status 403 if invalid role", async () =>{
+          test("Should call users Services with correct values", async () =>{
                const { create, usersServices } = makeSut()
                
-               jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
-                    throw new UserRoleIsInvalidError()
-               })
-               
-               const req = MakeRequest({ body: { ...CreateUserBody(),role:3 } })
-               const res = await create.handler(req)
-               expect(res).toEqual(Forbidden(new UserRoleIsInvalidError()))
+               const spy = jest.spyOn(usersServices,'create')
+               const params = { ...MakeCreateUserBodyDto(), address_id: "any_address_id "}
+               const req = MakeRequest({body:params})
+               await create.handler(req)
+               expect(spy).toHaveBeenCalledWith(params)
           })
           
-          test("Should return 404 if address were provided and not found", async () =>{
-               const { create, usersServices} = makeSut()
+          test("Should return status 200 ", async () =>{
+               const { create } = makeSut()
                
-               jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
-                    throw new AddressNotFoundError()
-               })
-               
-               const req = MakeRequest({ body: { ...CreateUserBody(), address_id: 'invalid_address' } })
+               const body = MakeCreateUserBodyDto() 
+               const req = MakeRequest({body})
                const res = await create.handler(req)
-               expect(res).toEqual(NotFound(new AddressNotFoundError()))
+               expect(res.status).toBe(200)
           })
-          
-          test("Should return status 403 if UserName in use", async () =>{
-               const { create, usersServices } = makeSut()
-               
-               jest.spyOn(usersServices, 'create').mockImplementationOnce(async ()=>{
-                    throw new UserNameInUseError()
-               })
-               
-               const req = MakeRequest({ body: { ...CreateUserBody(),username:"inuse_username" } })
-               const res = await create.handler(req)
-               expect(res).toEqual(Forbidden(new UserNameInUseError()))
-          })
-          
-          test("Should throw error if unknown error", async () =>{
-               const { create, usersServices } = makeSut()
-               
-               jest.spyOn(usersServices,'create').mockImplementationOnce(async()=>{
-                    throw new Error("Error qualquer")
-               })
-               const req = MakeRequest({body: CreateUserBody()})
-               const res = create.handler(req)
-               await expect(res).rejects.toThrow()
-          })
-     })
-
-      test("Should call users Services with correct values", async () =>{
-          const { create, usersServices } = makeSut()
-
-          const spy = jest.spyOn(usersServices,'create')
-          const params = { ...CreateUserBody(), address_id: "any_address_id "}
-          const req = MakeRequest({body:params})
-          await create.handler(req)
-          expect(spy).toHaveBeenCalledWith(params)
-     })
-
-
-     test("Should return status 200 ", async () =>{
-          const { create } = makeSut()
-
-          const body = CreateUserBody() 
-          const req = MakeRequest({body})
-          const res = await create.handler(req)
-          expect(res.status).toBe(200)
      })   
-
-     describe("UpdateUserController", () =>{
-
-          const makeUpdateUserParams = () => {
-               return ({
-                    name: "Mario",
-                    username: "usuario"
-               })
-          }
+     describe("Update User Controller", () =>{
+               
           test("Should return status 404 if service throw  UsetNotFound", async () =>{
                const { update, usersServices } = makeSut()
-               jest.spyOn(usersServices,'update').mockImplementationOnce( async ()=>{
-                    throw new UserNotFoundError()
-               })
-               const req = MakeRequest({body:{...makeUpdateUserParams(),role:0}})
+               jest.spyOn(usersServices,'update').mockImplementationOnce( ()=>{
+               return Promise.reject(new UserNotFoundError()) })
+               const req = MakeRequest({body: MakeUpdateUserBodyDto() })
                const res = await update.handler(req)
                expect(res).toEqual(NotFound(new UserNotFoundError()))
           })
-
-          test("Should return status 403 if UserName is in use by another user", async () =>{
-               const { update, usersServices } = makeSut()
-
-               jest.spyOn(usersServices, 'update').mockImplementationOnce(async ()=>{
-                    throw new UserNameInUseError()
-               })
                
-               const req = MakeRequest({ body: { ...makeUpdateUserParams(),username:"inuse_username" } })
+          test("Should return status 403 if UserName is in use by another user", async () =>{
+               const { update, usersServices } = makeSut()     
+               jest.spyOn(usersServices, 'update').mockImplementationOnce(()=> Promise.reject(new UserNameInUseError()))
+               const req = MakeRequest({ body: MakeUpdateUserBodyDto({username:"inuse_username"})})
                const res = await update.handler(req)
                expect(res).toEqual(Forbidden(new UserNameInUseError()))
           })
-
+               
           test("Should throw error if unknown error", async () =>{
                const { update, usersServices } = makeSut()
-
+               
                jest.spyOn(usersServices,'update').mockImplementationOnce(async()=>{
                     throw new Error("Error qualquer")
                })
-               const req = MakeRequest({body:makeUpdateUserParams()})
+               const req = MakeRequest({body:MakeUpdateUserBodyDto()})
                const res = update.handler(req)
                await expect(res).rejects.toThrow()
           })
@@ -165,7 +142,7 @@ describe("CreateUserController", () =>{
           test("Should return status 200 ", async () =>{
                const { update } = makeSut()
 
-               const req = MakeRequest({ body: { name: "Novo Nome", username: "Joaquim"}, params: { id: "user_test_id" } });
+               const req = MakeRequest({ body: MakeUpdateUserBodyDto({ name: "Novo Nome", username: "Joaquim"}), params: { id: "user_test_id" } });
                const res = await update.handler(req)
                expect(res.status).toBe(200)
                expect(res.body).toMatchObject({
@@ -175,8 +152,7 @@ describe("CreateUserController", () =>{
                }) 
           })  
      })
-
-     describe("FindUserController", () =>{
+     describe("Find User Controller", () =>{
 
           test("Should return status 204 if no user were found", async () =>{
                const { find, usersServices } = makeSut()
@@ -218,10 +194,7 @@ describe("CreateUserController", () =>{
           }) 
 
      })
-
-
-
-     describe("RemoveUserController", () =>{
+     describe("Remove User Controller", () =>{
 
           test("Should return status 404 if service throws AddressNotFoundError", async () =>{
                const { remove, usersServices } = makeSut()
@@ -252,6 +225,5 @@ describe("CreateUserController", () =>{
           })
      
 
-     })
-
+     }) 
 })

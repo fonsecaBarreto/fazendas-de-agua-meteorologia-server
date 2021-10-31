@@ -1,8 +1,8 @@
-import { AccessType, BaseController, Forbidden, Ok } from "../../../Protocols/BaseController";
+import { AccessType, BaseController, Forbidden, Ok } from "@/presentation/Protocols/BaseController";
 import { NotFound, Request, Response } from "../../../Protocols/Http";
 import { IUsersServices } from "../../../../domain/Services/Users/Users_Services";
 import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../../domain/Errors/UsersErrors";
-import { CreateUser_BodySchema, UserId_ParamsSchema, UserIdOptional_ParamsSchema, UpdateUser_BodySchema } from "../../../Models/Schemas/UsersSchemas";
+import { Users_Http_Dtos } from "../../../Models/Schemas/UsersSchemas";
 import { UserView } from "../../../../domain/Views/UserView";
 import { User } from "../../../../domain/Entities/User";
 import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors";
@@ -12,7 +12,7 @@ export class CreateUserController extends BaseController {
 
      constructor( 
           private readonly usersServices: Pick<IUsersServices, 'create'> ,
-     ){ super( AccessType.ADMIN, { body: CreateUser_BodySchema }) }
+     ){ super( AccessType.ADMIN, { body: Users_Http_Dtos.Create_User_Schema }) }
 
      async handler(request: Request): Promise<Response> {
           const { name, username, password, role, address_id } =request.body
@@ -38,7 +38,7 @@ export class UpdateUserController extends BaseController {
 
      constructor( 
           private readonly usersServices: Pick<IUsersServices, 'update'> ,
-     ){ super( AccessType.ADMIN, { body: UpdateUser_BodySchema, params: UserId_ParamsSchema}) }
+     ){ super( AccessType.ADMIN, { body: Users_Http_Dtos.Update_User_Schema, params: Users_Http_Dtos.User_Params_Schema}) }
 
      async handler(request: Request): Promise<Response> {
 
@@ -63,7 +63,7 @@ export class UpdateUserController extends BaseController {
 export class FindUserController extends BaseController {
      constructor( 
           private readonly usersServices: Pick<IUsersServices, 'find' | 'list'> ,
-     ){ super( AccessType.ADMIN, { params: UserIdOptional_ParamsSchema}) }
+     ){ super( AccessType.ADMIN, { params: Users_Http_Dtos.User_Optional_Params_Schema }) }
 
      async handler(request: Request): Promise<Response> {
 
@@ -84,7 +84,7 @@ export class FindUserController extends BaseController {
 export class RemoveUserController extends BaseController {
      constructor( 
           private readonly usersServices: Pick<IUsersServices, 'remove'> ,
-     ){ super( AccessType.ADMIN, { params: UserId_ParamsSchema}) }
+     ){ super( AccessType.ADMIN, { params:  Users_Http_Dtos.User_Params_Schema }) }
 
      async handler(request: Request): Promise<Response> {
 

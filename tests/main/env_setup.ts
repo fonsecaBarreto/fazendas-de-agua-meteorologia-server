@@ -39,6 +39,8 @@ export const MakeTestEnv = async (): Promise<MainTestEnv> =>{
      await KnexAdapter.resetMigrations()
      await KnexAdapter.connection('addresses').insert(test_addresses)
      await KnexAdapter.connection('users').insert(test_users)
+     //Relaciona 'Seu Zé ao endereço 1
+     await KnexAdapter.connection('users_addresses').insert({ address_id: test_addresses[0].id, user_id: test_users[1].id})
 
      const admin_token = await jwt.sign({ id: test_users[0].id}, keys.JWT_SECRET)
      const basic_token = await jwt.sign({ id: test_users[1].id}, keys.JWT_SECRET)
