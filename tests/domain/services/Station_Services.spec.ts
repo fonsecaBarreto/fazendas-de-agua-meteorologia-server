@@ -1,15 +1,11 @@
-import { Station } from "../../../src/domain/Entities/Station";
-import { StationsServices, IStationService } from '../../../src/domain/Services/Stations/Station_Services'
-import { IdGeneratorStub } from '../../mocks/vendors/IdGeneratorStub'
-import { IStationRepository } from "../../../src/domain/Interfaces/repositories/IStationRepository";
-import { IAddressRepository } from "../../../src/domain/Interfaces/repositories/IAddressRepository";
-import { Address } from "../../../src/domain/Entities/Address";
-import { MakeFakeAddress } from "../../mocks/entities/MakeAddress";
-import { MakeFakeStation } from "../../mocks/entities/MakeStation";
-import { AddressNotFoundError } from "../../../src/domain/Errors/AddressesErrors";
-import { StationNotFoundError } from "../../../src/domain/Errors/StationsErrors";
-import { SMTimeIntervalFeed, SMPageFeed, StationView } from "../../../src/domain/Views/StationView";
-import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
+import { Station, Address } from "@/domain/Entities";
+import { SMTimeIntervalFeed, SMPageFeed, StationView } from "@/domain/Views/StationView";
+import { AddressNotFoundError, StationNotFoundError } from "@/domain/Errors";
+import { StationsServices, IStationService } from '@/domain/Services/Stations/Station_Services'
+import { IStationRepository, IAddressRepository } from "@/domain/Interfaces/repositories";
+/* stubs */
+import { IdGeneratorStub } from '@/tests/mocks/vendors'
+import { MakeFakeMeasurement, MakeFakeAddress, MakeFakeStation } from '@/tests/mocks/entities'
 
 const MakeMultiplesMeasurements = (n: number, station_id: string) =>{
      const ms = []
@@ -106,14 +102,12 @@ describe("Station Services", () =>{
                const resp = sut.create(makeFakeCreateParams())
                await expect(resp).rejects.toThrow(new AddressNotFoundError())
           })
-
           test("Should call id generator once", async () =>{
                const { sut, idGenerator } = makeSut()
                const spy = jest.spyOn(idGenerator, 'gen')
                await sut.create(makeFakeCreateParams())
                expect(spy).toHaveBeenCalledTimes(1)
           })
-
           test("Should station Repository with correct values", async () =>{
                const { sut, stationsRepository } = makeSut()
                const repoSpy = jest.spyOn(stationsRepository, 'upsert')
@@ -124,7 +118,6 @@ describe("Station Services", () =>{
                     ...params
                })
           })
-
           test("Should return Station View", async() =>{
                const { sut, stationsRepository } = makeSut()
                const params = makeFakeCreateParams()
@@ -153,8 +146,6 @@ describe("Station Services", () =>{
                const resp = sut.update('unknown_id',makeFakeUpdateParams())
                await expect(resp).rejects.toThrow(new StationNotFoundError())
           })
- 
-
           test("Should station Repository with correct values", async () =>{
                const { sut, stationsRepository, fake_stations } = makeSut()
                const repoSpy = jest.spyOn(stationsRepository, 'upsert')
@@ -165,7 +156,6 @@ describe("Station Services", () =>{
                     ...params
                })
           })
-
           test("Should return Station View", async() =>{
                const { sut, fake_stations } = makeSut()
                const params = makeFakeUpdateParams({description:"Uma descrição qualquer"})
@@ -188,8 +178,6 @@ describe("Station Services", () =>{
                const resp = sut.remove('any_id')
                await expect(resp).rejects.toThrow(new StationNotFoundError())
           })
-
-
           test("Should reurn voit if repostiory returns true", async () =>{
                const { sut, stationsRepository } = makeSut()
                jest.spyOn(stationsRepository, "remove").mockImplementationOnce((id:string)=>{
@@ -208,7 +196,6 @@ describe("Station Services", () =>{
                await sut.find('any_id', 0)
                expect(spy).toHaveBeenLastCalledWith('any_id')
           })
-
           test("Should not call repository.findMeasurements if mpage == -1", async () =>{
                const { sut, stationsRepository } = makeSut()
                const spy = jest.spyOn(stationsRepository, 'findMeasurements')
@@ -219,7 +206,6 @@ describe("Station Services", () =>{
                await sut.find('any_id')
                expect(spy).toHaveBeenCalledTimes(0)
           })
-
           test("Should call repository.findMeasurements with correct values", async () =>{
                const { sut, stationsRepository } = makeSut()
                const spy = jest.spyOn(stationsRepository, 'findMeasurements')
@@ -230,7 +216,6 @@ describe("Station Services", () =>{
                await sut.find('any_id', 2)
                expect(spy).toHaveBeenLastCalledWith('any_id',120, 60)
           })
-
           test("Should return null if invalid_id", async () =>{
                const { sut, stationsRepository } = makeSut()
                jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
@@ -260,7 +245,6 @@ describe("Station Services", () =>{
                await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
                expect(spy).toHaveBeenLastCalledWith('any_id')
           })
-
           test("Should return null if invalid_id", async () =>{
                const { sut, stationsRepository } = makeSut()
                jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
@@ -269,16 +253,12 @@ describe("Station Services", () =>{
                const resp = await sut.findWithMeasumentsByInterval('any_id',  new Date("2021-10-01"), new Date("2022-02-01"))
                expect(resp).toBe(null)
           })
-
-
           test("Should call repository.findWithMeasumentsByInterval with correct value", async () =>{
                const { sut, stationsRepository } = makeSut()
                const spy = jest.spyOn(stationsRepository, 'findMeasurementsByInterval')
                await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
                expect(spy).toHaveBeenLastCalledWith('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
           })
-
-
           test("Should return StationView", async () =>{
                const { sut, fake_stations, fake_measurements } = makeSut()
                const resp = await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01"))

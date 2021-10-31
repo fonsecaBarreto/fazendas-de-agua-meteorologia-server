@@ -1,15 +1,12 @@
+import { Address } from "@/domain/Entities/Address"
+import { UserView, AddressView } from "@/domain/Views"
+import { IAddressRepository } from "@/domain/Interfaces/repositories"
+import { AddressNotFoundError, AddressUfInvalidError, UserNotAllowedError } from "@/domain/Errors"
+import { AddressesServices, IAddressesServices } from "@/domain/Services/Addresses/Addresses_Services"
 
-import { Address } from "../../../src/domain/Entities/Address"
-import { AddressesServices, IAddressesServices } from "../../../src/domain/Services/Addresses/Addresses_Services"
-import { AddressNotFoundError, AddressUfInvalidError } from "../../../src/domain/Errors/AddressesErrors"
-import { IAddressRepository } from "../../../src/domain/Interfaces/repositories/IAddressRepository"
-import { MakeFakeAddress } from "../../mocks/entities/MakeAddress"
-import { IdGeneratorStub } from "../../mocks/vendors/IdGeneratorStub"
-import { MakeFakeUser } from "../../mocks/entities/MakeUser"
-import { UserNotAllowedError, UserNotFoundError } from "../../../src/domain/Errors/UsersErrors"
-import { UserView } from "../../../src/domain/Views/UserView"
-import { AddressView } from "../../../src/domain/Views/AddressView"
-import { MakeFakeStation } from "../../mocks/entities/MakeStation"
+/* stubs */
+import { IdGeneratorStub } from "@/tests/mocks/vendors"
+import { MakeFakeUser, MakeFakeAddress, MakeFakeStation } from "@/tests/mocks/entities"
 
 const makeSut = () =>{
      

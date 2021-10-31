@@ -1,32 +1,22 @@
-
-import { Address } from "../../../../src/domain/Entities/Address"
-import { User } from "../../../../src/domain/Entities/User"
-import { AddressNotFoundError } from "../../../../src/domain/Errors/AddressesErrors"
-import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../../src/domain/Errors/UsersErrors"
-import { IAddressRepository } from "../../../../src/domain/Interfaces/repositories/IAddressRepository"
-import { IUserRepository } from "../../../../src/domain/Interfaces/repositories/IUserRepository"
+import { UserView } from "@/domain/Views"
+import { Address, User } from "@/domain/Entities"
+import { IAddressRepository, IUserRepository} from "@/domain/Interfaces/repositories"
 import { IUsersServices, UsersServices } from "../../../../src/domain/Services/Users/Users_Services"
-import { UserView } from "../../../../src/domain/Views/UserView"
-import { MakeFakeAddress } from "../../../mocks/entities/MakeAddress"
-import { MakeFakeUser } from "../../../mocks/entities/MakeUser"
-import { HasherStub, IdGeneratorStub  } from '../../../mocks/vendors/index'
+import { AddressNotFoundError, UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "@/domain/Errors"
+/* stubs */
+import { MakeFakeAddress, MakeFakeUser } from "@/tests/mocks/entities"
+import { HasherStub, IdGeneratorStub  } from '@/tests/mocks/vendors'
 
 const makeSut = () =>{
      
-     const mocked_users = [
-          MakeFakeUser(),
-          MakeFakeUser()
-     ]
+     const mocked_users = [ MakeFakeUser(), MakeFakeUser() ]
      
-     const mocked_addresses = [
-          MakeFakeAddress()
-     ]
+     const mocked_addresses = [ MakeFakeAddress()  ]
 
      class UsersRepositoryStub implements IUserRepository {
           async findUser(id: string): Promise<UserView> {
                return new UserView(mocked_users[0])
           }
-
           async list(): Promise<User[]> {
               return mocked_users
           }

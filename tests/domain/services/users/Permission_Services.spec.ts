@@ -1,11 +1,10 @@
 
-import {  UsersRole } from "../../../../src/domain/Entities/User"
-import { IAddressRepository, IStationRepository } from "../../../../src/domain/Interfaces"
-import { PermissionsServices } from "../../../../src/domain/Services/Users/Permision_Services"
-import { MakeFakeUser } from "../../../mocks/entities/MakeUser"
-import { Station } from "../../../../src/domain/Entities/Station"
-import { MakeFakeStation } from "../../../mocks/entities/MakeStation"
-import { StationNotFoundError } from "../../../../src/domain/Errors/StationsErrors"
+import {  UsersRole, Station } from "@/domain/Entities"
+import { PermissionsServices } from "@/domain/Services/Users/Permision_Services"
+import { StationNotFoundError } from "@/domain/Errors/StationsErrors"
+import { IAddressRepository, IStationRepository } from "@/domain/Interfaces"
+
+import { MakeFakeUser, MakeFakeStation } from "@/tests/mocks/entities"
 
 const makeSut = () =>{
 

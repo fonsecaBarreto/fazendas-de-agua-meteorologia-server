@@ -1,15 +1,12 @@
 
-import { CardialPoints, Measurement } from "../../../src/domain/Entities/Measurements"
-import { Station } from "../../../src/domain/Entities/Station";
-import { MeasurementNotFoundError, MeasurementsDuplicatedError } from "../../../src/domain/Errors/MeasurementsErrors";
-import { StationNotFoundError } from "../../../src/domain/Errors/StationsErrors";
-import { IMeasurementsRepository, IStationRepository } from "../../../src/domain/Interfaces";
-import { IMeasurementsService, MeasurementsService } from "../../../src/domain/Services/Stations/Measurements_Services"
-import { MeasurementView } from "../../../src/domain/Views/MeasurementView";
-import { StationView } from "../../../src/domain/Views/StationView";
-import { MakeFakeMeasurement } from "../../mocks/entities/MakeMeasurement";
-import { MakeFakeStation } from "../../mocks/entities/MakeStation";
-import { IdGeneratorStub } from "../../mocks/vendors";
+import { Station, CardialPoints, Measurement } from "@/domain/Entities";
+import { MeasurementView, StationView } from "@/domain/Views";
+import { StationNotFoundError, MeasurementNotFoundError, MeasurementsDuplicatedError } from "@/domain/Errors";
+import { IMeasurementsRepository, IStationRepository } from "@/domain/Interfaces";
+import { IMeasurementsService, MeasurementsService } from "@/domain/Services/Stations/Measurements_Services";
+/* stubs */
+import { MakeFakeMeasurement, MakeFakeStation } from "@/tests/mocks/entities";
+import { IdGeneratorStub } from "@/tests/mocks/vendors";
 
 const makeSut = () =>{
      
