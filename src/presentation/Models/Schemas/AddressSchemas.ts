@@ -16,7 +16,7 @@ export namespace Address_Http_Dtos {
   export interface Create_Address_Http_Body_Dto extends IAddressesServices.Params.Create {}
 
   export const Address_Params_Schema = SchemaBd.create( (s: SchemaBuilder )=> {
-    s.uuid("id").description("Identificação")
+    s.uuid("id").description("ID do Endereço")
   });
   
   export interface Address_Http_Param_Dto { id: string }

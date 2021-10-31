@@ -25,7 +25,8 @@ export const MakeTestEnv = async (): Promise<MainTestEnv> =>{
 
      const test_users = [
           MakeFakeUser({ name: "Usuario administrador", username:"admin_test", password: hashSync("12345678",12), role: UsersRole.Admin }),
-          MakeFakeUser({ name: 'Seu Zé' ,username: 'basic_user_test', role: UsersRole.Basic }),
+          MakeFakeUser({ name: 'Seu Zé Com endereço' ,username: 'basic_user_ze_test', role: UsersRole.Basic }),
+          MakeFakeUser({ name: 'Seu Antonio sem Endereço' ,username: 'basic_user_antonio_test', role: UsersRole.Basic }),
      ];
 
      const test_addresses = [
@@ -36,13 +37,14 @@ export const MakeTestEnv = async (): Promise<MainTestEnv> =>{
      app = await setupApp(keys)
      await KnexAdapter.open('test')
      await KnexAdapter.resetMigrations()
-     await KnexAdapter.connection('users').insert(test_users)
      await KnexAdapter.connection('addresses').insert(test_addresses)
+     await KnexAdapter.connection('users').insert(test_users)
 
      const admin_token = await jwt.sign({ id: test_users[0].id}, keys.JWT_SECRET)
      const basic_token = await jwt.sign({ id: test_users[1].id}, keys.JWT_SECRET)
+     const basic_token_noaddress = await jwt.sign({ id: test_users[2].id}, keys.JWT_SECRET)
 
-     return ({ app, keys, test_users, test_addresses, tokens: { admin_token, basic_token} })
+     return ({ app, keys, test_users, test_addresses, tokens: { admin_token, basic_token, basic_token_noaddress} })
 
 }
 

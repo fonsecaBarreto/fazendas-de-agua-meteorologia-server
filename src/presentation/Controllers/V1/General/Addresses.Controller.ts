@@ -1,13 +1,16 @@
 import { IAddressesServices } from "../../../../domain/Services/Addresses/Addresses_Services";
 import { AccessType, BadRequest, BaseController, Ok } from "../../../Protocols/BaseController";
-import { NotFound, Request, Response, Unauthorized } from "../../../Protocols/Http";
+import { Forbidden, NotFound, Request, Response, Unauthorized } from "../../../Protocols/Http";
 import { Address_Http_Dtos } from '../../../Models/Schemas/AddressSchemas'
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../../domain/Errors/AddressesErrors";
 import { AddressView } from "../../../../domain/Views/AddressView";
 import { Address } from "../../../../domain/Entities/Address";
 import { UsersRole } from "../../../../domain/Entities/User";
 import { IAddressRepository } from "../../../../domain/Interfaces";
+import { IPermissionsServices } from "@/domain/Services/Users/Permision_Services";
+import { UserNotAllowedError } from "@/domain/Errors";
 
+//POST /addresses
 export class CreateAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'create'>
@@ -28,6 +31,7 @@ export class CreateAddressController extends BaseController {
      }
 }
 
+//PUT /addresses/:id
 export class UpdateAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'update'>
@@ -57,6 +61,7 @@ export class UpdateAddressController extends BaseController {
      }
 }
 
+// GET /addresses
 export class ListAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'list'>
@@ -77,10 +82,12 @@ export class ListAddressController extends BaseController {
      }
 }
 
+
+// GET /addresses/:id
 export class FindAddresController extends BaseController {
      constructor(
+          private readonly _permissionService: Pick<IPermissionsServices, 'isUserRelatedToAddress'>, 
           private readonly addressesServices: Pick<IAddressesServices, 'find' >,
-          private readonly addressRepository: Pick<IAddressRepository, 'isUserRelated'>
 
      ){ super(AccessType.ANY_USER, { 
           params: Address_Http_Dtos.Address_Params_Schema
@@ -91,23 +98,22 @@ export class FindAddresController extends BaseController {
           const { user,query, params } = request;
 
           const viewMode = query.v;
-          const id = params.id;
+          const { id: address_id } = params;
 
-          if(user.role !== UsersRole.Admin){
-               if( !user.address || ! user.address.id) return Unauthorized();
-               const isRelated =await this.addressRepository.isUserRelated(user.id, id)
-               if(isRelated === false) return Unauthorized()
-          }
+          const isAllowed = await this._permissionService.isUserRelatedToAddress({ user, address_id }) 
+          if(!isAllowed) return Forbidden(new UserNotAllowedError())
 
-          const address: AddressView = await this.addressesServices.find(id)
+          const address: AddressView = await this.addressesServices.find(address_id)
           if(!address) return Ok(null);
 
           if(viewMode === "labelview") return Ok((address.getLabelView()))
+          
           return Ok(address)
        
      }
 }
 
+// DELETE /addresses/:id
 export class RemoveAddresController extends BaseController {
      constructor(
           private readonly addressesServices: IAddressesServices
