@@ -16,7 +16,7 @@ const formDataMidleware = FormDataMidleware({
 
 export default async function (router: Router, keys: ENV_VARIABLES){
 
-     const { create, update, find, findWithInterval, remove } = StationControllers(keys)
+     const { create, update, find, findStationMetrics, remove } = StationControllers(keys)
      const { createMultiples, create: CreateMeasurement, createByJson } = MeasurementsController(keys)
 
      const r = Router()  
@@ -30,7 +30,7 @@ export default async function (router: Router, keys: ENV_VARIABLES){
           .put(update.execute())
           .delete(remove.execute())
 
-     r.get("/:id/time_interval", findWithInterval.execute())
+     r.get("/:id/metrics", findStationMetrics.execute())
 
      r.post("/:station_id/measurements/multiples", formDataMidleware, createMultiples.execute())
      r.post("/:station_id/measurements/json", createByJson.execute())

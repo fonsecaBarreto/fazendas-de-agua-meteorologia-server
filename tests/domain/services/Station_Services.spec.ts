@@ -1,5 +1,5 @@
 import { Station, Address } from "@/domain/Entities";
-import { SMTimeIntervalFeed, SMPageFeed, StationView } from "@/domain/Views/StationView";
+import { SMPageFeed, StationView } from "@/domain/Views/StationView";
 import { AddressNotFoundError, StationNotFoundError } from "@/domain/Errors";
 import { StationsServices, IStationService } from '@/domain/Services/Stations/Station_Services'
 import { IStationRepository, IAddressRepository } from "@/domain/Interfaces/repositories";
@@ -23,24 +23,12 @@ const makeSut = () =>{
 
      const fake_measurements = MakeMultiplesMeasurements(50, fake_stations[0].id);
 
-     class StationsRepositoryStub implements IStationRepository{
-          findMeasurementsByInterval(id: string, start_date: Date, end_date: Date): Promise<SMTimeIntervalFeed> {
+     class StationsRepositoryStub implements Omit<IStationRepository, 'findMeasurementsByInterval' | 'findWithAddress_id'>{
 
-               const mm: SMTimeIntervalFeed = {
-                    total: fake_measurements.length, 
-                    end_date,
-                    start_date,
-                    data: fake_measurements
-               };
-
-               return Promise.resolve(mm);
-          }
           listStationsByAddress(address_id: String): Promise<Station[]> {
                return Promise.resolve(fake_stations)
           }
-          findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
-               throw new Error("Method not implemented.");
-          }
+
           findMeasurements(id: string, offset: number, limit: number): Promise<SMPageFeed> {
                
                const mm: SMPageFeed = {
@@ -237,41 +225,4 @@ describe("Station Services", () =>{
                expect(resp).toEqual(station)
           })
      })
-      describe("findWithMeasumentsByInterval", () =>{
-
-          test("Should call repository.findStation with correct value", async () =>{
-               const { sut, stationsRepository } = makeSut()
-               const spy = jest.spyOn(stationsRepository, 'findStation')
-               await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
-               expect(spy).toHaveBeenLastCalledWith('any_id')
-          })
-          test("Should return null if invalid_id", async () =>{
-               const { sut, stationsRepository } = makeSut()
-               jest.spyOn(stationsRepository, 'findStation').mockImplementationOnce(()=>{
-                    return Promise.resolve(null);
-               })
-               const resp = await sut.findWithMeasumentsByInterval('any_id',  new Date("2021-10-01"), new Date("2022-02-01"))
-               expect(resp).toBe(null)
-          })
-          test("Should call repository.findWithMeasumentsByInterval with correct value", async () =>{
-               const { sut, stationsRepository } = makeSut()
-               const spy = jest.spyOn(stationsRepository, 'findMeasurementsByInterval')
-               await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
-               expect(spy).toHaveBeenLastCalledWith('any_id', new Date("2021-10-01"), new Date("2022-02-01") )
-          })
-          test("Should return StationView", async () =>{
-               const { sut, fake_stations, fake_measurements } = makeSut()
-               const resp = await sut.findWithMeasumentsByInterval('any_id', new Date("2021-10-01"), new Date("2022-02-01"))
-               const station = new StationView(fake_stations[0], null)
-
-               station.setMeasurements(  {
-                    total: fake_measurements.length,
-                    data: fake_measurements,
-                    start_date: new Date("2021-10-01"),
-                    end_date: new Date("2022-02-01")
-               })
-               expect(resp).toEqual(station)
-          }) 
-     }) 
-
 })

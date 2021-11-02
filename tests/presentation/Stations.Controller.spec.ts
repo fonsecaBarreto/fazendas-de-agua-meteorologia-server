@@ -1,10 +1,7 @@
-import { CreateStationController, FindStationController, FindStationWithIntervalController, RemoveStationController, UpdateStationController } from '../../src/presentation/Controllers/V1/General/Stations.Controller'
-
+import { CreateStationController, FindStationController, RemoveStationController, UpdateStationController } from '../../src/presentation/Controllers/V1/General/Stations.Controller'
 import { IStationService } from '../../src/domain/Services/Stations/Station_Services'
-
 import { Ok, NotFound, Request, Forbidden } from '../../src/presentation/Protocols/Http'
 import { StationNotFoundError } from '../../src/domain/Errors/StationsErrors'
-
 import { MakeRequest } from './mocks/MakeRequest'
 import { StationView } from '../../src/domain/Views/StationView'
 import { MakeFakeStation } from '../mocks/entities/MakeStation'
@@ -57,13 +54,11 @@ const makeSut = () =>{
 
      const permissionServices = new PermissionServiceStub
      const create = new CreateStationController(stationsServices)
-
-     const findwithInterval = new FindStationWithIntervalController(permissionServices, stationsServices)
      const find = new FindStationController(permissionServices, stationsServices)
      const remove = new RemoveStationController(stationsServices)
      const update = new UpdateStationController(stationsServices)
 
-     return { create, update, find, findwithInterval, remove, stationsServices, faked_stations, faked_addresses, permissionServices }
+     return { create, update, find, remove, stationsServices, faked_stations, faked_addresses, permissionServices }
 }
 
 describe("CreateUserController", () =>{
@@ -274,82 +269,4 @@ describe("FindStationController", () =>{
 
 })
 
-
-/* describe("FindStationWithIntervalController", () =>{
-     const makeFindRequest  =(fields?:Partial<Request>): Request =>{
-          return MakeRequest({ 
-               params: { id: 'any_id' },
-               user: new UserView(MakeFakeUser({role: UsersRole.Admin})),
-               ...fields
-          }) 
-     }
-
-     test("Should call permisison service with correct values", async () =>{
-          const { findwithInterval, permissionServices } = makeSut()
-          const permissionSpy = jest.spyOn(permissionServices,'isUserAllowedToStation');
-          const usuario =  new UserView(MakeFakeUser({role: UsersRole.Basic }), MakeFakeAddress());
-
-          const req = makeFindRequest({params: {id: "station_id_test"}, user: usuario});
-          await findwithInterval.handler(req);
-          expect(permissionSpy).toHaveBeenCalledWith({ user: usuario, station_id: "station_id_test" })
-     })  
-
-
-     test("Should return 403 if permission service return false", async () =>{
-          const { findwithInterval, permissionServices } = makeSut()
-          jest.spyOn(permissionServices,'isUserAllowedToStation').mockImplementationOnce( () => {
-               return Promise.resolve(false)
-          });
-          const usuario =  new UserView(MakeFakeUser({role: UsersRole.Basic }), MakeFakeAddress());
-          const req = makeFindRequest({params: {id: "station_id_test"}, user: usuario});
-          const res  =await findwithInterval.handler(req);
-          expect(res).toEqual(Forbidden(new UserNotAllowedError()))
-     }) 
-
-
-     test("Should return 404 if permission throws", async () =>{
-          const { findwithInterval, permissionServices } = makeSut()
-          jest.spyOn(permissionServices,'isUserAllowedToStation').mockImplementationOnce( () => {
-               return Promise.reject(new StationNotFoundError());
-          });
-          const req = makeFindRequest({params: {id: "station_id_test"}});
-          const res  =await findwithInterval.handler(req);
-          expect(res).toEqual(NotFound(new StationNotFoundError()))
-     }) 
-     
-      
-     test("Should call service with correct values", async () =>{
-          const { findwithInterval, stationsServices } = makeSut()
-          const serviceSpy = jest.spyOn(stationsServices,'findWithMeasumentsByInterval');
-
-          var req = makeFindRequest({ query:{ e:"1604011932", s: "1635547932" } }) 
-          await findwithInterval.handler(req);
-
-          expect(serviceSpy).toHaveBeenLastCalledWith('any_id', new Date(1635547932), new Date(1604011932));
-
-          req = makeFindRequest({ query:{ s: "1635547932" } });
-          await findwithInterval.handler(req);
-
-          expect(serviceSpy).toHaveBeenLastCalledWith('any_id', new Date(1635547932), new Date());
-
-     }) 
-  
-     test("Should return status 204 if no station were found", async () =>{
-          const { findwithInterval, stationsServices } = makeSut()
-          jest.spyOn(stationsServices,'findWithMeasumentsByInterval').mockImplementationOnce( async()=>null)
-          const req = makeFindRequest({ params: { id: 'invalid_id' } })
-          const res = await findwithInterval.handler(req)
-          expect(res).toEqual(Ok(null))
-     })
-
-     test("Should return 200", async () =>{
-          const { findwithInterval, faked_stations, faked_addresses  } = makeSut()
-          const req = makeFindRequest({ params: { id: 'any_id' } })
-          const res = await findwithInterval.handler(req)
-          expect(res.status).toBe(200)
-          expect(res.body).toEqual({ ...faked_stations[0], measurements: null, address: new AddressView(faked_addresses[0]).getLabelView()})
-     })  
-
-})
- */
 

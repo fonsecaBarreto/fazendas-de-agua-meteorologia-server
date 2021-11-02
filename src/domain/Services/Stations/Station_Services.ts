@@ -25,14 +25,13 @@ export interface IStationService {
      create(params: IStationService.Params.Create): Promise<StationView>
      update(id:string, params:  IStationService.Params.Update): Promise<StationView> 
      find(id:string, mpage: number): Promise<StationView>
-     findWithMeasumentsByInterval(id:string, start_date :Date, end_date: Date): Promise<StationView>
      remove(id:string): Promise<void>
 }
 
 export class StationsServices implements IStationService{
      constructor(
           private readonly idGenerator: IIdGenerator,
-          private readonly _stationsRepository: IStationRepository,
+          private readonly _stationsRepository: Omit<IStationRepository, 'findMeasurementsByInterval' | 'findWithAddress_id'>,
           private readonly _addressRepository: Pick<IAddressRepository,'find'>
      ){}
 
@@ -83,20 +82,10 @@ export class StationsServices implements IStationService{
           return station;
      }
 
-     async findWithMeasumentsByInterval(id: string, start_date: Date, end_date: Date = new Date()): Promise<StationView> {
-
-          const station: StationView = await this._stationsRepository.findStation(id)
-          if(!station) return null;
-
-          const mm = await this._stationsRepository.findMeasurementsByInterval(id, start_date, end_date);
-          if(mm != null) station.setMeasurements(mm);
-      
-          return station;
-     }
-
      async remove(id: string): Promise<void> {
           const wasDeleted = await this._stationsRepository.remove(id)
           if(!wasDeleted) throw new StationNotFoundError()
      }
 
 }
+

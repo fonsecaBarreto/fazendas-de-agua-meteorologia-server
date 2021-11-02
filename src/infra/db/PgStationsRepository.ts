@@ -1,16 +1,17 @@
+import knex from "knex";
 import { Measurement } from "../../domain/Entities/Measurements";
 import { Station } from "../../domain/Entities/Station";
 import { IStationRepository } from "../../domain/Interfaces/repositories/IStationRepository";
-import { StationView, SMTimeIntervalFeed, SMPageFeed } from "../../domain/Views/StationView";
+import { StationView, SMPageFeed, MeasurementMetrics } from "@/domain/Views/";
 import KnexAdapter from "./KnexAdapter";
 
 import { PgBaseRepository } from "./PgBaseRepository";
+import { convertTypeAcquisitionFromJson } from "typescript";
 
 export class PgStationsRepository extends PgBaseRepository<Station> implements IStationRepository {
      constructor(){
           super('stations')
      }
-  
 
      async findWithAddress_id(station_id: string, address_id: string): Promise<Station> {
           const query = KnexAdapter.connection('stations').where({id: station_id, address_id}).first()
@@ -35,21 +36,34 @@ export class PgStationsRepository extends PgBaseRepository<Station> implements I
           })
      }
 
-     async findMeasurementsByInterval(station_id: string, start_date: Date, end_date: Date): Promise<SMTimeIntervalFeed> {
-          const { count } = await KnexAdapter.connection('measurements').where({station_id}).count('id', { as: 'count' }).first();
-        
-          const measurements: any = await KnexAdapter.connection('measurements')
+     async findMeasurementsByInterval(station_id: string, start_date: Date, end_date: Date): Promise<MeasurementMetrics> {
+
+          const AVG_LIST = ['temperature', 'airHumidity', 'windSpeed', 'rainVolume', 'accRainVolume' ];
+          const metrics: any= await KnexAdapter.connection('measurements')
           .where({station_id})
           .andWhereBetween('created_at', [start_date, end_date])
-          .orderBy('created_at','desc');
+          .select( [ ...AVG_LIST.map( p=>KnexAdapter.connection.raw( 'avg(??) as ??',[p,p])) ,
+               KnexAdapter.connection.raw( 'max(??) as winddirection',['windDirection']) ,
+               KnexAdapter.connection.raw( 'count(??) as amount',['id']) ,
+          ])
+          .first();
+          
+         if(!metrics) return null
 
-          if(!measurements || measurements.length == 0) return null
-     
-          return ({
-               total: Number(count),
-               start_date, end_date,
-               data: measurements
-          })
+          const measurement: MeasurementMetrics = {
+               start_limit: start_date,
+               end_limit: end_date,
+               amount: Number(metrics.amount) || 0,
+               mTemperature: metrics.temperature || 0,
+               mAirHumidity: metrics.airHumidity || 0,
+               mWindSpeed: metrics.windSpeed || 0,
+               mdWindDirection: metrics.winddirection || null,
+               mRainVolume: metrics.rainVolume || 0,
+               mAccRainVolume: metrics.accRainVolume || 0
+          } 
+
+          return measurement
+
      }
 
      async findStation(id:string): Promise<StationView>{

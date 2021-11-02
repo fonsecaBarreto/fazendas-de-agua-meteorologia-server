@@ -1,10 +1,9 @@
 
 const fs = require("fs");
-const { func } = require("joi");
 const { v4 } = require("uuid");
 const  { stations } = require('../test/initial_data')
 
-const CardialPointsList = [ "N","E", "S","W","NE","SE","SW","NW" ];
+const CardialPointsList = [ "N", "E", "S" ,"W" ,"NE" ,"SE" ,"SW" ,"NW" ];
 
 const createMeasurement = ( station_id, i ) =>{
      const initial_date = new Date()

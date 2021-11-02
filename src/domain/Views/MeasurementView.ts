@@ -6,13 +6,11 @@ export class MeasurementView implements Measurement{
      id: string;
      station_id: string;
      coordinates: Coordinates;
-
      created_at: Date;
      temperature: number;
      airHumidity: number;
      windSpeed: number;
      windDirection: CardialPoints
-
      rainVolume: number;
      accRainVolume: number
   
@@ -22,3 +20,21 @@ export class MeasurementView implements Measurement{
      
 }
 
+/* Media dos valores e tal */
+
+
+export interface MeasurementMetrics {
+
+     start_limit: Date
+     end_limit: Date
+     amount: number // number measurements calculated
+
+     mTemperature: number;
+     mAirHumidity: number;
+     mWindSpeed: number;
+     mdWindDirection: CardialPoints
+     mRainVolume: number;
+     mAccRainVolume: number
+
+
+}

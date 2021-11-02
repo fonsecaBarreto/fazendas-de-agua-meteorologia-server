@@ -6,6 +6,7 @@ import { PgStationsRepository } from '@/infra/db/PgStationsRepository'
 
 /* stubs */
 import { MakeFakeAddress, MakeFakeMeasurement, MakeFakeStation } from '@/tests/mocks/entities'
+import { MakeFakeMeasurementMetrics } from '@/tests/mocks/dtos'
 
 const makeSut = () =>{
      return new PgStationsRepository()
@@ -22,7 +23,7 @@ const fakeStations = [
      MakeFakeStation({ address_id: fakeAddresses[2].id }),
 
 ]
-const fakeMeasurements = [...Array(50)].map((s, i) => MakeFakeMeasurement({station_id: fakeStations[0].id, created_at: new Date(`20${i > 9 ? i : "0"+i}-01-01`)}) )
+const fakeMeasurements = [...Array(50)].map((s, i) => MakeFakeMeasurement({ station_id: fakeStations[0].id, created_at: new Date(`20${i > 9 ? i : "0"+i}-01-01`)}) )
 describe("Stations Pg Repository", () =>{
 
      beforeAll(async ()=>{
@@ -37,24 +38,26 @@ describe("Stations Pg Repository", () =>{
 
 
      describe("find MeasurementsByInterval", () => {
-  
-          test("should return null if no measurement were found", async () =>{
+ 
+          test("should return no measurement", async () =>{
                const sut = makeSut();
                var result = await sut.findMeasurementsByInterval(v4(),new Date('3000-10-01'), new Date('4000-10-01'))
-               expect(result).toEqual(null)
-          })
-          test("should find measurements", async () =>{
+               expect(result).toEqual(MakeFakeMeasurementMetrics({
+                    amount:0,
+                    end_limit: new Date('4000-10-01'),
+                    start_limit: new Date('3000-10-01')
+               })) 
+          })  
+          test("should find measurements metrics", async () =>{
                const sut = makeSut();
-               const result = await sut.findMeasurementsByInterval(fakeStations[0].id, new Date('2000-01-01'), new Date('2049-01-01'))
-               expect(result.total).toBe(50)
-               expect(result.data).toHaveLength(50)
-          })
+               const result = await sut.findMeasurementsByInterval(fakeStations[0].id, new Date('2000-01-01'), new Date('2049-01-01'));
+               expect(result.amount).toBe(50)
+          }) 
           test("should find 1/2 of the measurements", async () =>{
                const sut = makeSut();
                const result = await sut.findMeasurementsByInterval(fakeStations[0].id, new Date('2025-01-01'), new Date('2049-01-01'))
-               expect(result.total).toBe(50)
-               expect(result.data).toHaveLength(25)
-          })
+               expect(result.amount).toBe(25)
+          }) 
        
      })
      describe("Find Measurements", () => {

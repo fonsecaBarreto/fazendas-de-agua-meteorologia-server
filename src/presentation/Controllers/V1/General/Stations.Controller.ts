@@ -4,11 +4,8 @@ import { Station_CreateBodySchema, Station_OptionalIdParams, Station_RequiredIdP
 import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { AddressView } from "../../../../domain/Views/AddressView";
-import { UsersRole } from "../../../../domain/Entities/User";
-import { IStationRepository } from "../../../../domain/Interfaces";
 import { IPermissionsServices } from "../../../../domain/Services/Users/Permision_Services";
 import { UserNotAllowedError } from "../../../../domain/Errors/UsersErrors";
-import { query } from "express";
 
 export class CreateStationController extends BaseController {
      constructor(
@@ -118,41 +115,5 @@ export class FindStationController extends BaseController {
      }
 }
 
-//
-export class FindStationWithIntervalController extends BaseController {
-     constructor(
-          private readonly _permissionService: IPermissionsServices, 
-          private readonly stationsServices: Pick<IStationService, 'findWithMeasumentsByInterval'>,
-   
-     ){ super(AccessType.ANY_USER, {   params: Station_RequiredIdParams  })}
 
-     async handler(request: Request): Promise<Response> {
-
-          const { user, params } = request
-          const { id : station_id } = params;
-
-          var start_date = isNaN(request.query.s) ? new Date() : new Date(Number(request.query.s));
-          var end_date = isNaN(request.query.e) ? new Date() : new Date( Number(request.query.e));
-          
-          try{
-
-               const isAllowed = await this._permissionService.isUserAllowedToStation({ user, station_id }) 
-               if(!isAllowed) return Forbidden(new UserNotAllowedError())
-               
-               const station= await this.stationsServices.findWithMeasumentsByInterval(station_id, start_date, end_date)
-               if(!station) return Ok(null)
-               
-               return Ok({ 
-                    ...station, 
-                    address: station.address ? new AddressView(station.address).getLabelView() : null 
-               })
-               
-          }catch(err){
-               if(err instanceof StationNotFoundError){
-                    return NotFound(err)
-               }
-               throw err
-          } 
-     }
-}
 
