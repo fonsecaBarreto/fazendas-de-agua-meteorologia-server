@@ -1,9 +1,6 @@
 
-import { name } from 'faker'
-import { sign, verify, JsonWebTokenError  } from 'jsonwebtoken'
+import { sign, verify  } from 'jsonwebtoken'
 import { IEncrypter } from '../domain/Interfaces/IEncrypter'
-
-
 
 export class JsonWebTokenAdapter implements IEncrypter {
     constructor(

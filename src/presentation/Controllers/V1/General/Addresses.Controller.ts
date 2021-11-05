@@ -1,14 +1,12 @@
 import { IAddressesServices } from "../../../../domain/Services/Addresses/Addresses_Services";
 import { AccessType, BadRequest, BaseController, Ok } from "../../../Protocols/BaseController";
-import { Forbidden, NotFound, Request, Response, Unauthorized } from "../../../Protocols/Http";
+import { Forbidden, NotFound, Request, Response } from "../../../Protocols/Http";
 import { Address_Http_Dtos } from '../../../Models/Schemas/AddressSchemas'
 import { AddressNotFoundError, AddressUfInvalidError } from "../../../../domain/Errors/AddressesErrors";
 import { AddressView } from "../../../../domain/Views/AddressView";
 import { Address } from "../../../../domain/Entities/Address";
-import { UsersRole } from "../../../../domain/Entities/User";
-import { IAddressRepository } from "../../../../domain/Interfaces";
-import { IPermissionsServices } from "@/domain/Services/Users/Permision_Services";
-import { UserNotAllowedError } from "@/domain/Errors";
+import { IPermissionsServices } from "../../../../domain/Services/Users/Permision_Services";
+import { UserNotAllowedError } from "../../../../domain/Errors";
 
 //POST /addresses
 export class CreateAddressController extends BaseController {

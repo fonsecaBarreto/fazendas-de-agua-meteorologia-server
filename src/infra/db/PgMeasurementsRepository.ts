@@ -1,4 +1,3 @@
-import { Knex } from "knex";
 import { Measurement } from "../../domain/Entities/Measurements";
 import { IMeasurementsRepository } from "../../domain/Interfaces";
 import KnexAdapter from './KnexAdapter'

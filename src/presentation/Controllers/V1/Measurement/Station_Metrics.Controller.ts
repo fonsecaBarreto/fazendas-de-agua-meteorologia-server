@@ -1,9 +1,9 @@
-import { StationNotFoundError, UserNotAllowedError } from "@/domain/Errors"
-import { IFindStationMetricsService } from "@/domain/Services/Stations/Station_Metrics_Services"
-import { IPermissionsServices } from "@/domain/Services/Users/Permision_Services"
-import { AddressView } from "@/domain/Views"
-import { Station_RequiredIdParams } from "@/presentation/Models/Schemas/StationsSchemas"
-import { AccessType, BaseController, Forbidden, NotFound, Ok, Request, Response } from "@/presentation/Protocols/BaseController"
+import { StationNotFoundError, UserNotAllowedError } from "../../../../domain/Errors"
+import { IFindStationMetricsService } from "../../../../domain/Services/Stations/Station_Metrics_Services"
+import { IPermissionsServices } from "../../../../domain/Services/Users/Permision_Services"
+import { AddressView } from "../../../../domain/Views"
+import { Station_RequiredIdParams } from "../../../Models/Schemas/StationsSchemas"
+import { AccessType, BaseController, Forbidden, NotFound, Ok, Request, Response } from "../../../Protocols/BaseController"
 
 export class FindStationMetricsController extends BaseController {
      constructor(

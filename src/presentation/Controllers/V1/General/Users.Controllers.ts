@@ -1,4 +1,4 @@
-import { AccessType, BaseController, Forbidden, Ok } from "@/presentation/Protocols/BaseController";
+import { AccessType, BaseController, Forbidden, Ok } from "../../../Protocols/BaseController";
 import { NotFound, Request, Response } from "../../../Protocols/Http";
 import { IUsersServices } from "../../../../domain/Services/Users/Users_Services";
 import { UserNameInUseError, UserNotFoundError, UserRoleIsInvalidError } from "../../../../domain/Errors/UsersErrors";

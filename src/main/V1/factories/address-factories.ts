@@ -7,8 +7,8 @@ import { AddressesServices } from '../../../domain/Services/Addresses/Addresses_
 /* dependencies */
 import { UuidAdapter } from '../../../infra'
 import { PgAddressesRepository } from '../../../infra/db/PgAddressesRepository'
-import { PgStationsRepository } from '@/infra/db'
-import { PermissionsServices } from '@/domain/Services/Users/Permision_Services'
+import { PgStationsRepository } from '../../../infra/db'
+import { PermissionsServices } from '../../../domain/Services/Users/Permision_Services'
 
 
 export default (keys: ENV_VARIABLES)=>{

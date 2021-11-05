@@ -12,7 +12,7 @@ const createMeasurement = ( station_id, i ) =>{
      return ({
           id: v4(), station_id, coordinates: JSON.stringify([123,123,123]),
           created_at: initial_date,
-          temperature: Math.floor( Math.random() * ( 20 ) + 20),
+          temperature: Math.floor( Math.random() * ( 40 ) + 10),
           airHumidity:  Math.floor( Math.random() * 100 ),
           windSpeed:  Math.floor( Math.random() * 20 ) + 10,
           windDirection: CardialPointsList[Math.floor( Math.random() * CardialPointsList.length )] ,

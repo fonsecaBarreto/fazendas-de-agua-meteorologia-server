@@ -1,6 +1,6 @@
 import { IStationService } from "../../../../domain/Services/Stations/Station_Services";
 import { AccessType, BaseController, Ok, NotFound, Request, Response, Unauthorized, Forbidden  } from "../../../Protocols/BaseController";
-import { Station_CreateBodySchema, Station_OptionalIdParams, Station_RequiredIdParams, Station_UpdateBodySchema } from '../../../Models/Schemas/StationsSchemas'
+import { Station_CreateBodySchema, Station_RequiredIdParams, Station_UpdateBodySchema } from '../../../Models/Schemas/StationsSchemas'
 import { AddressNotFoundError } from "../../../../domain/Errors/AddressesErrors";
 import { StationNotFoundError } from "../../../../domain/Errors/StationsErrors";
 import { AddressView } from "../../../../domain/Views/AddressView";

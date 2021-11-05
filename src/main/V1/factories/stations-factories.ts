@@ -5,11 +5,10 @@ import { FindStationMetricsController } from '../../../presentation/Controllers/
 /* services */
 import { StationsServices } from '../../../domain/Services/Stations/Station_Services'
 import { PermissionsServices } from '../../../domain/Services/Users/Permision_Services'
-
 /* dependencies */
 import { PgStationsRepository, PgAddressesRepository } from '../../../infra/db'
 import { UuidAdapter } from '../../../infra'
-import FindStationMetricService from '@/domain/Services/Stations/Station_Metrics_Services'
+import FindStationMetricService from '../../../domain/Services/Stations/Station_Metrics_Services'
 
 export default (keys: ENV_VARIABLES)=>{
 

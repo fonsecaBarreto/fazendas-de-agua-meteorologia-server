@@ -1,12 +1,9 @@
-import knex from "knex";
-import { Measurement } from "../../domain/Entities/Measurements";
 import { Station } from "../../domain/Entities/Station";
 import { IStationRepository } from "../../domain/Interfaces/repositories/IStationRepository";
-import { StationView, SMPageFeed, MeasurementMetrics } from "@/domain/Views/";
+import { StationView, SMPageFeed, MeasurementMetrics } from "../../domain/Views/";
 import KnexAdapter from "./KnexAdapter";
 
 import { PgBaseRepository } from "./PgBaseRepository";
-import { convertTypeAcquisitionFromJson } from "typescript";
 
 export class PgStationsRepository extends PgBaseRepository<Station> implements IStationRepository {
      constructor(){
