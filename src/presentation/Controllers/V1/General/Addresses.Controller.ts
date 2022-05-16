@@ -98,8 +98,8 @@ export class FindAddresController extends BaseController {
           const viewMode = query.v;
           const { id: address_id } = params;
 
-          const isAllowed = await this._permissionService.isUserRelatedToAddress({ user, address_id }) 
-          if(!isAllowed) return Forbidden(new UserNotAllowedError())
+          /* const isAllowed = await this._permissionService.isUserRelatedToAddress({ user, address_id }) 
+          if(!isAllowed) return Forbidden(new UserNotAllowedError()) */
 
           const address: AddressView = await this.addressesServices.find(address_id)
           if(!address) return Ok(null);
