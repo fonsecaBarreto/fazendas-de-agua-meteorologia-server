@@ -63,7 +63,7 @@ export class UpdateAddressController extends BaseController {
 export class ListAddressController extends BaseController {
      constructor(
           private readonly addressesServices: Pick<IAddressesServices, 'list'>
-     ){ super(AccessType.ADMIN)}
+     ){ super(AccessType.PUBLIC)}
 
      async handler(request: Request): Promise<Response> {
 
@@ -87,7 +87,7 @@ export class FindAddresController extends BaseController {
           private readonly _permissionService: Pick<IPermissionsServices, 'isUserRelatedToAddress'>, 
           private readonly addressesServices: Pick<IAddressesServices, 'find' >,
 
-     ){ super(AccessType.ANY_USER, { 
+     ){ super(AccessType.PUBLIC, { 
           params: Address_Http_Dtos.Address_Params_Schema
      })}
 
