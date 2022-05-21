@@ -32,7 +32,7 @@ const createStation = (address_id) =>({
 
 
 function createJSON(){
-     const addresses = [ createAddress(), ...([...Array(6)].map(()=>createAddress()))];
+     const addresses = [ ...([...Array(6)].map(()=>createAddress())) ];
      const stations=  [ createStation(addresses[0].id) ];
      const admins = [ createUser(1, "admin", "Administrador Super") ];
      const users= [ createUser(0, 'user_basic', "Usuario Basico"), ...([...Array(2)].map((j,i)=>createUser(0, `user_basic_0${i}`, `Usuario Basico ${i}`)))]
