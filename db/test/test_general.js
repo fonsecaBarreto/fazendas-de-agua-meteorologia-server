@@ -31,8 +31,31 @@ const createStation = (address_id) =>({
 })
 
 
+
 function createJSON(){
-     const addresses = [ ...([...Array(6)].map(()=>createAddress())) ];
+     const addresses = [
+          {
+               id: v4(),
+               street: "R. Aloísio da Silva Gomes",
+               region:"Granja dos Cavaleiros",
+               uf: "RJ",
+               number:'50',
+               city: "Macaé",
+               details: "Polo Universitario",
+               postalCode: "27930560"
+          },
+          {
+               id: v4(),
+               street: "R. Santa Marta 1072",
+               region:"Liberdade",
+               uf: "RJ",
+               number:'1072',
+               city: "Rio das Ostras",
+               details: "Casa Lucas",
+               postalCode: "28893693"
+          }
+     ]
+     //const addresses = [ ...([...Array(6)].map(()=>createAddress())) ];
      const stations=  [ createStation(addresses[0].id) ];
      const admins = [ createUser(1, "admin", "Administrador Super") ];
      const users= [ createUser(0, 'user_basic', "Usuario Basico"), ...([...Array(2)].map((j,i)=>createUser(0, `user_basic_0${i}`, `Usuario Basico ${i}`)))]
